@@ -1,15 +1,23 @@
 # raccoon
 WIP App orchestration, configuration and deployment
 
+## Try it
+
+```bash
+go build; ./raccoon
+```
+
 ### Features
-<input type="checkbox">Pretty Output in real time</input><br>
-<input type="checkbox">Dockerfile Syntax to ease learning path</input><br>
-<input type="checkbox">API REST</input><br>
-<input type="checkbox">Support for JSON syntax parsing. Nice YAML and TOML</input><br>
+* Pretty Output in real time
+* Dockerfile Syntax to ease learning path
+* API REST
+* Support for JSON syntax parsing. Nice YAML and TOML
+* CLI
 
 ### TODO
-<input type="checkbox">Automation tests</input><br>
-<input type="checkbox">JSON Parsing</input><br>
-<input type="checkbox">Templating</input><br>
-<input type="checkbox">Target information retrieval</input><br>
-<input type="checkbox">Target "gathering facts"</input><br>
+* Automation tests
+* JSON Parsing
+* Templating
+* Target information retrieval
+* Target "gathering facts"
+* CLI with codegansta
