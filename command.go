@@ -59,4 +59,8 @@ func ExecuteCommandOnNode(c Command, n Node) {
 	go io.Copy(os.Stderr, stderr)
 
 	session.Run(c.Command)
+
+	wg.Done()
+
+	log.Println("----------------------> Finished!!")
 }

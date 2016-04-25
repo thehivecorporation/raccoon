@@ -1,6 +1,11 @@
 package main
 
-import "log"
+import (
+	"time"
+	"sync"
+)
+
+var wg sync.WaitGroup
 
 type Command struct {
 	Name    string
@@ -37,9 +42,15 @@ func main() {
 		Password: "vagrant",
 		IP:       "192.168.33.10",
 	}
+	node2 := Node{
+		Username: "vagrant",
+		Password: "vagrant",
+		IP:       "192.168.33.11",
+	}
 
-	nodes := make([]Node, 1)
+	nodes := make([]Node, 2)
 	nodes[0] = node
+	nodes[1] = node2
 
 	cluster := Cluster {
 		Nodes: nodes,
@@ -55,9 +66,15 @@ func main() {
 		Command: "sudo yum install -y tar",
 	}
 
-	commands := make([]Command, 2)
+	command3 := Command{
+		Name:    "Showing root path files and folders",
+		Command: "ls -la /",
+	}
+
+	commands := make([]Command, 3)
 	commands[0] = command1
 	commands[1] = command2
+	commands[2] = command3
 
 	recipe := Recipe{
 		Commands: commands,
@@ -68,12 +85,10 @@ func main() {
 		Recipe: recipe,
 	}
 
-	quit := make(chan bool)
 
-	Dispatch(job, quit)
+	Dispatch(job)
 
-	for _ = range quit {
-		log.Println("Finished")
-		break
-	}
+	time.Sleep(15 * time.Second)
+
+	wg.Wait()
 }
