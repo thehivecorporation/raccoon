@@ -9,6 +9,8 @@ import (
 )
 
 func ExecuteCommandOnNode(c Command, n Node) {
+	log.Printf("----------------------> Command: %s on node %s\n", c.Name, n.IP)
+
 	sshConfig := &ssh.ClientConfig{
 		User: n.Username,
 		Auth: []ssh.AuthMethod{
@@ -18,7 +20,8 @@ func ExecuteCommandOnNode(c Command, n Node) {
 
 	connection, err := ssh.Dial("tcp", n.IP+":22", sshConfig)
 	if err != nil {
-		log.Fatal("Failed to dial: %s", err)
+		log.Printf("Failed to dial: %s\n", n.IP)
+		log.Fatal(err)
 	}
 
 	session, err := connection.NewSession()
@@ -55,9 +58,5 @@ func ExecuteCommandOnNode(c Command, n Node) {
 	}
 	go io.Copy(os.Stderr, stderr)
 
-	log.Printf("Command: %s\n", c.Name)
-	err = session.Run(c.Command)
-	if err != nil {
-		log.Fatal(err)
-	}
+	session.Run(c.Command)
 }

@@ -1,5 +1,7 @@
 package main
 
+import "log"
+
 type Command struct {
 	Name    string
 	Command string
@@ -26,8 +28,7 @@ type Recipe struct {
 
 type Job struct {
 	Cluster
-	Recipe Recipe
-	Output chan string
+	Recipe
 }
 
 func main() {
@@ -37,10 +38,42 @@ func main() {
 		IP:       "192.168.33.10",
 	}
 
-	command := Command{
+	nodes := make([]Node, 1)
+	nodes[0] = node
+
+	cluster := Cluster {
+		Nodes: nodes,
+	}
+
+	command1 := Command{
 		Name:    "Install EPEL repo",
 		Command: "sudo yum install -y epel",
 	}
 
-	ExecuteCommandOnNode(command, node)
+	command2 := Command{
+		Name:    "Install tar",
+		Command: "sudo yum install -y tar",
+	}
+
+	commands := make([]Command, 2)
+	commands[0] = command1
+	commands[1] = command2
+
+	recipe := Recipe{
+		Commands: commands,
+	}
+
+	job := Job{
+		Cluster: cluster,
+		Recipe: recipe,
+	}
+
+	quit := make(chan bool)
+
+	Dispatch(job, quit)
+
+	for _ = range quit {
+		log.Println("Finished")
+		break
+	}
 }
