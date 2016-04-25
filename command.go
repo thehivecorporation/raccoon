@@ -9,7 +9,7 @@ import (
 )
 
 func ExecuteCommandOnNode(c Command, n Node) {
-	log.Printf("----------------------> Command: %s on node %s\n", c.Name, n.IP)
+	log.Printf("----------------------> Command: %s on node %s\n", c.Description, n.IP)
 
 	sshConfig := &ssh.ClientConfig{
 		User: n.Username,

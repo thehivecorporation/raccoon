@@ -8,8 +8,8 @@ import (
 var wg sync.WaitGroup
 
 type Command struct {
-	Name    string
-	Command string
+	Description string
+	Command     string
 }
 
 type Host struct {
@@ -57,17 +57,17 @@ func main() {
 	}
 
 	command1 := Command{
-		Name:    "Install EPEL repo",
+		Description:    "Install EPEL repo",
 		Command: "sudo yum install -y epel",
 	}
 
 	command2 := Command{
-		Name:    "Install tar",
+		Description:    "Install tar",
 		Command: "sudo yum install -y tar",
 	}
 
 	command3 := Command{
-		Name:    "Showing root path files and folders",
+		Description:    "Showing root path files and folders",
 		Command: "ls -la /",
 	}
 

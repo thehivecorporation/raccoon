@@ -3,6 +3,7 @@ WIP App orchestration, configuration and deployment
 
 ## Try it
 
+Prerequesites: Having 2 Vagrant images running in 192.168.33.10-11
 ```bash
 go build; ./raccoon
 ```
