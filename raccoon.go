@@ -1,59 +1,46 @@
 package main
 
-import (
-	"io"
-	"log"
-	"os"
+type Command struct {
+	Name    string
+	Command string
+}
 
-	"golang.org/x/crypto/ssh"
-)
+type Host struct {
+	IP string
+}
+
+type Node struct {
+	IP           string
+	Username     string
+	Password     string
+	AuthFilePath string
+}
+
+type Cluster struct {
+	Nodes []Node
+}
+
+type Recipe struct {
+	Commands []Command
+}
+
+type Job struct {
+	Cluster
+	Recipe Recipe
+	Output chan string
+}
 
 func main() {
-	sshConfig := &ssh.ClientConfig{
-		User: "vagrant",
-		Auth: []ssh.AuthMethod{
-			ssh.Password("vagrant"),
-		},
+	node := Node{
+		Username: "vagrant",
+		Password: "vagrant",
+		IP:       "192.168.33.10",
 	}
 
-	connection, err := ssh.Dial("tcp", "192.168.33.10:22", sshConfig)
-	if err != nil {
-		log.Fatal("Failed to dial: %s", err)
+	command := Command{
+		Name:    "Install EPEL repo",
+		Command: "sudo yum install -y epel",
 	}
 
-	session, err := connection.NewSession()
-	if err != nil {
-		log.Fatal("Failed to create session: %s", err)
-	}
-
-	modes := ssh.TerminalModes{
-		ssh.ECHO:          0,     // disable echoing
-		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
-		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
-	}
-
-	if err := session.RequestPty("xterm", 80, 40, modes); err != nil {
-		session.Close()
-		log.Fatal("request for pseudo terminal failed: %s", err)
-	}
-
-	stdin, err := session.StdinPipe()
-	if err != nil {
-		log.Fatal("Unable to setup stdin for session: %v", err)
-	}
-	go io.Copy(stdin, os.Stdin)
-
-	stdout, err := session.StdoutPipe()
-	if err != nil {
-		log.Fatal("Unable to setup stdout for session: %v", err)
-	}
-	go io.Copy(os.Stdout, stdout)
-
-	stderr, err := session.StderrPipe()
-	if err != nil {
-		log.Fatal("Unable to setup stderr for session: %v", err)
-	}
-	go io.Copy(os.Stderr, stderr)
-
-	err = session.Run("sudo yum install -y epel")
+	ExecuteCommandOnNode(command, node)
 }
