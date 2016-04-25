@@ -1,94 +1,39 @@
 package main
 
 import (
-	"time"
-	"sync"
+	"github.com/thehivecorporation/raccoon/connection"
+	"github.com/thehivecorporation/raccoon/dispatcher"
+	"github.com/thehivecorporation/raccoon/instructions"
+	"github.com/thehivecorporation/raccoon/job"
 )
 
-var wg sync.WaitGroup
-
-type Command struct {
-	Description string
-	Command     string
-}
-
-type Host struct {
-	IP string
-}
-
-type Node struct {
-	IP           string
-	Username     string
-	Password     string
-	AuthFilePath string
-}
-
-type Cluster struct {
-	Nodes []Node
-}
-
-type Recipe struct {
-	Commands []Command
-}
-
-type Job struct {
-	Cluster
-	Recipe
-}
 
 func main() {
-	node := Node{
+	node := connection.Node{
 		Username: "vagrant",
 		Password: "vagrant",
 		IP:       "192.168.33.10",
 	}
-	node2 := Node{
-		Username: "vagrant",
-		Password: "vagrant",
-		IP:       "192.168.33.11",
-	}
 
-	nodes := make([]Node, 2)
+	nodes := make([]connection.Node, 1)
 	nodes[0] = node
-	nodes[1] = node2
 
-	cluster := Cluster {
+	cluster := connection.Cluster{
 		Nodes: nodes,
 	}
 
-	command1 := Command{
-		Description:    "Install EPEL repo",
-		Command: "sudo yum install -y epel",
+	demo_instructions := make([]instructions.Instruction, 2)
+	demo_instructions[0] = &instructions.CMD{"CMD","Install EPEL repo","sudo yum install -y epel"}
+	demo_instructions[1] = &instructions.CMD{"CMD", "Install tar", "sudo yum install -y tar"}
+
+	recipe := job.Recipe{
+		Instructions: demo_instructions,
 	}
 
-	command2 := Command{
-		Description:    "Install tar",
-		Command: "sudo yum install -y tar",
-	}
-
-	command3 := Command{
-		Description:    "Showing root path files and folders",
-		Command: "ls -la /",
-	}
-
-	commands := make([]Command, 3)
-	commands[0] = command1
-	commands[1] = command2
-	commands[2] = command3
-
-	recipe := Recipe{
-		Commands: commands,
-	}
-
-	job := Job{
+	job := job.Job{
 		Cluster: cluster,
-		Recipe: recipe,
+		Recipe:  recipe,
 	}
 
-
-	Dispatch(job)
-
-	time.Sleep(15 * time.Second)
-
-	wg.Wait()
+	dispatcher.Dispatch(job)
 }
