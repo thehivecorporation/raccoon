@@ -7,7 +7,6 @@ import (
 	"github.com/thehivecorporation/raccoon/job"
 )
 
-
 func main() {
 	node := connection.Node{
 		Username: "vagrant",
@@ -23,8 +22,8 @@ func main() {
 	}
 
 	demo_instructions := make([]instructions.Instruction, 2)
-	demo_instructions[0] = &instructions.CMD{"CMD","Install EPEL repo","sudo yum install -y epel"}
-	demo_instructions[1] = &instructions.CMD{"CMD", "Install tar", "sudo yum install -y tar"}
+	demo_instructions[0] = &instructions.RUN{"RUN", "Install EPEL repo", "sudo yum install -y epel"}
+	demo_instructions[1] = &instructions.RUN{"RUN", "Install tar", "sudo yum install -y tar"}
 
 	recipe := job.Recipe{
 		Instructions: demo_instructions,

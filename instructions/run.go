@@ -11,21 +11,21 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-//CMD is a instruction that in the recipe file correspond to the CMD instruction.
+//RUN is a instruction that in the recipe file correspond to the CMD instruction.
 //It will execute the "Command" on every machine. Ideally, every command must
 //be bash
-type CMD struct {
+type RUN struct {
 	Name        string
 	Description string
-	Command     string
+	Instruction     string
 }
 
 //Execute is the implementation of the Instruction interface for a CMD instruction
-func (c *CMD) Execute(n connection.Node) {
+func (c *RUN) Execute(n connection.Node) {
 	executeCommandOnNode(*c, n)
 }
 
-func executeCommandOnNode(c CMD, n connection.Node) {
+func executeCommandOnNode(c RUN, n connection.Node) {
 	log.WithFields(log.Fields{
 		"Instruction": "CMD",
 		"Node":        n.IP,
@@ -73,5 +73,5 @@ func executeCommandOnNode(c CMD, n connection.Node) {
 	}
 	go io.Copy(os.Stderr, stderr)
 
-	session.Run(c.Command)
+	session.Run(c.Instruction)
 }
