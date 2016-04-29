@@ -18,7 +18,7 @@ func ReadMansionFile(f string) (*mansion, error) {
 
 	log.WithFields(log.Fields{
 		constants.HOST_NAME: f,
-	}).Info("------------------------------> Reading " + constants.HOSTS_FLAG_NAME + " file")
+	}).Info(constants.ARROW_LENGTH + "Reading " + constants.HOSTS_FLAG_NAME + " file")
 
 	var mansion_ mansion
 

@@ -20,7 +20,8 @@ type book struct {
 func ReadZbookFile(f string) (job.Zbook, error) {
 	log.WithFields(log.Fields{
 		constants.INSTRUCTIONS_NAME: f,
-	}).Info("------------------------------> Reading " + constants.INSTRUCTIONS_NAME + " file")
+	}).Info(constants.ARROW_LENGTH + "Reading " + constants.INSTRUCTIONS_NAME +
+		" file")
 
 	var z book
 

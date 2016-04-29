@@ -32,3 +32,8 @@ const (
 	SERVER_NAME  = "server"
 	SERVER_USAGE = "Launch a server to receive Zombiebook JSON files"
 )
+
+//LOGGING
+const (
+	ARROW_LENGTH string = "------------------------------> "
+)
