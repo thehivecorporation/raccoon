@@ -27,7 +27,7 @@ func (c *RUN) Execute(n connection.Node) {
 
 func executeCommandOnNode(c RUN, n connection.Node) {
 	log.WithFields(log.Fields{
-		"Instruction": "CMD",
+		"Instruction": "RUN",
 		"Node":        n.IP,
 	}).Info("------------------------------> " + c.Description)
 

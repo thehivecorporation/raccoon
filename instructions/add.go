@@ -1,7 +1,6 @@
 package instructions
 
 import (
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/thehivecorporation/raccoon/connection"
@@ -10,7 +9,8 @@ import (
 type ADD struct {
 	SourcePath  string
 	DestPath    string
-	Instruction string
+	Description string
+	Name        string
 }
 
 //Execute is the implementation of the Instruction interface for a ADD instruction TODO
@@ -18,5 +18,7 @@ func (c *ADD) Execute(n connection.Node) {
 	log.WithFields(log.Fields{
 		"Instruction": "ADD",
 		"Node":        n.IP,
-	}).Info(fmt.Sprintf("------------------------------> ADD: %s on %s\n", c.SourcePath, c.DestPath))
+		"SourcePath":  c.SourcePath,
+		"DestPath":    c.DestPath,
+	}).Info("------------------------------> " + c.Description)
 }

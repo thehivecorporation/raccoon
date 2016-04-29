@@ -1,0 +1,17 @@
+{
+  "book_title": "A title",
+  "maintainer": "Burkraith",
+  "instructions": [
+    {
+      "name": "RUN",
+      "description": "Install htop",
+      "instruction": "sudo yum install -y htop"
+    },
+    {
+      "name": "ADD",
+      "description": "Copying conf file",
+      "sourcePath": "/tmp/asdfad",
+      "destPath": "/tmp/folder"
+    }
+  ]
+}
