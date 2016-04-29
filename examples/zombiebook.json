@@ -1,0 +1,27 @@
+{
+
+  "RUN" :[
+    {
+      "Name" : "CMD",
+      "Description" : "Install htop",
+      "Instruction" : "sudo yum install -y htop"},
+    {
+      "Name" : "CMD",
+      "Description" : "Install gcc",
+      "Instruction" : "sudo yum install -y gcc"
+    }
+  ],
+  "ADD" :[
+    {
+      "SourcePath" : "/tmp",
+      "DestPath" : "/home",
+      "Instruction" : "cp tmpfile.json"},
+    {
+      "SourcePath" : "/home",
+      "DestPath" : "/tmp",
+      "Instruction" : "cp file.json"
+    }
+  ]
+
+}
+

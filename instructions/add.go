@@ -1,16 +1,16 @@
 package instructions
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/thehivecorporation/raccoon/connection"
 )
 
 type ADD struct {
-	SourcePath        string
-	DestPath string
-	Instruction        string
+	SourcePath  string
+	DestPath    string
+	Instruction string
 }
 
 //Execute is the implementation of the Instruction interface for a ADD instruction TODO
