@@ -27,15 +27,16 @@ func executeZombieBook(c *cli.Context) {
 	}
 
 	//Check for the mansion specified in the -m flag
-	clusters, err := parser.ReadMansionFile(c.String(constants.HOSTS_FLAG_NAME))
+	mansion, err := parser.ReadMansionFile(c.String(constants.HOSTS_FLAG_NAME))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	//Generate jobs
-	jobs := make([]job.Job, len(*clusters))
-	for i, c := range *clusters {
+	jobs := make([]job.Job, len(mansion.Rooms))
+	for i, c := range mansion.Rooms {
 		jobs[i] = job.Job{
+			GroupName: mansion.Name,
 			Cluster: &c,
 			Zbook:   &zbook,
 		}

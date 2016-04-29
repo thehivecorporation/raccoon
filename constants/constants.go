@@ -23,6 +23,8 @@ const (
 	HOST_LAUNCH_MESSAGE string = "Entering " + HOST_NAME + "..."
 	HOSTS_FLAG_ALIAS    string = "mansion, m"
 	HOSTS_FLAG_USAGE    string = "The Mansion file"
+
+	GROUP_NAME string = "mansion"
 )
 
 //SERVER

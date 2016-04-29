@@ -16,7 +16,10 @@ var wg sync.WaitGroup
 //with the recipe to execute.
 func Dispatch(js *[]job.Job) {
 	for _, j := range *js {
-		log.WithField(constants.HOST_NAME,j.Cluster.Name).Info(
+		log.WithFields(log.Fields{
+			constants.HOST_NAME:j.Cluster.Name,
+			constants.GROUP_NAME:j.GroupName,
+		}).Info(
 			constants.HOST_LAUNCH_MESSAGE)
 
 		for _, node := range j.Cluster.Nodes {

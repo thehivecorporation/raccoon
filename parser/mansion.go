@@ -14,7 +14,7 @@ type mansion struct {
 	Rooms []connection.Cluster `json:"rooms"`
 }
 
-func ReadMansionFile(f string) (*[]connection.Cluster, error) {
+func ReadMansionFile(f string) (*mansion, error) {
 
 	log.WithFields(log.Fields{
 		constants.HOST_NAME: f,
@@ -32,5 +32,5 @@ func ReadMansionFile(f string) (*[]connection.Cluster, error) {
 		return nil, err
 	}
 
-	return &mansion.Rooms, nil
+	return &mansion, nil
 }
