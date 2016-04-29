@@ -19,8 +19,8 @@ func Dispatch(js *[]job.Job) {
 		log.WithFields(log.Fields{
 			constants.HOST_NAME:j.Cluster.Name,
 			constants.GROUP_NAME:j.GroupName,
-		}).Info(
-			constants.HOST_LAUNCH_MESSAGE)
+		}).Info("------------------------------> " +
+		constants.HOST_LAUNCH_MESSAGE)
 
 		for _, node := range j.Cluster.Nodes {
 			wg.Add(len(j.Zbook.Instructions))
