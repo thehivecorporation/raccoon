@@ -1,19 +1,72 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
+	"github.com/codegangsta/cli"
 	"github.com/thehivecorporation/raccoon/connection"
 	"github.com/thehivecorporation/raccoon/dispatcher"
 	"github.com/thehivecorporation/raccoon/instructions"
 	"github.com/thehivecorporation/raccoon/job"
+	"encoding/json"
+	"io/ioutil"
+	"os"
 )
 
+type BOOK struct {
+	RUN []instructions.RUN
+	ADD []instructions.ADD
+}
+
+
 func main() {
+	var file string
+	var book BOOK
 	node := connection.Node{
 		Username: "vagrant",
 		Password: "vagrant",
 		IP:       "192.168.33.10",
 	}
 
+	raccoon_app := cli.NewApp()
+	raccoon_app.Name = "Racoon"
+	raccoon_app.Usage = "WIP App orchestration, configuration and deployment"
+	raccoon_app.Action = func(c *cli.Context) {
+		println("\n" +
+			"######      #      #####    #####   #######  #######  #     # \n" +
+			"#     #    # #    #     #  #     #  #     #  #     #  ##    # \n" +
+			"#     #   #   #   #        #        #     #  #     #  # #   # \n" +
+			"######   #     #  #        #        #     #  #     #  #  #  # \n" +
+			"#   #    #######  #        #        #     #  #     #  #   # # \n" +
+			"#    #   #     #  #     #  #     #  #     #  #     #  #    ## \n" +
+			"#     #  #     #   #####    #####   #######  #######  #     # \n")
+	}
+
+	raccoon_app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:        "file",
+			Value:       "JSON",
+			Usage:       "Read JSON Zombiebook",
+			Destination: &file,
+		},
+	}
+
+
+	raccoon_app.Action = func(c *cli.Context) {
+		log.WithFields(log.Fields{
+			"File": file,
+		}).Info("READING---------------------------------------> ")
+
+	}
+	raccoon_app.Run(os.Args)
+
+
+	dat, err := ioutil.ReadFile(file)
+	if err!=nil{
+		log.Error(err)
+	}
+	log.Info(string(dat))
+	json.Unmarshal([]byte(string(dat)), &book)
+	log.Info(book)
 	nodes := make([]connection.Node, 1)
 	nodes[0] = node
 

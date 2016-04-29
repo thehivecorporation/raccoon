@@ -17,7 +17,7 @@ import (
 type RUN struct {
 	Name        string
 	Description string
-	Instruction     string
+	Instruction string
 }
 
 //Execute is the implementation of the Instruction interface for a CMD instruction

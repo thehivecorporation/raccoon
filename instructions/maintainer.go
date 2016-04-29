@@ -8,7 +8,7 @@ import (
 
 type MAINTAINER struct {
 	Name        string
-	Instruction        string
+	Instruction string
 }
 
 //Execute is the implementation of the Instruction interface for a MAINTAINER instruction TODO
