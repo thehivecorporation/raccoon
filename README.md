@@ -4,8 +4,9 @@ WIP App orchestration, configuration and deployment
 ## Try it
 
 Prerequesites: Having 1 Centos Vagrant image running in 192.168.33.10
+Zombiebook example inside examples folder
 ```bash
-go build; ./raccoon
+go build; ./raccoon -file <PATH_TO_YOUR_ZOMBIEBOOK_FILE>
 ```
 
 ### Features

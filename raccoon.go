@@ -1,26 +1,19 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
+	"./book"
 	"github.com/codegangsta/cli"
 	"github.com/thehivecorporation/raccoon/connection"
 	"github.com/thehivecorporation/raccoon/dispatcher"
 	"github.com/thehivecorporation/raccoon/instructions"
 	"github.com/thehivecorporation/raccoon/job"
-	"encoding/json"
-	"io/ioutil"
 	"os"
 )
 
-type BOOK struct {
-	RUN []instructions.RUN
-	ADD []instructions.ADD
-}
-
-
 func main() {
 	var file string
-	var book BOOK
+	var zbook book.BOOK
+
 	node := connection.Node{
 		Username: "vagrant",
 		Password: "vagrant",
@@ -30,6 +23,13 @@ func main() {
 	raccoon_app := cli.NewApp()
 	raccoon_app.Name = "Racoon"
 	raccoon_app.Usage = "WIP App orchestration, configuration and deployment"
+	raccoon_app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:        "file, -f",
+			Usage:       "Read JSON Zombiebook",
+			Destination: &file,
+		},
+	}
 	raccoon_app.Action = func(c *cli.Context) {
 		println("\n" +
 			"######      #      #####    #####   #######  #######  #     # \n" +
@@ -39,34 +39,16 @@ func main() {
 			"#   #    #######  #        #        #     #  #     #  #   # # \n" +
 			"#    #   #     #  #     #  #     #  #     #  #     #  #    ## \n" +
 			"#     #  #     #   #####    #####   #######  #######  #     # \n")
-	}
 
-	raccoon_app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:        "file",
-			Value:       "JSON",
-			Usage:       "Read JSON Zombiebook",
-			Destination: &file,
-		},
-	}
-
-
-	raccoon_app.Action = func(c *cli.Context) {
-		log.WithFields(log.Fields{
-			"File": file,
-		}).Info("READING---------------------------------------> ")
+		if len(c.String("file"))!=0{
+			zombie_book := &book.BOOK{}
+			zbook = zombie_book.ReadZbook(file)
+		}
 
 	}
+
 	raccoon_app.Run(os.Args)
 
-
-	dat, err := ioutil.ReadFile(file)
-	if err!=nil{
-		log.Error(err)
-	}
-	log.Info(string(dat))
-	json.Unmarshal([]byte(string(dat)), &book)
-	log.Info(book)
 	nodes := make([]connection.Node, 1)
 	nodes[0] = node
 
@@ -74,9 +56,10 @@ func main() {
 		Nodes: nodes,
 	}
 
-	demo_instructions := make([]instructions.Instruction, 2)
-	demo_instructions[0] = &instructions.RUN{"RUN", "Install EPEL repo", "sudo yum install -y epel"}
-	demo_instructions[1] = &instructions.RUN{"RUN", "Install tar", "sudo yum install -y tar"}
+	demo_instructions := make([]instructions.Instruction, len(zbook.RUN))
+	for index,command := range zbook.RUN {
+		demo_instructions[index] = &instructions.RUN{command.Name,command.Description,command.Instruction}
+	}
 
 	recipe := job.Recipe{
 		Instructions: demo_instructions,
