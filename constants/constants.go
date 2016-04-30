@@ -25,6 +25,7 @@ const (
 	HOSTS_FLAG_USAGE    string = "The Mansion file"
 
 	GROUP_NAME string = "mansion"
+	MAINTAINER string = "maintainer"
 )
 
 //SERVER

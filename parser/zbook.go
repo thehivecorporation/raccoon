@@ -11,7 +11,7 @@ import (
 )
 
 type book struct {
-	Title           string              `json:"book_title"`
+	Title           string              `json:"chapter_title"`
 	Maintainer      string              `json:"maintainer"`
 	RawInstructions []map[string]string `json:"instructions"`
 }
@@ -23,39 +23,49 @@ func ReadZbookFile(f string) (job.Zbook, error) {
 	}).Info(constants.ARROW_LENGTH + "Reading " + constants.INSTRUCTIONS_NAME +
 		" file")
 
-	var z book
+	var bs []book
 
 	dat, err := ioutil.ReadFile(f)
 	if err != nil {
 		return job.Zbook{}, err
 	}
 
-	err = json.Unmarshal(dat, &z)
+	err = json.Unmarshal(dat, &bs)
 	if err != nil {
 		return job.Zbook{}, err
 	}
 
-	parsedInstructions := make([]instructions.InstructionExecutor, 0)
+	chapters := job.Zbook{}
 
-	for _, i := range z.RawInstructions {
-		switch i["name"] {
-		case "RUN":
-			run := instructions.RUN{
-				Name:        "RUN",
-				Description: i["description"],
-				Instruction: i["instruction"],
+	for _, z := range bs {
+		parsedInstructions := make([]instructions.InstructionExecutor, 0)
+
+		for _, i := range z.RawInstructions {
+			switch i["name"] {
+			case "RUN":
+				run := instructions.RUN{
+					Name:        "RUN",
+					Description: i["description"],
+					Instruction: i["instruction"],
+				}
+				parsedInstructions = append(parsedInstructions, &run)
+			case "ADD":
+				add := instructions.ADD{
+					SourcePath:  i["sourcePath"],
+					DestPath:    i["destPath"],
+					Description: i["description"],
+					Name:        "ADD",
+				}
+				parsedInstructions = append(parsedInstructions, &add)
 			}
-			parsedInstructions = append(parsedInstructions, &run)
-		case "ADD":
-			add := instructions.ADD{
-				SourcePath:  i["sourcePath"],
-				DestPath:    i["destPath"],
-				Description: i["description"],
-				Name:        "ADD",
-			}
-			parsedInstructions = append(parsedInstructions, &add)
 		}
+
+		chapters = append(chapters, job.Chapter{
+			Title:z.Title,
+			Maintainer:z.Maintainer,
+			Instructions:parsedInstructions,
+		})
 	}
 
-	return job.Zbook{Instructions: parsedInstructions}, nil
+	return chapters, nil
 }

@@ -3,9 +3,21 @@
   "rooms":[
     {
       "name":"some room",
+      "chapter":"chapter1",
       "hosts":[
         {
-          "ip":"192.168.1.42",
+          "ip":"192.168.1.44",
+          "username":"vagrant",
+          "password":"vagrant"
+        }
+      ]
+    },
+    {
+      "name":"some room2",
+      "chapter":"chapter2",
+      "hosts":[
+        {
+          "ip":"192.168.1.45",
           "username":"vagrant",
           "password":"vagrant"
         }

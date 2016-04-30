@@ -1,17 +1,30 @@
-{
-  "book_title": "A title",
-  "maintainer": "Burkraith",
-  "instructions": [
-    {
-      "name": "RUN",
-      "description": "Install htop",
-      "instruction": "sudo yum install -y htop"
-    },
-    {
-      "name": "ADD",
-      "description": "Copying conf file",
-      "sourcePath": "/tmp/asdfad",
-      "destPath": "/tmp/folder"
-    }
-  ]
-}
+[
+  {
+    "chapter_title": "chapter1",
+    "maintainer": "Burkraith",
+    "instructions": [
+      {
+        "name": "RUN",
+        "description": "Install htop",
+        "instruction": "sudo yum install -y htop"
+      },
+      {
+        "name": "ADD",
+        "description": "Copying conf file",
+        "sourcePath": "/tmp/asdfad",
+        "destPath": "/tmp/folder"
+      }
+    ]
+  },
+  {
+    "chapter_title": "chapter2",
+    "maintainer": "Mario",
+    "instructions": [
+      {
+        "name": "RUN",
+        "description": "Install wget",
+        "instruction": "sudo yum install -y wget"
+      }
+    ]
+  }
+]

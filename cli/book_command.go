@@ -1,6 +1,8 @@
 package raccoon_cli
 
 import (
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/thehivecorporation/raccoon/constants"
@@ -32,13 +34,18 @@ func executeZombieBook(c *cli.Context) {
 		log.Fatal(err)
 	}
 
-	//Generate jobs
-	jobs := make([]job.Job, len(mansion.Rooms))
-	for i, c := range mansion.Rooms {
-		jobs[i] = job.Job{
-			GroupName: mansion.Name,
-			Cluster: &c,
-			Zbook:   &zbook,
+	//Generate Jobs, each job must be associated with a chapter title.
+	jobs := make([]job.Job, 0)
+	for _, room := range mansion.Rooms {
+		//Each room is a cluster
+		for _, chapter := range zbook {
+			//Compare every assigned chapter to every cluster
+			if strings.ToLower(chapter.Title) == strings.ToLower(room.Chapter) {
+				jobs = append(jobs, job.Job{
+					Cluster: room,
+					Chapter: chapter,
+				})
+			}
 		}
 	}
 

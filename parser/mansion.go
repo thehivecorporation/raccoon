@@ -10,10 +10,13 @@ import (
 )
 
 type mansion struct {
-	Name  string               `json:"mansion_name"`
-	Rooms []connection.Cluster `json:"rooms"`
+	Name    string               `json:"mansion_name"`
+	Chapter string               `json:"chapter_title"`
+	Rooms   []connection.Cluster `json:"rooms"`
 }
 
+//ReadMansionFile takes a filepath with a json containing a Mansion file and
+//returns a Mansion file
 func ReadMansionFile(f string) (*mansion, error) {
 
 	log.WithFields(log.Fields{
@@ -32,17 +35,17 @@ func ReadMansionFile(f string) (*mansion, error) {
 		//Maybe is a single group file
 		var singleGroup []connection.Node
 		err = json.Unmarshal(dat, &singleGroup)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 
-		cluster := make([]connection.Cluster,1)
+		cluster := make([]connection.Cluster, 1)
 		cluster[0] = connection.Cluster{
-			Name:"main room",
+			Name:  "main room",
 			Nodes: singleGroup,
 		}
 		mansion_ = mansion{
-			Name: "Apartment",
+			Name:  "Apartment",
 			Rooms: cluster,
 		}
 
