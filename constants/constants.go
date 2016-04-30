@@ -3,7 +3,7 @@ package constants
 /* GLOBAL */
 
 const (
-	VERSION         string = "0.0.1"
+	VERSION         string = "0.1.0"
 	APP_DESCRIPTION string = "WIP App orchestration, configuration and deployment"
 	APP_NAME        string = "Raccoon"
 )
