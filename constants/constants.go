@@ -3,7 +3,7 @@ package constants
 /* GLOBAL */
 
 const (
-	VERSION         string = "0.1.0"
+	VERSION         string = "0.2.0"
 	APP_DESCRIPTION string = "WIP App orchestration, configuration and deployment"
 	APP_NAME        string = "Raccoon"
 )
@@ -32,6 +32,11 @@ const (
 const (
 	SERVER_NAME  = "server"
 	SERVER_USAGE = "Launch a server to receive Zombiebook JSON files"
+
+	PORT_FLAG_NAME = "port"
+	PORT_FLAG_ALIAS = "port, p"
+	PORT_FLAG_USAGE = "The port to run the server on"
+
 )
 
 //LOGGING

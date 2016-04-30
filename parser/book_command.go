@@ -1,17 +1,17 @@
-package raccoon_cli
+package parser
 
 import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
+	"github.com/thehivecorporation/raccoon/connection"
 	"github.com/thehivecorporation/raccoon/constants"
 	"github.com/thehivecorporation/raccoon/dispatcher"
 	"github.com/thehivecorporation/raccoon/job"
-	"github.com/thehivecorporation/raccoon/parser"
 )
 
-func executeZombieBook(c *cli.Context) {
+func ExecuteZombieBook(c *cli.Context) {
 	if c.String(constants.INSTRUCTIONS_NAME) == "" {
 		log.Fatalf("You must provide a %s file. Check raccoon %s --help",
 			constants.INSTRUCTIONS_NAME, constants.INSTRUCTIONS_NAME)
@@ -23,26 +23,34 @@ func executeZombieBook(c *cli.Context) {
 	}
 
 	//Check for the zombiebook specified in -f flag
-	zbook, err := parser.ReadZbookFile(c.String(constants.INSTRUCTIONS_NAME))
+	zbook, err := readZbookFile(c.String(constants.INSTRUCTIONS_NAME))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	//Check for the mansion specified in the -m flag
-	mansion, err := parser.ReadMansionFile(c.String(constants.HOSTS_FLAG_NAME))
+	mansion, err := readMansionFile(c.String(constants.HOSTS_FLAG_NAME))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//Generate Jobs, each job must be associated with a chapter title.
+	generateJobs(mansion, zbook)
+}
+
+//Generate Jobs, each job must be associated with a chapter title.
+func generateJobs(mansion *mansion, zbook job.Zbook) {
 	jobs := make([]job.Job, 0)
-	for _, room := range mansion.rooms {
+	for _, room := range mansion.Rooms {
 		//Each room is a cluster
 		for _, chapter := range zbook {
 			//Compare every assigned chapter to every cluster
 			if strings.ToLower(chapter.Title) == strings.ToLower(room.Chapter) {
 				jobs = append(jobs, job.Job{
-					Cluster: room,
+					Cluster: connection.Cluster{
+						Name:    room.Name,
+						Chapter: room.Chapter,
+						Nodes:   room.Hosts,
+					},
 					Chapter: chapter,
 				})
 			}

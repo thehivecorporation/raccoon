@@ -1,5 +1,5 @@
 {
-  "mansion_name":"A name",
+  "name":"A name",
   "rooms":[
     {
       "name":"some room",

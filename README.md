@@ -19,7 +19,7 @@ go build; ./raccoon zombiebook -z exampleBook.json -m exampleMansion.json
     - [x] RUN
     - [ ] ADD (WIP)
     - [ ] MAINTAINER (WIP)
-- [ ] API REST.
+- [x] API REST.
 - [x] Support for JSON syntax parsing
 - [ ] Support for TOML syntax
 - [x] CLI
@@ -29,7 +29,38 @@ go build; ./raccoon zombiebook -z exampleBook.json -m exampleMansion.json
 - [ ] Target "gathering facts"
 - [ ] Identity file auth.
 
+```bash
+NAME:
+   Raccoon - WIP App orchestration, configuration and deployment
+
+USAGE:
+   ./raccoon [global options] command [command options] [arguments...]
+
+VERSION:
+   0.1.1
+
+COMMANDS:
+   zombiebook	Execute a Zombiebook
+   server	Launch a server to receive Zombiebook JSON files
+   help, h	Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h		show help
+   --version, -v	print the version
+```
+
 ## Raccoon syntax
+```bash
+NAME:
+   ./raccoon zombiebook - Execute a Zombiebook
+
+USAGE:
+   ./raccoon zombiebook [command options] [arguments...]
+
+OPTIONS:
+   --zombiebook, -z 	Execute a Zombiebook
+   --mansion, -m 	The Mansion file
+```
 > In Raccoon, you'll have groups of remote commands (chapters of instructions)
 with a group ID. Then you'll make group of hosts (rooms) with references to this
 groups IDs (via chapters titles).
@@ -135,3 +166,91 @@ commands on.
 
 Each host has 3 parameters: **`ip`** of the host, **`username`** to access the
 host and **`password`** to provide access to the host.
+
+## Server
+
+```bash
+NAME:
+   ./raccoon server - Launch a server to receive Zombiebook JSON files
+
+USAGE:
+   ./raccoon server [command options] [arguments...]
+
+OPTIONS:
+   --port, -p "8123"	The port to run the server on
+```
+
+The server is launched using the `server` CLI command. You can pass a `-p` or a
+`--port` as argument to set the port you want to use with the server. It uses
+`8123` as default port.
+
+You use it passing a **`POST`** request to `/` with a JSON that contains a
+`"mansion"` key with the exact same syntax that a mansion file and a
+`"zombiebook"` key with also the exact same syntax that zombiebook file. For
+example:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d '
+{
+    "zombiebook":[
+        {
+            "chapter_title":"chapter1",
+            "maintainer":"Burkraith",
+            "instructions":[
+                {
+                    "name":"RUN",
+                    "description":"Install htop",
+                    "instruction":"sudo yum install -y htop"
+                },
+                {
+                    "name":"ADD",
+                    "description":"Copying conf file",
+                    "sourcePath":"/tmp/asdfad",
+                    "destPath":"/tmp/folder"
+                }
+            ]
+        },
+        {
+            "chapter_title":"chapter2",
+            "maintainer":"Mario",
+            "instructions":[
+                {
+                    "name":"RUN",
+                    "description":"Install wget",
+                    "instruction":"sudo yum install -y wget"
+                }
+            ]
+        }
+    ],
+    "mansion":{
+        "name":"A name",
+        "rooms":[
+            {
+                "name":"some room",
+                "chapter":"chapter1",
+                "hosts":[
+                    {
+                        "ip":"192.168.1.44",
+                        "username":"vagrant",
+                        "password":"vagrant"
+                    }
+                ]
+            },
+            {
+                "name":"some room2",
+                "chapter":"chapter2",
+                "hosts":[
+                    {
+                        "ip":"192.168.1.45",
+                        "username":"vagrant",
+                        "password":"vagrant"
+                    }
+                ]
+            }
+        ]
+    }
+}' "http://localhost:8123"
+
+```
+
+And you can test

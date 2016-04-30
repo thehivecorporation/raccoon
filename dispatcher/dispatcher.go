@@ -36,6 +36,6 @@ func Dispatch(js *[]job.Job) {
 func executeRecipeOnNode(j job.Job, n connection.Node) {
 	for _, instruction := range j.Chapter.Instructions {
 		instruction.Execute(n)
-		wg.Done()
 	}
+	wg.Done()
 }

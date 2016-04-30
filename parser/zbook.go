@@ -5,39 +5,47 @@ import (
 	"io/ioutil"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/thehivecorporation/raccoon/constants"
 	"github.com/thehivecorporation/raccoon/instructions"
 	"github.com/thehivecorporation/raccoon/job"
-	"github.com/thehivecorporation/raccoon/constants"
 )
 
-type book struct {
-	Title           string              `json:"chapter_title"`
-	Maintainer      string              `json:"maintainer"`
-	RawInstructions []map[string]string `json:"instructions"`
-}
+type (
+	chapter struct {
+		Title           string              `json:"chapter_title"`
+		Maintainer      string              `json:"maintainer"`
+		RawInstructions []map[string]string `json:"instructions"`
+	}
+	zombiebook []chapter
+)
 
 //ReadZbookFile will take a filepath as parameter and return a Job
-func ReadZbookFile(f string) (job.Zbook, error) {
+func readZbookFile(f string) (job.Zbook, error) {
 	log.WithFields(log.Fields{
 		constants.INSTRUCTIONS_NAME: f,
 	}).Info(constants.ARROW_LENGTH + "Reading " + constants.INSTRUCTIONS_NAME +
 		" file")
 
-	var bs []book
+	var book zombiebook
 
 	dat, err := ioutil.ReadFile(f)
 	if err != nil {
 		return job.Zbook{}, err
 	}
 
-	err = json.Unmarshal(dat, &bs)
+	err = json.Unmarshal(dat, &book)
 	if err != nil {
 		return job.Zbook{}, err
 	}
 
-	chapters := job.Zbook{}
+	return generateZbookJob(book), nil
+}
 
-	for _, z := range bs {
+func generateZbookJob(zombiebook zombiebook) job.Zbook {
+
+	zbookJob := job.Zbook{}
+
+	for _, z := range zombiebook {
 		parsedInstructions := make([]instructions.InstructionExecutor, 0)
 
 		for _, i := range z.RawInstructions {
@@ -60,12 +68,12 @@ func ReadZbookFile(f string) (job.Zbook, error) {
 			}
 		}
 
-		chapters = append(chapters, job.Chapter{
-			Title:z.Title,
-			Maintainer:z.Maintainer,
-			Instructions:parsedInstructions,
+		zbookJob = append(zbookJob, job.Chapter{
+			Title:        z.Title,
+			Maintainer:   z.Maintainer,
+			Instructions: parsedInstructions,
 		})
 	}
 
-	return chapters, nil
+	return zbookJob
 }

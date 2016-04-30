@@ -10,14 +10,19 @@ import (
 )
 
 type mansion struct {
-	Name    string               `json:"mansion_name"`
-	Chapter string               `json:"chapter_title"`
-	Rooms   []connection.Cluster `json:"rooms"`
+	Name  string `json:"name"`
+	Rooms []room `json:"rooms"`
+}
+
+type room struct {
+	Name    string
+	Chapter string
+	Hosts   []connection.Node
 }
 
 //ReadMansionFile takes a filepath with a json containing a Mansion file and
 //returns a Mansion file
-func ReadMansionFile(f string) (*mansion, error) {
+func readMansionFile(f string) (*mansion, error) {
 
 	log.WithFields(log.Fields{
 		constants.HOST_NAME: f,
@@ -32,24 +37,7 @@ func ReadMansionFile(f string) (*mansion, error) {
 
 	err = json.Unmarshal(dat, &mansion_)
 	if err != nil {
-		//Maybe is a single group file
-		var singleGroup []connection.Node
-		err = json.Unmarshal(dat, &singleGroup)
-		if err != nil {
-			return nil, err
-		}
-
-		cluster := make([]connection.Cluster, 1)
-		cluster[0] = connection.Cluster{
-			Name:  "main room",
-			Nodes: singleGroup,
-		}
-		mansion_ = mansion{
-			Name:  "Apartment",
-			Rooms: cluster,
-		}
-
-		return &mansion_, nil
+		return &mansion{}, err
 	}
 
 	return &mansion_, nil
