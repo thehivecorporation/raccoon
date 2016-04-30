@@ -7,6 +7,7 @@ type request struct {
 	Mansion    mansion `json:"mansion"`
 }
 
+//ParseRequest is called by the REST server to parse the JSON of a request
 func ParseRequest(byt []byte) error {
 	req := request{}
 	err := json.Unmarshal(byt, &req)

@@ -9,11 +9,13 @@ import (
 	"github.com/thehivecorporation/raccoon/constants"
 )
 
+//mansion is to parse json files and requests
 type mansion struct {
 	Name  string `json:"name"`
 	Rooms []room `json:"rooms"`
 }
 
+//room is to parse json files and requests
 type room struct {
 	Name    string
 	Chapter string
@@ -23,7 +25,6 @@ type room struct {
 //ReadMansionFile takes a filepath with a json containing a Mansion file and
 //returns a Mansion file
 func readMansionFile(f string) (*mansion, error) {
-
 	log.WithFields(log.Fields{
 		constants.HOST_NAME: f,
 	}).Info(constants.ARROW_LENGTH + "Reading " + constants.HOSTS_FLAG_NAME + " file")

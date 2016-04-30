@@ -11,15 +11,18 @@ import (
 )
 
 type (
+	//chapter is used to parse json files and requests
 	chapter struct {
 		Title           string              `json:"chapter_title"`
 		Maintainer      string              `json:"maintainer"`
 		RawInstructions []map[string]string `json:"instructions"`
 	}
+
+	//zombiebook is used to parse json files and requests
 	zombiebook []chapter
 )
 
-//ReadZbookFile will take a filepath as parameter and return a Job
+//readZbookFile will take a filepath as parameter and return a Job
 func readZbookFile(f string) (job.Zbook, error) {
 	log.WithFields(log.Fields{
 		constants.INSTRUCTIONS_NAME: f,
@@ -41,6 +44,8 @@ func readZbookFile(f string) (job.Zbook, error) {
 	return generateZbookJob(book), nil
 }
 
+//generateZbookJob takes a zombiebook (group of instructions) and check the
+//commands of each instruction to assign the proper strategy
 func generateZbookJob(zombiebook zombiebook) job.Zbook {
 
 	zbookJob := job.Zbook{}

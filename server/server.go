@@ -17,6 +17,8 @@ type response struct {
 	Status string `json:"status"`
 }
 
+//REST is the server that is launched when a user selects the "server" option
+//in the CLI
 func REST(c *cli.Context) {
 	e := echo.New()
 

@@ -11,6 +11,8 @@ import (
 	"github.com/thehivecorporation/raccoon/job"
 )
 
+//ExecuteZombieBook will take a zombiebook.json file and a mansion.file as
+//arguments to pair them and use the job dispatcher (also in this file)
 func ExecuteZombieBook(c *cli.Context) {
 	if c.String(constants.INSTRUCTIONS_NAME) == "" {
 		log.Fatalf("You must provide a %s file. Check raccoon %s --help",
@@ -37,7 +39,6 @@ func ExecuteZombieBook(c *cli.Context) {
 	generateJobs(mansion, zbook)
 }
 
-//Generate Jobs, each job must be associated with a chapter title.
 func generateJobs(mansion *mansion, zbook job.Zbook) {
 	jobs := make([]job.Job, 0)
 	for _, room := range mansion.Rooms {
