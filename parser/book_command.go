@@ -36,7 +36,7 @@ func executeZombieBook(c *cli.Context) {
 
 	//Generate Jobs, each job must be associated with a chapter title.
 	jobs := make([]job.Job, 0)
-	for _, room := range mansion.Rooms {
+	for _, room := range mansion.rooms {
 		//Each room is a cluster
 		for _, chapter := range zbook {
 			//Compare every assigned chapter to every cluster

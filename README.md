@@ -1,6 +1,8 @@
 # raccoon
 WIP App orchestration, configuration and deployment
 
+![Raccon logo](raccoon.jpg)
+
 ## Try it
 
 * Zombiebook example inside examples folder
