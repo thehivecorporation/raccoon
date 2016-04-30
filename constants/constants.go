@@ -23,10 +23,18 @@ const (
 	HOST_LAUNCH_MESSAGE string = "Entering " + HOST_NAME + "..."
 	HOSTS_FLAG_ALIAS    string = "mansion, m"
 	HOSTS_FLAG_USAGE    string = "The Mansion file"
+
+	GROUP_NAME string = "mansion"
+	MAINTAINER string = "maintainer"
 )
 
 //SERVER
 const (
 	SERVER_NAME  = "server"
 	SERVER_USAGE = "Launch a server to receive Zombiebook JSON files"
+)
+
+//LOGGING
+const (
+	ARROW_LENGTH string = "------------------------------> "
 )

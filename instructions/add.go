@@ -4,6 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/thehivecorporation/raccoon/connection"
+	"github.com/thehivecorporation/raccoon/constants"
 )
 
 type ADD struct {
@@ -20,5 +21,5 @@ func (c *ADD) Execute(n connection.Node) {
 		"Node":        n.IP,
 		"SourcePath":  c.SourcePath,
 		"DestPath":    c.DestPath,
-	}).Info("------------------------------> " + c.Description)
+	}).Info(constants.ARROW_LENGTH + c.Description)
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/thehivecorporation/raccoon/connection"
 	"golang.org/x/crypto/ssh"
+	"github.com/thehivecorporation/raccoon/constants"
 )
 
 //RUN is a instruction that in the recipe file correspond to the CMD instruction.
@@ -29,7 +30,7 @@ func executeCommandOnNode(c RUN, n connection.Node) {
 	log.WithFields(log.Fields{
 		"Instruction": "RUN",
 		"Node":        n.IP,
-	}).Info("------------------------------> " + c.Description)
+	}).Info(constants.ARROW_LENGTH + c.Description)
 
 	sshConfig := &ssh.ClientConfig{
 		User: n.Username,

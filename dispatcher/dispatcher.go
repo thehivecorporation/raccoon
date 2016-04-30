@@ -16,12 +16,15 @@ var wg sync.WaitGroup
 //with the recipe to execute.
 func Dispatch(js *[]job.Job) {
 	for _, j := range *js {
-		log.WithField(constants.HOST_NAME,j.Cluster.Name).Info(
-			constants.HOST_LAUNCH_MESSAGE)
+		log.WithFields(log.Fields{
+			constants.HOST_NAME:j.Cluster.Name,
+			constants.GROUP_NAME:j.Chapter.Title,
+			constants.MAINTAINER:j.Chapter.Maintainer,
+		}).Info(constants.ARROW_LENGTH + constants.HOST_LAUNCH_MESSAGE)
 
 		for _, node := range j.Cluster.Nodes {
-			wg.Add(len(j.Zbook.Instructions))
-			go executeRecipeOnNode(*j.Zbook, node)
+			wg.Add(1)
+			go executeRecipeOnNode(j, node)
 		}
 	}
 
@@ -30,8 +33,8 @@ func Dispatch(js *[]job.Job) {
 
 //executeRecipeOnNode will take every instruction of the recipe and execute it
 //in order on each node. Each instruction waits until previous one is finished.
-func executeRecipeOnNode(r job.Zbook, n connection.Node) {
-	for _, instruction := range r.Instructions {
+func executeRecipeOnNode(j job.Job, n connection.Node) {
+	for _, instruction := range j.Chapter.Instructions {
 		instruction.Execute(n)
 		wg.Done()
 	}
