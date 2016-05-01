@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
+	"errors"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/thehivecorporation/raccoon/constants"
 	"github.com/thehivecorporation/raccoon/instructions"
@@ -33,20 +35,21 @@ func readZbookFile(f string) (job.Zbook, error) {
 
 	dat, err := ioutil.ReadFile(f)
 	if err != nil {
-		return job.Zbook{}, err
+		return job.Zbook{}, errors.New("Error reading " +
+			constants.INSTRUCTIONS_FLAG_NAME + " file: " + err.Error())
 	}
 
 	err = json.Unmarshal(dat, &book)
 	if err != nil {
-		return job.Zbook{}, err
+		return job.Zbook{}, errors.New("Error parsing JSON: " + err.Error())
 	}
 
-	return generateZbookJob(book), nil
+	return generateZbookJob(book)
 }
 
 //generateZbookJob takes a zombiebook (group of instructions) and check the
 //commands of each instruction to assign the proper strategy
-func generateZbookJob(zombiebook zombiebook) job.Zbook {
+func generateZbookJob(zombiebook zombiebook) (job.Zbook, error) {
 
 	zbookJob := job.Zbook{}
 
@@ -54,8 +57,17 @@ func generateZbookJob(zombiebook zombiebook) job.Zbook {
 		parsedInstructions := make([]instructions.InstructionExecutor, 0)
 
 		for _, i := range z.RawInstructions {
+			if i["name"] == "" {
+				return job.Zbook{}, errors.New("No \"name\" found on instructions")
+			}
+
 			switch i["name"] {
 			case "RUN":
+				if i["instruction"] == "" {
+					return job.Zbook{}, errors.New("At least one " +
+						"'instruction' was missing on a RUN command in the " +
+						constants.INSTRUCTIONS_NAME + " file")
+				}
 				run := instructions.RUN{
 					Name:        "RUN",
 					Description: i["description"],
@@ -63,11 +75,20 @@ func generateZbookJob(zombiebook zombiebook) job.Zbook {
 				}
 				parsedInstructions = append(parsedInstructions, &run)
 			case "ADD":
+				if i["sourcePath"] == "" {
+					return job.Zbook{}, errors.New("SourcePath not specified" +
+						"on ADD instruction")
+				}
+
+				if i["destPath"] == "" {
+					return job.Zbook{}, errors.New("destPath not specified" +
+						"on ADD instruction")
+				}
 				add := instructions.ADD{
+					Name:        "ADD",
 					SourcePath:  i["sourcePath"],
 					DestPath:    i["destPath"],
 					Description: i["description"],
-					Name:        "ADD",
 				}
 				parsedInstructions = append(parsedInstructions, &add)
 			}
@@ -80,5 +101,5 @@ func generateZbookJob(zombiebook zombiebook) job.Zbook {
 		})
 	}
 
-	return zbookJob
+	return zbookJob, nil
 }
