@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd examples
+vagrant up --provider virtualbox
+cd ..
+go build
+./raccoon zombiebook -z examples/exampleBook.json -m examples/exampleMansion.json
+rm raccoon
+cd examples
+vagrant halt
+vagrant destroy -f

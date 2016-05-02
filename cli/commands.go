@@ -20,8 +20,11 @@ func Init() {
 			Name:   constants.INSTRUCTIONS_NAME,
 			Usage:  constants.INSTRUCTIONS_USAGE,
 			Action: func(c *cli.Context){
-				os.Exit(parser.ExecuteZombieBook(c.String(constants.INSTRUCTIONS_NAME),
-					c.String(constants.HOSTS_FLAG_NAME)))
+				err := parser.ExecuteZombieBook(c.String(constants.INSTRUCTIONS_NAME),
+					c.String(constants.HOSTS_FLAG_NAME))
+				if err != nil {
+					panic(err)
+				}
 			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
