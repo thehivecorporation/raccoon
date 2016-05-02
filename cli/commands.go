@@ -19,7 +19,10 @@ func Init() {
 		{
 			Name:   constants.INSTRUCTIONS_NAME,
 			Usage:  constants.INSTRUCTIONS_USAGE,
-			Action: parser.ExecuteZombieBook,
+			Action: func(c *cli.Context){
+				os.Exit(parser.ExecuteZombieBook(c.String(constants.INSTRUCTIONS_NAME),
+					c.String(constants.HOSTS_FLAG_NAME)))
+			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  constants.INSTRUCTIONS_FLAG_ALIAS,
