@@ -15,7 +15,12 @@ func ParseRequest(byt []byte) error {
 		return err
 	}
 
-	generateJobs(&req.Mansion, generateZbookJob(req.Zombiebook))
+	generatedJobs, err := generateZbookJob(req.Zombiebook)
+	if err != nil {
+		return err
+	}
+
+	generateJobs(&req.Mansion, generatedJobs)
 
 	return nil
 }

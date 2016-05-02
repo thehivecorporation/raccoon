@@ -6,7 +6,7 @@
       "chapter":"chapter1",
       "hosts":[
         {
-          "ip":"192.168.1.44",
+          "ip":"192.168.31.11",
           "username":"vagrant",
           "password":"vagrant"
         }
@@ -17,7 +17,7 @@
       "chapter":"chapter2",
       "hosts":[
         {
-          "ip":"192.168.1.45",
+          "ip":"192.168.31.10",
           "username":"vagrant",
           "password":"vagrant"
         }

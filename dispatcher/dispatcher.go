@@ -14,10 +14,10 @@ var wg sync.WaitGroup
 //Dispatch receives a Job struct and is the one in charge of iterating for each
 //Node within the job cluster of nodes and open a new routine for each of them
 //with the recipe to execute.
-func Dispatch(js *[]job.Job) {
+func Dispatch(js *[]job.Job) error {
 	for _, j := range *js {
 		log.WithFields(log.Fields{
-			constants.HOST_NAME:j.Cluster.Name,
+			constants.HOSTS_NAME:j.Cluster.Name,
 			constants.GROUP_NAME:j.Chapter.Title,
 			constants.MAINTAINER:j.Chapter.Maintainer,
 		}).Info(constants.ARROW_LENGTH + constants.HOST_LAUNCH_MESSAGE)
@@ -29,6 +29,7 @@ func Dispatch(js *[]job.Job) {
 	}
 
 	wg.Wait()
+	return nil
 }
 
 //executeRecipeOnNode will take every instruction of the recipe and execute it

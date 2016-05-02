@@ -4,42 +4,48 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
 	"github.com/thehivecorporation/raccoon/connection"
 	"github.com/thehivecorporation/raccoon/constants"
 	"github.com/thehivecorporation/raccoon/dispatcher"
 	"github.com/thehivecorporation/raccoon/job"
+	"fmt"
 )
 
 //ExecuteZombieBook will take a zombiebook.json file and a mansion.file as
 //arguments to pair them and use the job dispatcher (also in this file)
-func ExecuteZombieBook(c *cli.Context) {
-	if c.String(constants.INSTRUCTIONS_NAME) == "" {
-		log.Fatalf("You must provide a %s file. Check raccoon %s --help",
+func ExecuteZombieBook(zbookFile, mansionFile string) error {
+	if zbookFile == "" {
+		err := fmt.Errorf("You must provide a %s file. Check raccoon %s --help",
 			constants.INSTRUCTIONS_NAME, constants.INSTRUCTIONS_NAME)
+		log.Error(err)
+		return err
 	}
 
-	if c.String(constants.HOSTS_FLAG_NAME) == "" {
-		log.Fatalf("You must provide a %s file. Check raccoon %s --help",
+	if mansionFile == "" {
+		err := fmt.Errorf("You must provide a %s file. Check raccoon %s --help",
 			constants.HOSTS_FLAG_NAME, constants.INSTRUCTIONS_NAME)
+		log.Error(err)
+		return err
 	}
 
 	//Check for the zombiebook specified in -f flag
-	zbook, err := readZbookFile(c.String(constants.INSTRUCTIONS_NAME))
+	zbook, err := readZbookFile(zbookFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return err
 	}
 
 	//Check for the mansion specified in the -m flag
-	mansion, err := readMansionFile(c.String(constants.HOSTS_FLAG_NAME))
+	mansion, err := readMansionFile(mansionFile)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return err
 	}
 
-	generateJobs(mansion, zbook)
+	return generateJobs(mansion, zbook)
 }
 
-func generateJobs(mansion *mansion, zbook job.Zbook) {
+func generateJobs(mansion *mansion, zbook job.Zbook) error {
 	jobs := make([]job.Job, 0)
 	for _, room := range mansion.Rooms {
 		//Each room is a cluster
@@ -59,5 +65,5 @@ func generateJobs(mansion *mansion, zbook job.Zbook) {
 	}
 
 	//Send jobs to dispatcher
-	dispatcher.Dispatch(&jobs)
+	return dispatcher.Dispatch(&jobs)
 }

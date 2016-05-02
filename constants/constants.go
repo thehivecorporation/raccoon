@@ -19,10 +19,12 @@ const (
 	INSTRUCTIONS_USAGE      string = "Execute a Zombiebook"
 
 	HOSTS_FLAG_NAME     string = "mansion"
-	HOST_NAME           string = "room"
-	HOST_LAUNCH_MESSAGE string = "Entering " + HOST_NAME + "..."
+	HOSTS_NAME          string = "room"
+	HOST_LAUNCH_MESSAGE string = "Entering " + HOSTS_NAME + "..."
 	HOSTS_FLAG_ALIAS    string = "mansion, m"
 	HOSTS_FLAG_USAGE    string = "The Mansion file"
+
+	RELATIONSHIP_KEY string = "chapter"
 
 	GROUP_NAME string = "mansion"
 	MAINTAINER string = "maintainer"
@@ -33,10 +35,9 @@ const (
 	SERVER_NAME  = "server"
 	SERVER_USAGE = "Launch a server to receive Zombiebook JSON files"
 
-	PORT_FLAG_NAME = "port"
+	PORT_FLAG_NAME  = "port"
 	PORT_FLAG_ALIAS = "port, p"
 	PORT_FLAG_USAGE = "The port to run the server on"
-
 )
 
 //LOGGING
