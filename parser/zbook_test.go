@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"testing"
 )
@@ -17,6 +18,7 @@ func TestReadZbookFile(t *testing.T) {
 	//Show error if you use "go test -v"
 	t.Log(err)
 
+
 	//Create a file with a wrong JSON structure / syntax and pass it
 	f, _ := ioutil.TempFile("/tmp", "wrongJson")
 	f.WriteString("{wrong:\"syntax\",}")
@@ -31,6 +33,7 @@ func TestReadZbookFile(t *testing.T) {
 	//Show error if you use "go test -v"
 	t.Log(err)
 
+
 	//Pass a correct JSON
 	filePath = "../examples/exampleBook.json"
 
@@ -41,56 +44,73 @@ func TestReadZbookFile(t *testing.T) {
 
 	//Pass a syntactically correct zbook with no content
 	f, _ = ioutil.TempFile("/tmp", "no-content")
-	f.WriteString("[{\"chapter_title\":\"chapter1\",\"maintainer\": \"Burkraith\",\"instructions\": []}]")
+	c := []chapter{
+		chapter{
+			Title:           "chapter1",
+			Maintainer:      "maintainer",
+			RawInstructions: make([]map[string]string, 0), //Empty
+		},
+	}
+	by, _ := json.Marshal(c)
+	f.Write(by)
 	f.Close()
 	filePath = f.Name()
 
 	_, err = readZbookFile(filePath)
 	if err != nil {
-		t.Fatal("No instructions were provided but syntax was correct")
+		t.Fatal("No instructions were provided but syntax was correct:", err)
 	}
 
-	//Pass a syntactically correct zbook with incorrect keys or no present
-	f, _ = ioutil.TempFile("/tmp", "incorrect-keys")
-	f.WriteString("[{\"chapter_title\": \"chapter1\", \"maintainer\": \"Burkraith\", \"instructions\": [{\"na2me\": \"RUN\", \"description\": \"Install htop\", \"instruction\": \"sudo yum install -y htop\"} ] } ]")
-	f.Close()
-	filePath = f.Name()
-
-	_, err = readZbookFile(filePath)
-	if err == nil {
-		t.Fatal("No instructions were provided but syntax was correct")
+	//Create mocked data
+	cs := []chapter{
+		chapter{
+			Title:      "chapter1",
+			Maintainer: "maintainer",
+			RawInstructions: []map[string]string{
+				0: {
+					"name":       "RUN",
+					"description": "Install htop",
+					"instruction": "sudo yum install -y htop",
+				},
+				1:{
+					"name":"ADD",
+					"description":"a description",
+					"sourcePath":"source path",
+					"destPath":"destination path",
+				},
+			},
+		},
 	}
 
-	//Pass a syntactically correct zbook with incorrect keys or no present
-	f, _ = ioutil.TempFile("/tmp", "incorrect-keys")
-	f.WriteString("[{\"chapter_title\": \"chapter1\", \"maintainer\": \"Burkraith\", \"instructions\": [{\"name\": \"RUN\", \"description\": \"Install htop\", \"instruct2ion\": \"sudo yum install -y htop\"} ] } ]")
-	f.Close()
-	filePath = f.Name()
-
-	_, err = readZbookFile(filePath)
-	if err == nil {
-		t.Fatal("No instructions were provided but syntax was correct")
+	//Clone the data 5 times
+	batteryTests := make([][]chapter,5)
+	for i := 0; i<5; i++ {
+		batteryTests[i] = cs
 	}
 
-	//Pass a syntactically correct zbook with incorrect keys or no present
-	f, _ = ioutil.TempFile("/tmp", "incorrect-keys")
-	f.WriteString("[{\"chapter_title\": \"chapter1\", \"maintainer\": \"Burkraith\", \"instructions\": [{\"name\": \"RUN\", \"description\": \"Install htop\", \"instruction\": \"sudo yum install -y htop\"}, {\"name\": \"ADD\", \"description\": \"Copying conf file\", \"source2Path\": \"/tmp/asdfad\", \"destPath\": \"/tmp/folder\"} ] } ]")
-	f.Close()
-	filePath = f.Name()
+	//Delete some correct keys to replace them for incorrect ones
+	delete(batteryTests[0][0].RawInstructions[1], "instruction")
+	batteryTests[0][0].RawInstructions[1]["instru2ction"] = "sudo yum install -y htop"
 
-	_, err = readZbookFile(filePath)
-	if err == nil {
-		t.Fatal("No instructions were provided but syntax was correct")
-	}
+	delete(batteryTests[1][0].RawInstructions[1], "sourcePath")
+	batteryTests[1][0].RawInstructions[1]["sourceP2ath"] = "source"
 
-	//Pass a syntactically correct zbook with incorrect keys or no present
-	f, _ = ioutil.TempFile("/tmp", "incorrect-keys")
-	f.WriteString("[{\"chapter_title\": \"chapter1\", \"maintainer\": \"Burkraith\", \"instructions\": [{\"name\": \"RUN\", \"description\": \"Install htop\", \"instruction\": \"sudo yum install -y htop\"}, {\"name\": \"ADD\", \"description\": \"Copying conf file\", \"sourcePath\": \"/tmp/asdfad\", \"destP3ath\": \"/tmp/folder\"} ] } ]")
-	f.Close()
-	filePath = f.Name()
+	delete(batteryTests[2][0].RawInstructions[1], "destPath")
+	batteryTests[2][0].RawInstructions[1]["dest2Path"] = "dest"
 
-	_, err = readZbookFile(filePath)
-	if err == nil {
-		t.Fatal("No instructions were provided but syntax was correct")
+	delete(batteryTests[3][0].RawInstructions[1], "name")
+	batteryTests[3][0].RawInstructions[1]["n2me"] = "ADD"
+
+	for i := 0; i<5; i++ {
+		f, _ = ioutil.TempFile("/tmp", "raccoon_temp")
+		by, _ := json.Marshal(batteryTests[i])
+		f.Write(by)
+		f.Close()
+		filePath = f.Name()
+
+		_, err = readZbookFile(filePath)
+		if err == nil {
+			t.Fatalf("Syntax was incorrect but no error found on index %d",i)
+		}
 	}
 }
