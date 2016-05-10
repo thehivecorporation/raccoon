@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"log"
 
+	"bufio"
+
 	"golang.org/x/crypto/ssh"
-	"gopkg.in/bufio.v1"
-	"io"
 )
 
 func main() {
@@ -40,25 +39,28 @@ func main() {
 		log.Fatal("request for pseudo terminal failed: " + err.Error())
 	}
 
-	//stdout, _ := session.StdoutPipe()
+	stdout, _ := session.StdoutPipe()
 
-	buf := bufio.NewBufferString("Hello: ")
-	//go buf.WriteTo(os.Stdout)
-	r, w := io.Pipe()
-	session.Stdout = w
+	/** IT WORKS*/
+	scanner := bufio.NewScanner(stdout)
 	go func(){
-		for {
-			buf.ReadFrom(r)
+		for scanner.Scan() {
+			fmt.Println("Hello: " + scanner.Text()) // Println will add back the final '\n'
 		}
 	}()
+	/* END IT WORKS */
 
-	for {
-		buf.WriteTo(os.Stdout)
-	}
-	//byt := make([]byte, 8)
-	//go io.CopyBuffer(os.Stdout, stdout, byt)
+	/** IT WORKS (more or less) */
+	//reader := bufio.NewReader(stdout)
+	//go func(){
+	//	for {
+	//		line, _ := reader.ReadString(byte('\n'))
+	//		fmt.Printf("Hello: %s", line)
+	//	}
+	//}()
+	/* END IT WORKS */
 
-	session.Run("ls /")
+	session.Run("sudo yum install -y nano; sudo yum remove -y nano")
 
 	var ss string
 	fmt.Scanf(ss)
