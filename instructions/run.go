@@ -10,6 +10,8 @@ import (
 	"github.com/thehivecorporation/raccoon/connection"
 	"golang.org/x/crypto/ssh"
 	"github.com/thehivecorporation/raccoon/constants"
+	"github.com/kubernetes/kubernetes/third_party/golang/go/doc/testdata"
+	"errors"
 )
 
 //RUN is a instruction that in the recipe file correspond to the CMD instruction.
@@ -23,7 +25,33 @@ type RUN struct {
 
 //Execute is the implementation of the Instruction interface for a CMD instruction
 func (c *RUN) Execute(n connection.Node) {
-	executeCommandOnNode(*c, n)
+	log.WithFields(log.Fields{
+		"Instruction": "RUN",
+		"Node":        n.IP,
+	}).Info(constants.ARROW_LENGTH + c.Description)
+
+	//executeCommandOnNode(*c, n)
+
+	err := executeShellCommandOnNode(*c, n)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Instruction": "RUN",
+			"Node":        n.IP,
+		}).Error(constants.ARROW_LENGTH + err.Error())
+	}
+}
+
+func executeShellCommandOnNode(c RUN, n connection.Node) error {
+	if n.Session != nil {
+		err := n.Session.Run(c.Instruction)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	return errors.New("Session was nil for " + n.IP)
 }
 
 func executeCommandOnNode(c RUN, n connection.Node) {

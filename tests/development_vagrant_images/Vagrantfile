@@ -1,0 +1,22 @@
+
+Vagrant.configure(2) do |config|
+
+  config.vm.define "one" do |one|
+    one.vm.box = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
+    one.vm.network "private_network", ip: "192.168.31.10"
+    one.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.memory = "1024"
+    end
+  end
+
+  config.vm.define "two" do |two|
+    two.vm.box = "https://github.com/holms/vagrant-centos7-box/releases/download/7.1.1503.001/CentOS-7.1.1503-x86_64-netboot.box"
+    two.vm.network "private_network", ip: "192.168.31.11"
+    two.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.memory = "1024"
+    end
+  end
+
+end
