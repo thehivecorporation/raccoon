@@ -39,8 +39,3 @@ const (
 	PORT_FLAG_ALIAS = "port, p"
 	PORT_FLAG_USAGE = "The port to run the server on"
 )
-
-//LOGGING
-const (
-	ARROW_LENGTH string = "------------------------------> "
-)
