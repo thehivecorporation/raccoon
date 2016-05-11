@@ -1,14 +1,11 @@
 package connection
 
 import (
-	"io"
-	"os"
+	"bufio"
 
-	"bytes"
 	"errors"
 
-	"fmt"
-
+	log "github.com/Sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -20,11 +17,20 @@ type Node struct {
 	Username     string       `json:"username,omitempty"`
 	Password     string       `json:"password,omitempty"`
 	AuthFilePath string       `json:"authFilePath,omitempty"`
-	Session      *ssh.Session `json:"session, omitempy"`
+
+	client *ssh.Client
 }
 
+
+
 //GetSession will create a new connection to a Node and return it
-func (n *Node) GetSession() (*ssh.Session, error) {
+func (n *Node) GetClient() (*ssh.Client, error) {
+	log.WithFields(log.Fields{
+		"host":     n.IP,
+		"username": n.Username,
+		"package":  "connection",
+	}).Info("Opening SSH session")
+
 	sshConfig := &ssh.ClientConfig{
 		User: n.Username,
 		Auth: []ssh.AuthMethod{
@@ -32,14 +38,20 @@ func (n *Node) GetSession() (*ssh.Session, error) {
 		},
 	}
 
-	connection, err := ssh.Dial("tcp", n.IP+":22", sshConfig)
+	client, err := ssh.Dial("tcp", n.IP+":22", sshConfig)
 	if err != nil {
 		return nil, errors.New("Failed to dial: " + n.IP)
 	}
 
-	session, err := connection.NewSession()
+	n.client = client
+
+	return client, nil
+}
+
+func (n *Node) GetSession() (*ssh.Session, error) {
+	session, err := n.client.NewSession()
 	if err != nil {
-		return nil, errors.New("Failed to create session: " + err.Error())
+		return &ssh.Session{}, errors.New("Failed to create session: " + err.Error())
 	}
 
 	modes := ssh.TerminalModes{
@@ -50,96 +62,42 @@ func (n *Node) GetSession() (*ssh.Session, error) {
 
 	if err := session.RequestPty("xterm", 80, 40, modes); err != nil {
 		session.Close()
-		return nil, errors.New("request for pseudo terminal failed: " + err.Error())
+		return &ssh.Session{}, errors.New("request for pseudo terminal failed: " + err.Error())
 	}
 
 	stdout, err := session.StdoutPipe()
-	if err != nil {
-		return nil, errors.New("Unable to setup stdout for session: " + err.Error())
-	}
-
-	go io.Copy(os.Stdout, stdout)
-
 	stderr, err := session.StderrPipe()
-	if err != nil {
-		return nil, errors.New("Unable to setup stderr for session: " + err.Error())
-	}
-	go io.Copy(os.Stderr, stderr)
 
-	n.Session = session
+	stdoutScanner := bufio.NewScanner(stdout)
+	stderrScanner := bufio.NewScanner(stderr)
+
+	go n.sessionListenerRoutine(stdoutScanner)
+	go n.sessionListenerRoutine(stderrScanner)
 
 	return session, nil
 }
 
-//CloseSession closes stored ssh session in Node. Remember to call it explicitly
-//after all instructions has finished
-func (n *Node) CloseSession() error {
-	return n.Session.Close()
+func (n *Node) sessionListenerRoutine(s *bufio.Scanner) {
+	log.SetLevel(log.WarnLevel)
+
+	for s.Scan() {
+		// Println will add back the final '\n'
+		log.WithFields(log.Fields{
+			"host":     n.IP,
+			"username": n.Username,
+			"package":  "connection",
+		}).Info("Message:" + s.Text())
+	}
 }
 
-func (n *Node) GetOutput() (*ssh.Session, error) {
-	sshConfig := &ssh.ClientConfig{
-		User: "vagrant",
-		Auth: []ssh.AuthMethod{
-			ssh.Password("vagrant"),
-		},
-	}
+//CloseSession closes stored ssh session in Node. Remember to call it explicitly
+//after all instructions has finished
+func (n *Node) CloseClient() error {
+	err := n.client.Close()
 
-	connection, err := ssh.Dial("tcp", "192.168.31.10:22", sshConfig)
 	if err != nil {
-		return nil, errors.New("Failed to dial: 192.168.33.10")
+		return err
 	}
 
-	session, err := connection.NewSession()
-	if err != nil {
-		return nil, errors.New("Failed to create session: " + err.Error())
-	}
-
-	modes := ssh.TerminalModes{
-		ssh.ECHO:          0,     // disable echoing
-		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
-		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
-	}
-
-	if err := session.RequestPty("xterm", 80, 40, modes); err != nil {
-		session.Close()
-		return nil, errors.New("request for pseudo terminal failed: " + err.Error())
-	}
-
-	c := make(chan []byte, 10)
-
-	go func(c *chan []byte) {
-		for {
-			m := <-*c
-			println("Hello:" + string(m))
-		}
-	}(&c)
-
-	r, w, _ := os.Pipe()
-	r2, w2, _ := os.Pipe()
-
-	session.Stdout = w
-	session.Stderr = w2
-
-	var byt bytes.Buffer
-	var byt2 bytes.Buffer
-
-	go func(c *chan []byte) {
-		byt.ReadFrom(r)
-		*c <- byt.Bytes()
-	}(&c)
-
-	go func(c *chan []byte) {
-		byt2.ReadFrom(r2)
-		*c <- byt2.Bytes()
-	}(&c)
-
-	//go io.Copy(os.Stdout, stdout)
-
-
-	session.Run("ls /")
-
-	var ss string
-	fmt.Scanf(ss)
-	return nil, nil
+	return nil
 }

@@ -64,5 +64,4 @@ func main() {
 
 	var ss string
 	fmt.Scanf(ss)
-
 }
