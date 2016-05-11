@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/thehivecorporation/raccoon/connection"
-	"github.com/thehivecorporation/raccoon/constants"
 	"golang.org/x/crypto/ssh"
 
 	log "github.com/Sirupsen/logrus"
@@ -23,7 +22,8 @@ func (e *ENV) Execute(n connection.Node) {
 	log.WithFields(log.Fields{
 		"Instruction": "ENV",
 		"Node":        n.IP,
-	}).Info(constants.ARROW_LENGTH + e.Description)
+		"package":     "instructions",
+	}).Info(e.Description)
 
 	sshConfig := &ssh.ClientConfig{
 		User: n.Username,
