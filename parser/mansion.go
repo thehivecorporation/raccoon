@@ -29,7 +29,7 @@ type room struct {
 func readMansionFile(f string) (*mansion, error) {
 	log.WithFields(log.Fields{
 		constants.HOSTS_NAME: f,
-		"package":"parser",
+		"package":            "parser",
 	}).Info("Reading " + constants.HOSTS_FLAG_NAME + " file")
 
 	var mansion_ mansion
