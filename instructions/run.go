@@ -18,6 +18,7 @@ type RUN struct {
 //Execute is the implementation of the Instruction interface for a CMD instruction
 func (c *RUN) Execute(n connection.Node) {
 	session, err := n.GetSession()
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Instruction": "RUN",
@@ -25,21 +26,7 @@ func (c *RUN) Execute(n connection.Node) {
 			"package":     "instructions",
 		}).Error(err.Error())
 	}
-
-	log.WithFields(log.Fields{
-		"Instruction": "RUN",
-		"Node":        n.IP,
-		"package":     "instructions",
-	}).Info(c.Description)
-
-	err = session.Run(c.Instruction)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Instruction": "RUN",
-			"Node":        n.IP,
-			"package":     "instructions",
-		}).Error("Error running command on session: " + err.Error())
-	}
+	session.Run(c.Instruction)
 
 	session.Close()
 }

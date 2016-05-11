@@ -15,6 +15,11 @@
       },
       {
         "name": "RUN",
+        "description": "Install wget",
+        "instruction": "sudo yum install -y wget"
+      },
+      {
+        "name": "RUN",
         "description": "Removing wget",
         "instruction": "sudo yum remove -y wget"
       }

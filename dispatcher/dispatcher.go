@@ -38,24 +38,18 @@ func Dispatch(js *[]job.Job) error {
 //executeRecipeOnNode will take every instruction of the recipe and execute it
 //in order on each node. Each instruction waits until previous one is finished.
 func executeRecipeOnNode(j job.Job, n connection.Node) {
-	_, err := n.GetClient()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"host":    n.IP,
-			"package": "dispatcher",
-		}).Fatal("Error getting session: " + err.Error())
-	}
+	n.GenerateUniqueColor()
 
 	for _, instruction := range j.Chapter.Instructions {
 		instruction.Execute(n)
 	}
 
-	err = n.CloseClient()
+	err := n.CloseNode()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"host":    n.IP,
 			"package": "dispatcher",
-		}).Error("Error closing session: " + err.Error())
+		}).Warn("Error closing session: " + err.Error())
 	}
 
 	wg.Done()
