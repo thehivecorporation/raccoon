@@ -36,6 +36,12 @@ func (c *RUN) Execute(n connection.Node) {
 		return
 	}
 
+	log.WithFields(log.Fields{
+		"Instruction": c.Name,
+		"Node":        n.IP,
+		"package":     "instructions",
+	}).Info(c.Description)
+
 	session.Run(c.Instruction)
 
 	session.Close()
