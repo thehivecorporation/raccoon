@@ -9,39 +9,59 @@ import (
 
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
+	"os"
 )
 
 //Node is a remote machine (virtual or physical) that we will execute our
-//instructions on. Fields are self descriptive. AuthFilePath corresponds to the
-//path of the private key that could give access to a remote machine (TODO)
+//instructions on.
 type Node struct {
+	//IP of the remote host
 	IP           string `json:"ip"`
+
+	//Username to access remote host
 	Username     string `json:"username,omitempty"`
+
+	//Password to access remote host
 	Password     string `json:"password,omitempty"`
+
+	// TODO AuthFilePath corresponds to the path of the private key that could
+	// give access to a remote machine.
 	AuthFilePath string `json:"authFilePath,omitempty"`
 
-	sshClient *ssh.Client
-
+	//Color that this node will output when printing in stdout
 	Color color.Attribute
+
+	sshClient *ssh.Client
 }
 
+//Specific logger for Node package
 var log = logrus.New()
 
+//Iterator used as "global variable" to get a new color from following array
 var colorIter int = 0
+
+//Contains all possible colors that could be used for logging
 var colors [13]color.Attribute
 
 func init() {
+	//Sets our custom text formatter
 	log.Formatter = new(NodeTextFormatter)
+
+	// Output to stderr instead of stdout, could also be a file.
+	log.Out = os.Stdout
 
 	logrus.SetLevel(logrus.DebugLevel)
 
-	colors = [13]color.Attribute{color.FgHiCyan, color.FgBlue, color.FgYellow,
-		color.FgCyan, color.FgGreen, color.FgHiBlue, color.FgHiGreen,
-		color.FgHiMagenta, color.FgHiRed, color.FgHiYellow, color.FgMagenta,
+	//Fills the colors array
+	colors = [13]color.Attribute{color.FgGreen, color.FgCyan, color.FgMagenta,
+		color.FgYellow, color.FgHiCyan, color.FgHiBlue, color.FgHiGreen,
+		color.FgHiMagenta, color.FgHiRed, color.FgHiYellow, color.FgBlue,
 		color.FgRed, color.FgYellow}
 }
 
-func (n *Node) GenerateUniqueColor() {
+//generateUniqueColor must be called every time a new node is created to assign
+//a new color profile for the node
+func (n *Node) generateUniqueColor() {
 	if colorIter == 13 {
 		colorIter = 0
 	}
@@ -50,14 +70,27 @@ func (n *Node) GenerateUniqueColor() {
 	colorIter++
 }
 
+//InitializeNode must be called prior any execution on Nodes
+func (n *Node) InitializeNode() error {
+	n.generateUniqueColor()
+
+	_, err := n.GetClient()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //InitializeNode will create a random color for out and a new connection to
 // a Node returning it
-func (n *Node) InitializeNode() (*ssh.Client, error) {
+func (n *Node) GetClient() (*ssh.Client, error) {
+
 	log.WithFields(logrus.Fields{
 		"host":     n.IP,
 		"username": n.Username,
 		"package":  "connection",
-		"color":n.Color,
+		"color":    n.Color,
 	}).Info("Opening SSH session")
 
 	sshConfig := &ssh.ClientConfig{
@@ -77,9 +110,11 @@ func (n *Node) InitializeNode() (*ssh.Client, error) {
 	return client, nil
 }
 
+//GetSession returns a new session once a client is created and the connection
+//has been established successfully
 func (n *Node) GetSession() (*ssh.Session, error) {
 	if n.sshClient == nil {
-		_, err := n.InitializeNode()
+		_, err := n.GetClient()
 
 		if err != nil {
 			log.WithFields(logrus.Fields{
@@ -108,17 +143,23 @@ func (n *Node) GetSession() (*ssh.Session, error) {
 	}
 
 	stdout, err := session.StdoutPipe()
+	if err != nil {
+		return &ssh.Session{}, err
+	}
+
 	stderr, err := session.StderrPipe()
+	if err != nil {
+		return &ssh.Session{}, err
+	}
 
-	stdoutScanner := bufio.NewScanner(stdout)
-	stderrScanner := bufio.NewScanner(stderr)
-
-	go n.sessionListenerRoutine(stdoutScanner)
-	go n.sessionListenerRoutine(stderrScanner)
+	go n.sessionListenerRoutine(bufio.NewScanner(stdout))
+	go n.sessionListenerRoutine(bufio.NewScanner(stderr))
 
 	return session, nil
 }
 
+//sessionListenerRoutine is expected to use as a goroutine and receive as a
+//parameter a scanner instance that is connected to an output
 func (n *Node) sessionListenerRoutine(s *bufio.Scanner) {
 	for s.Scan() {
 		log.WithFields(logrus.Fields{

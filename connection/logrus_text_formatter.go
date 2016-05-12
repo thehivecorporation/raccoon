@@ -19,7 +19,6 @@ const (
 	yellow     = 33
 	blue       = 34
 	gray       = 37
-	light_blue = 46
 )
 
 var (
@@ -36,6 +35,8 @@ func miniTS() int {
 	return int(time.Since(baseTimestamp) / time.Second)
 }
 
+//NodeTextFormatter is a custom Logrus text formatter to fit the colored output
+//needs of Raccoon.
 type NodeTextFormatter struct {
 	// Set to true to bypass checking for a TTY before outputting colors.
 	ForceColors bool
@@ -147,14 +148,21 @@ func (f *NodeTextFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry, k
 	host, _ := entry.Data["host"].(string)
 
 	if !f.FullTimestamp {
-		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%04d] %-15s %-44s", levelColor, levelText, miniTS(), myColor(host), entry.Message)
+		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%04d] %-15s %-44s", levelColor, levelText, miniTS(), myColor(host), myColor(entry.Message))
 	} else {
-		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%s] %-15s %-44s", levelColor, levelText, entry.Time.Format(timestampFormat), entry.Data["host"], entry.Message)
+		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%s] %-15s %-44s", levelColor, levelText, entry.Time.Format(timestampFormat), myColor(host), myColor(entry.Message))
 	}
 	for _, k := range keys {
-		if k != "host" && k != "color" {
-			v := entry.Data[k]
-			fmt.Fprintf(b, " \x1b[%dm%s\x1b[0m=%+v", levelColor, k, v)
+		if k != "host" && k != "color" {	//Do not print "color" and "host" fields
+			if entry.Level != logrus.DebugLevel {	//Do not print package if error level isn't debug
+				if k != "package" {
+					v := entry.Data[k]
+					fmt.Fprintf(b, " \x1b[%dm%s\x1b[0m=%+v", levelColor, k, v)
+				}
+			} else {
+				v := entry.Data[k]
+				fmt.Fprintf(b, " \x1b[%dm%s\x1b[0m=%+v", levelColor, k, v)
+			}
 		}
 	}
 }

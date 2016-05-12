@@ -19,6 +19,17 @@ type ENV struct {
 }
 
 func (e *ENV) Execute(n connection.Node) {
+	session, err := n.GetSession()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Instruction": "RUN",
+			"Node":        n.IP,
+			"package":     "instructions",
+		}).Error(err.Error())
+
+		session.Close()
+		return
+	}
 	log.WithFields(log.Fields{
 		"Instruction": "ENV",
 		"Node":        n.IP,

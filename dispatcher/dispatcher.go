@@ -36,15 +36,21 @@ func Dispatch(js *[]job.Job) error {
 }
 
 //executeRecipeOnNode will take every instruction of the recipe and execute it
-//in order on each node. Each instruction waits until previous one is finished.
+//in order on each node. Instructions are executed sequentially
 func executeRecipeOnNode(j job.Job, n connection.Node) {
-	n.GenerateUniqueColor()
+	err := n.InitializeNode()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"host":    n.IP,
+			"package": "dispatcher",
+		}).Warn("Error initializing node: " + err.Error())
+	}
 
 	for _, instruction := range j.Chapter.Instructions {
 		instruction.Execute(n)
 	}
 
-	err := n.CloseNode()
+	err = n.CloseNode()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"host":    n.IP,
