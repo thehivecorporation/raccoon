@@ -3,7 +3,7 @@ WIP App orchestration, configuration and deployment
 
 ![Raccon logo](raccoon.jpg)
 
-[![alt](https://asciinema.org/a/9m3jg89yo8jtc5mq9dzccfvnk)](https://asciinema.org/a/9m3jg89yo8jtc5mq9dzccfvnk)
+[![asciicast](https://asciinema.org/a/45363.png)](https://asciinema.org/a/45363)
 
 ## Try it
 
