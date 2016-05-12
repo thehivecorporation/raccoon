@@ -28,7 +28,8 @@ type (
 func readZbookFile(f string) (job.Zbook, error) {
 	log.WithFields(log.Fields{
 		constants.INSTRUCTIONS_NAME: f,
-	}).Info(constants.ARROW_LENGTH + "Reading " + constants.INSTRUCTIONS_NAME +
+		"package":"parser",
+	}).Info("Reading " + constants.INSTRUCTIONS_NAME +
 		" file")
 
 	var book zombiebook

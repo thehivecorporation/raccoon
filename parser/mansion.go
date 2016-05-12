@@ -29,7 +29,8 @@ type room struct {
 func readMansionFile(f string) (*mansion, error) {
 	log.WithFields(log.Fields{
 		constants.HOSTS_NAME: f,
-	}).Info(constants.ARROW_LENGTH + "Reading " + constants.HOSTS_FLAG_NAME + " file")
+		"package":            "parser",
+	}).Info("Reading " + constants.HOSTS_FLAG_NAME + " file")
 
 	var mansion_ mansion
 
@@ -46,6 +47,8 @@ func readMansionFile(f string) (*mansion, error) {
 	return checkErrors(&mansion_)
 }
 
+
+//checkErrors is used to perform error checking on mansion json file
 func checkErrors(m *mansion) (*mansion, error) {
 	err := false
 	if len(m.Rooms) == 0 {
