@@ -21,6 +21,7 @@ go build; ./raccoon zombiebook -z exampleBook.json -m exampleMansion.json
     - [x] RUN
     - [ ] ADD (WIP)
     - [ ] MAINTAINER (WIP)
+- [ ] Array based chapters for mansions
 - [x] API REST.
 - [x] Support for JSON syntax parsing
 - [ ] Support for TOML syntax
