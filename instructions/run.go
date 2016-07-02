@@ -11,7 +11,7 @@ import (
 //be bash
 type RUN struct {
 	//The name that identifies this struct ("RUN" in this case)
-	Name        string
+	Name string
 
 	//Description of the instruction that must be set by the user
 	Description string

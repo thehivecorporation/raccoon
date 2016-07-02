@@ -19,7 +19,7 @@ go build; ./raccoon zombiebook -z exampleBook.json -m exampleMansion.json
 - [x] Pretty Output in real time
 - [ ] Dockerfile Syntax to ease learning path. WIP
     - [x] RUN
-    - [ ] ADD (WIP)
+    - [x] ADD
     - [ ] MAINTAINER (WIP)
 - [ ] Array based chapters for mansions
 - [x] API REST.
