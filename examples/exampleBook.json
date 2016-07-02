@@ -4,9 +4,10 @@
     "maintainer": "Burkraith",
     "instructions": [
       {
-        "name": "RUN",
-        "description": "Install htop",
-        "instruction": "sudo yum install -y htop"
+        "name": "ADD",
+        "sourcePath": "raccoon.go",
+        "destPath": "/tmp",
+        "description": "Raccoon.go to /tmp"
       },
       {
         "name": "RUN",

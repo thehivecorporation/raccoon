@@ -16,13 +16,13 @@ import (
 //instructions on.
 type Node struct {
 	//IP of the remote host
-	IP           string `json:"ip"`
+	IP string `json:"ip"`
 
 	//Username to access remote host
-	Username     string `json:"username,omitempty"`
+	Username string `json:"username,omitempty"`
 
 	//Password to access remote host
-	Password     string `json:"password,omitempty"`
+	Password string `json:"password,omitempty"`
 
 	// TODO AuthFilePath corresponds to the path of the private key that could
 	// give access to a remote machine.

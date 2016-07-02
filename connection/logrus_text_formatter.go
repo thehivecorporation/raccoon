@@ -13,12 +13,12 @@ import (
 )
 
 const (
-	nocolor    = 0
-	red        = 31
-	green      = 32
-	yellow     = 33
-	blue       = 34
-	gray       = 37
+	nocolor = 0
+	red     = 31
+	green   = 32
+	yellow  = 33
+	blue    = 34
+	gray    = 37
 )
 
 var (
@@ -153,8 +153,8 @@ func (f *NodeTextFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry, k
 		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%s] %-15s %-44s", levelColor, levelText, entry.Time.Format(timestampFormat), myColor(host), myColor(entry.Message))
 	}
 	for _, k := range keys {
-		if k != "host" && k != "color" {	//Do not print "color" and "host" fields
-			if entry.Level != logrus.DebugLevel {	//Do not print package if error level isn't debug
+		if k != "host" && k != "color" { //Do not print "color" and "host" fields
+			if entry.Level != logrus.DebugLevel { //Do not print package if error level isn't debug
 				if k != "package" {
 					v := entry.Data[k]
 					fmt.Fprintf(b, " \x1b[%dm%s\x1b[0m=%+v", levelColor, k, v)
