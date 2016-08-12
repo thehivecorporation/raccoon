@@ -15,14 +15,10 @@
         "instruction": "sudo yum remove -y htop"
       },
       {
-        "name": "RUN",
-        "description": "Install wget",
-        "instruction": "sudo yum install -y wget"
-      },
-      {
-        "name": "RUN",
-        "description": "Removing wget",
-        "instruction": "sudo yum remove -y wget"
+        "name": "ADD",
+        "sourcePath": "raccoon.go",
+        "destPath": "/tmp",
+        "description": "copying raccoon.go to /tmp"
       }
     ]
   },
@@ -32,11 +28,6 @@
     "instructions": [
       {
         "name": "RUN",
-        "description": "Install wget",
-        "instruction": "sudo yum install -y wget"
-      },
-      {
-        "name": "RUN",
         "description": "Install htop",
         "instruction": "sudo yum install -y htop"
       },
@@ -44,11 +35,6 @@
         "name": "RUN",
         "description": "Removing htop",
         "instruction": "sudo yum remove -y htop"
-      },
-      {
-        "name": "RUN",
-        "description": "Removing wget",
-        "instruction": "sudo yum remove -y wget"
       }
     ]
   }
