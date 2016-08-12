@@ -53,6 +53,7 @@ GLOBAL OPTIONS:
 ```
 
 ## Raccoon syntax
+
 ```bash
 NAME:
    ./raccoon zombiebook - Execute a Zombiebook
@@ -64,7 +65,8 @@ OPTIONS:
    --zombiebook, -z 	Execute a Zombiebook
    --mansion, -m 	The Mansion file
 ```
-> In Raccoon, you'll have groups of remote commands (chapters of instructions)
+
+In Raccoon, you'll have groups of remote commands (chapters of instructions)
 with a group ID. Then you'll make group of hosts (rooms) with references to this
 groups IDs (via chapters titles).
 
@@ -267,7 +269,7 @@ JSON formats:
         "description": "Removing htop",
         "instruction": "sudo yum remove -y htop"
       }
-```json
+```
 
 Like in Docker, `RUN` will execute the command on the target machine, the
 parameters are:
@@ -303,7 +305,7 @@ Sets an environment variable on the target machine:
 
 ```json
 {
-    "name": "ENV",name
+    "name": "ENV",
     "description": "Sets the variable GOROOT to /usr/local/go",
     "environment": "GOROOT=/usr/local/go"
 }
