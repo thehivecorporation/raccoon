@@ -2,27 +2,29 @@ package connection
 
 import (
 	"bufio"
+	"fmt"
 
 	"github.com/Sirupsen/logrus"
 
 	"errors"
 
+	"os"
+
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
-	"os"
 )
 
 //Node is a remote machine (virtual or physical) that we will execute our
 //instructions on.
 type Node struct {
 	//IP of the remote host
-	IP           string `json:"ip"`
+	IP string `json:"ip"`
 
 	//Username to access remote host
-	Username     string `json:"username,omitempty"`
+	Username string `json:"username,omitempty"`
 
 	//Password to access remote host
-	Password     string `json:"password,omitempty"`
+	Password string `json:"password,omitempty"`
 
 	// TODO AuthFilePath corresponds to the path of the private key that could
 	// give access to a remote machine.
@@ -131,25 +133,14 @@ func (n *Node) GetSession() (*ssh.Session, error) {
 		return &ssh.Session{}, errors.New("Failed to create session: " + err.Error())
 	}
 
-	modes := ssh.TerminalModes{
-		ssh.ECHO:          0,     // disable echoing
-		ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
-		ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
-	}
-
-	if err := session.RequestPty("xterm", 80, 40, modes); err != nil {
-		session.Close()
-		return &ssh.Session{}, errors.New("request for pseudo terminal failed: " + err.Error())
-	}
-
 	stdout, err := session.StdoutPipe()
 	if err != nil {
-		return &ssh.Session{}, err
+		return &ssh.Session{}, fmt.Errorf("Error getting stdout pipe from session: %s", err.Error())
 	}
 
 	stderr, err := session.StderrPipe()
 	if err != nil {
-		return &ssh.Session{}, err
+		return &ssh.Session{}, fmt.Errorf("Error getting stdin pipe from session: %s", err.Error())
 	}
 
 	go n.sessionListenerRoutine(bufio.NewScanner(stdout))
