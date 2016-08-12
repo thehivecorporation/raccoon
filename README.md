@@ -255,5 +255,63 @@ curl -X POST -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d
 }' "http://localhost:8123"
 
 ```
+## Instructions:
+Until now we have developed the following instructions with their corresponding
+JSON formats:
 
-And you can test
+### RUN
+
+```json
+      {
+        "name": "RUN",
+        "description": "Removing htop",
+        "instruction": "sudo yum remove -y htop"
+      }
+```json
+
+Like in Docker, `RUN` will execute the command on the target machine, the
+parameters are:
+* name: The name of the command for the parser, for a `RUN` instruction is always `"RUN"`
+* description: A description of the instruction. This has no effect and it is
+only for logging purposes
+* instruction: The command to execute in the target machine
+
+### ADD
+
+```json
+      {
+        "name": "ADD",
+        "sourcePath": "raccoon.go",
+        "destPath": "/tmp",
+        "description": "copying raccoon.go to /tmp"
+      }
+```
+
+`ADD` uses `scp` to send a file to the destination machine. It just supports
+single files yet until we work in a folder solution (to send an entire folder):
+* name: "ADD" must always be placed here so that the parser recognizes the
+  instruction
+* sourcePath: The full source path and file name of the file to send. For
+  example: /tmp/fileToSend.log
+* destPath: The full path to leave the file into the target machine. The file
+  will have the same name.
+* description: Optional description parameters for logging purposes.
+
+### ENV
+
+Sets an environment variable on the target machine:
+
+```json
+{
+    "name": "ENV",name
+    "description": "Sets the variable GOROOT to /usr/local/go",
+    "environment": "GOROOT=/usr/local/go"
+}
+```
+
+The parser will look for a "=" in the "environment" value to split it into two
+pieces and set the environment variable.
+* name: "ENV" must always go here to use the ENV instruction
+* description: Optional description parameters for logging purposes.
+* environment: A key-value separated by a "=" to set in the target machine. Left
+  side will be the environment name. Right side its value.
