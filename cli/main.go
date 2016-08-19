@@ -1,16 +1,16 @@
-package raccoon_cli
+package main
 
 import (
 	"os"
 
 	"github.com/codegangsta/cli"
-	"github.com/thehivecorporation/raccoon/constants"
 	"github.com/thehivecorporation/raccoon/parser"
 	"github.com/thehivecorporation/raccoon/server"
+	"github.com/thehivecorporation/raccoon/constants"
 )
 
 //Init initializes the CLI functions
-func Init() {
+func main() {
 	app := cli.NewApp()
 	app.Name = constants.APP_NAME
 	app.Usage = constants.APP_DESCRIPTION
@@ -18,10 +18,10 @@ func Init() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:  constants.INSTRUCTIONS_NAME,
-			Usage: constants.INSTRUCTIONS_USAGE,
+			Name:  constants.COMMANDS_NAME,
+			Usage: constants.COMMANDS_USAGE,
 			Action: func(c *cli.Context) error {
-				err := parser.ExecuteZombieBook(c.String(constants.INSTRUCTIONS_NAME),
+				err := parser.ExecuteCommandsFile(c.String(constants.COMMANDS_NAME),
 					c.String(constants.HOSTS_FLAG_NAME))
 				if err != nil {
 					return err
@@ -30,8 +30,8 @@ func Init() {
 			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  constants.INSTRUCTIONS_FLAG_ALIAS,
-					Usage: constants.INSTRUCTIONS_USAGE,
+					Name:  constants.COMMANDS_FLAG_ALIAS,
+					Usage: constants.COMMANDS_USAGE,
 				},
 				cli.StringFlag{
 					Name: constants.HOSTS_FLAG_ALIAS,

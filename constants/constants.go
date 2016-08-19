@@ -3,7 +3,7 @@ package constants
 /* GLOBAL */
 
 const (
-	VERSION         string = "0.2.1"
+	VERSION         string = "0.2.2"
 	APP_DESCRIPTION string = "WIP App orchestration, configuration and deployment"
 	APP_NAME        string = "Raccoon"
 )
@@ -12,28 +12,28 @@ const (
 
 //INSTRUCTIONS AND HOSTS
 const (
-	INSTRUCTIONS_NAME string = "zombiebook"
+	COMMANDS_NAME string = "commands"
 
-	INSTRUCTIONS_FLAG_NAME  string = "zombiebook"
-	INSTRUCTIONS_FLAG_ALIAS string = "zombiebook, z"
-	INSTRUCTIONS_USAGE      string = "Execute a Zombiebook"
+	COMMANDS_FLAG_NAME  string = "commands"
+	COMMANDS_FLAG_ALIAS string = "commands, c"
+	COMMANDS_USAGE      string = "Execute a commands list"
 
-	HOSTS_FLAG_NAME     string = "mansion"
-	HOSTS_NAME          string = "room"
+	HOSTS_FLAG_NAME     string = "infrastructure"
+	HOSTS_NAME          string = "cluster"
 	HOST_LAUNCH_MESSAGE string = "Entering " + HOSTS_NAME + "..."
-	HOSTS_FLAG_ALIAS    string = "mansion, m"
-	HOSTS_FLAG_USAGE    string = "The Mansion file"
+	HOSTS_FLAG_ALIAS    string = "infrastructure, i"
+	HOSTS_FLAG_USAGE    string = "The Infrastructure file"
 
-	RELATIONSHIP_KEY string = "chapter"
+	RELATIONSHIP_KEY string = "commands"
 
-	GROUP_NAME string = "mansion"
+	GROUP_NAME string = "infrastructure"
 	MAINTAINER string = "maintainer"
 )
 
 //SERVER
 const (
 	SERVER_NAME  = "server"
-	SERVER_USAGE = "Launch a server to receive Zombiebook JSON files"
+	SERVER_USAGE = "Launch a server to receive Commands JSON files"
 
 	PORT_FLAG_NAME  = "port"
 	PORT_FLAG_ALIAS = "port, p"

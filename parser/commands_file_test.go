@@ -10,7 +10,7 @@ func TestReadZbookFile(t *testing.T) {
 	//Non existing filepath
 	filePath := "/tmp/i-do-not-exist"
 
-	_, err := readZbookFile(filePath)
+	_, err := readCommandFile(filePath)
 	if err == nil {
 		t.Fatal("After passing a non existing file a descriptive error must be thrown")
 	}
@@ -25,7 +25,7 @@ func TestReadZbookFile(t *testing.T) {
 	f.Close()
 	filePath = f.Name()
 
-	_, err = readZbookFile(filePath)
+	_, err = readCommandFile(filePath)
 	if err == nil {
 		t.Fatal("After passing a json with wrong structure an error must be thrown")
 	}
@@ -35,20 +35,20 @@ func TestReadZbookFile(t *testing.T) {
 
 
 	//Pass a correct JSON
-	filePath = "../examples/exampleBook.json"
+	filePath = "../examples/exampleCommands.json"
 
-	_, err = readZbookFile(filePath)
+	_, err = readCommandFile(filePath)
 	if err != nil {
 		t.Fatalf("JSON file was correct. No error must be here: %s\n", err.Error())
 	}
 
 	//Pass a syntactically correct zbook with no content
 	f, _ = ioutil.TempFile("/tmp", "no-content")
-	c := []chapter{
-		chapter{
+	c := []Commands{
+		Commands{
 			Title:           "chapter1",
 			Maintainer:      "maintainer",
-			RawInstructions: make([]map[string]string, 0), //Empty
+			Command: make([]map[string]string, 0), //Empty
 		},
 	}
 	by, _ := json.Marshal(c)
@@ -56,17 +56,17 @@ func TestReadZbookFile(t *testing.T) {
 	f.Close()
 	filePath = f.Name()
 
-	_, err = readZbookFile(filePath)
+	_, err = readCommandFile(filePath)
 	if err != nil {
 		t.Fatal("No instructions were provided but syntax was correct:", err)
 	}
 
 	//Create mocked data
-	cs := []chapter{
-		chapter{
+	cs := []Commands{
+		Commands{
 			Title:      "chapter1",
 			Maintainer: "maintainer",
-			RawInstructions: []map[string]string{
+			Command: []map[string]string{
 				0: {
 					"name":       "RUN",
 					"description": "Install htop",
@@ -83,23 +83,23 @@ func TestReadZbookFile(t *testing.T) {
 	}
 
 	//Clone the data 5 times
-	batteryTests := make([][]chapter,5)
+	batteryTests := make([][]Commands,5)
 	for i := 0; i<5; i++ {
 		batteryTests[i] = cs
 	}
 
 	//Delete some correct keys to replace them for incorrect ones
-	delete(batteryTests[0][0].RawInstructions[1], "instruction")
-	batteryTests[0][0].RawInstructions[1]["instru2ction"] = "sudo yum install -y htop"
+	delete(batteryTests[0][0].Command[1], "instruction")
+	batteryTests[0][0].Command[1]["instru2ction"] = "sudo yum install -y htop"
 
-	delete(batteryTests[1][0].RawInstructions[1], "sourcePath")
-	batteryTests[1][0].RawInstructions[1]["sourceP2ath"] = "source"
+	delete(batteryTests[1][0].Command[1], "sourcePath")
+	batteryTests[1][0].Command[1]["sourceP2ath"] = "source"
 
-	delete(batteryTests[2][0].RawInstructions[1], "destPath")
-	batteryTests[2][0].RawInstructions[1]["dest2Path"] = "dest"
+	delete(batteryTests[2][0].Command[1], "destPath")
+	batteryTests[2][0].Command[1]["dest2Path"] = "dest"
 
-	delete(batteryTests[3][0].RawInstructions[1], "name")
-	batteryTests[3][0].RawInstructions[1]["n2me"] = "ADD"
+	delete(batteryTests[3][0].Command[1], "name")
+	batteryTests[3][0].Command[1]["n2me"] = "ADD"
 
 	for i := 0; i<5; i++ {
 		f, _ = ioutil.TempFile("/tmp", "raccoon_temp")
@@ -108,7 +108,7 @@ func TestReadZbookFile(t *testing.T) {
 		f.Close()
 		filePath = f.Name()
 
-		_, err = readZbookFile(filePath)
+		_, err = readCommandFile(filePath)
 		if err == nil {
 			t.Fatalf("Syntax was incorrect but no error found on index %d",i)
 		}

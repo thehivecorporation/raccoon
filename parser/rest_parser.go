@@ -3,8 +3,8 @@ package parser
 import "encoding/json"
 
 type request struct {
-	Zombiebook zombiebook  `json:"zombiebook"`
-	Mansion    mansion `json:"mansion"`
+	Zombiebook commands  `json:"zombiebook"`
+	Mansion    Infrastructure `json:"mansion"`
 }
 
 //ParseRequest is called by the REST server to parse the JSON of a request
@@ -15,7 +15,7 @@ func ParseRequest(byt []byte) error {
 		return err
 	}
 
-	generatedJobs, err := generateZbookJob(req.Zombiebook)
+	generatedJobs, err := generateCommandsJob(req.Zombiebook)
 	if err != nil {
 		return err
 	}

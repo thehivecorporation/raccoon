@@ -13,52 +13,52 @@ import (
 
 //ExecuteZombieBook will take a zombiebook.json file and a mansion.file as
 //arguments to pair them and use the job dispatcher (also in this file)
-func ExecuteZombieBook(zbookFile, mansionFile string) error {
-	if zbookFile == "" {
+func ExecuteCommandsFile(commandsFilePath, infrastructureFilePath string) error {
+	if commandsFilePath == "" {
 		err := fmt.Errorf("You must provide a %s file. Check raccoon %s --help",
-			constants.INSTRUCTIONS_NAME, constants.INSTRUCTIONS_NAME)
+			constants.COMMANDS_NAME, constants.COMMANDS_NAME)
 		log.Error(err)
 		return err
 	}
 
-	if mansionFile == "" {
+	if infrastructureFilePath == "" {
 		err := fmt.Errorf("You must provide a %s file. Check raccoon %s --help",
-			constants.HOSTS_FLAG_NAME, constants.INSTRUCTIONS_NAME)
+			constants.HOSTS_FLAG_NAME, constants.COMMANDS_NAME)
 		log.Error(err)
 		return err
 	}
 
 	//Check for the zombiebook specified in -f flag
-	zbook, err := readZbookFile(zbookFile)
+	commandsFile, err := readCommandFile(commandsFilePath)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
 
 	//Check for the mansion specified in the -m flag
-	mansion, err := readMansionFile(mansionFile)
+	infrastructureFile, err := readInfrastructureFile(infrastructureFilePath)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
 
-	return generateJobs(mansion, zbook)
+	return generateJobs(infrastructureFile, commandsFile)
 }
 
-func generateJobs(mansion *mansion, zbook job.Zbook) error {
+func generateJobs(infrastructure *Infrastructure, zbook job.CommandsFile) error {
 	jobs := make([]job.Job, 0)
-	for _, room := range mansion.Rooms {
+	for _, room := range infrastructure.Clusters {
 		//Each room is a cluster
-		for _, chapter := range zbook {
+		for _, commands := range zbook {
 			//Compare every assigned chapter to every cluster
-			if strings.ToLower(chapter.Title) == strings.ToLower(room.Chapter) {
+			if strings.ToLower(commands.Title) == strings.ToLower(room.Commands) {
 				jobs = append(jobs, job.Job{
 					Cluster: connection.Cluster{
 						Name:    room.Name,
-						Chapter: room.Chapter,
+						Commands: room.Commands,
 						Nodes:   room.Hosts,
 					},
-					Chapter: chapter,
+					Commands: commands,
 				})
 			}
 		}

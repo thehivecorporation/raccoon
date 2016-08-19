@@ -30,12 +30,12 @@ func CreateTestFileWithString(content string) (filePath string) {
 
 func TestReadMansionFile(t *testing.T) {
 	//Create syntactically correct mock object without instructions
-	rawContent := mansion{
+	rawContent := Infrastructure{
 		Name: "mansion name",
-		Rooms: []room{
-			room{
+		Clusters: []Cluster{
+			Cluster{
 				Name:    "room name",
-				Chapter: "a chapter",
+				Commands: "a chapter",
 				Hosts: []connection.Node{
 					connection.Node{
 						IP:       "192.168.1.44",
@@ -54,19 +54,19 @@ func TestReadMansionFile(t *testing.T) {
 
 	//Check mansion file doesn't exist
 	filePath := "/tmp/i-do-not-exist"
-	_, err := readMansionFile(filePath)
+	_, err := readInfrastructureFile(filePath)
 	if err == nil {
 		t.Fatal("An error must be thrown when passing a non existing file")
 	}
 
 	//Check mock object
-	_, err = readMansionFile(CreateTestFileWithJSON(rawContent))
+	_, err = readInfrastructureFile(CreateTestFileWithJSON(rawContent))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	//Pass a wrong syntax to json
-	_, err = readMansionFile(CreateTestFileWithString("{wrong:\"syntax\",}"))
+	_, err = readInfrastructureFile(CreateTestFileWithString("{wrong:\"syntax\",}"))
 	if err == nil {
 		t.Fatal("An error must be thrown when using a wrong JSON syntax")
 	}
@@ -103,7 +103,7 @@ func TestReadMansionFile(t *testing.T) {
 	//TODO incorrectly formatted IP
 
 	for i := 0; i < testNumber; i++ {
-		_, err = readMansionFile(CreateTestFileWithString(wrongSyntax[i]))
+		_, err = readInfrastructureFile(CreateTestFileWithString(wrongSyntax[i]))
 		if err == nil {
 			t.Fatalf("An error must be thrown when passing a incorrect syntax like 'inst2ruction' on index %d\n",i)
 		} else {

@@ -1,8 +1,8 @@
 [
   {
-    "chapter_title": "chapter1",
+    "title": "chapter1",
     "maintainer": "Burkraith",
-    "instructions": [
+    "commands": [
       {
         "name": "ADD",
         "sourcePath": "raccoon.go",
@@ -23,9 +23,9 @@
     ]
   },
   {
-    "chapter_title": "chapter2",
+    "title": "chapter2",
     "maintainer": "Mario",
-    "instructions": [
+    "commands": [
       {
         "name": "RUN",
         "description": "Install htop",

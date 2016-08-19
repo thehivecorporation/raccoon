@@ -20,8 +20,8 @@ func Dispatch(js *[]job.Job) error {
 	for _, job := range *js {
 		log.WithFields(log.Fields{
 			constants.HOSTS_NAME: job.Cluster.Name,
-			constants.GROUP_NAME: job.Chapter.Title,
-			constants.MAINTAINER: job.Chapter.Maintainer,
+			constants.GROUP_NAME: job.Commands.Title,
+			constants.MAINTAINER: job.Commands.Maintainer,
 			"package":            "dispatcher",
 		}).Info(constants.HOST_LAUNCH_MESSAGE)
 
@@ -46,7 +46,7 @@ func executeRecipeOnNode(j job.Job, n connection.Node) {
 		}).Warn("Error initializing node: " + err.Error())
 	}
 
-	for _, instruction := range j.Chapter.Instructions {
+	for _, instruction := range j.Commands.Commands {
 		instruction.Execute(n)
 	}
 
