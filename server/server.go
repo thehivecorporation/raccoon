@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/labstack/echo/middleware"
-	"github.com/thehivecorporation/raccoon/constants"
+	"github.com/thehivecorporation/raccoon"
 	"github.com/thehivecorporation/raccoon/parser"
 )
 
@@ -27,7 +27,6 @@ func REST(c *cli.Context) {
 	e.Use(middleware.Recover())
 
 	e.POST("/", func(c echo.Context) error {
-
 		byt, err := ioutil.ReadAll(c.Request().Body())
 		if err != nil {
 			return err
@@ -47,7 +46,7 @@ func REST(c *cli.Context) {
 	})
 
 	log.WithFields(log.Fields{
-		constants.PORT_FLAG_NAME: c.String("port"),
+		raccoon.PORT_FLAG_NAME: c.String("port"),
 	}).Info("Starting Raccoon server...")
 
 	e.Run(standard.New(":" + c.String("port")))

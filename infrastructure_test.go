@@ -1,4 +1,4 @@
-package parser
+package raccoon
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/thehivecorporation/raccoon/connection"
+	"github.com/thehivecorporation/raccoon"
 )
 
 func CreateTestFileWithJSON(content interface{}) (filePath string) {
@@ -34,8 +35,8 @@ func TestReadMansionFile(t *testing.T) {
 		Name: "mansion name",
 		Clusters: []Cluster{
 			Cluster{
-				Name:    "room name",
-				Commands: "a chapter",
+				Name:     "room name",
+				Task: "a chapter",
 				Hosts: []connection.Node{
 					connection.Node{
 						IP:       "192.168.1.44",
@@ -74,7 +75,7 @@ func TestReadMansionFile(t *testing.T) {
 	//Pass syntactically correct data with wrong mansion syntax
 
 	testNumber := 8
-	wrongSyntax := make([]string,testNumber)
+	wrongSyntax := make([]string, testNumber)
 
 	//Empty rooms
 	wrongSyntax[0] = "{\"name\":\"A name\", \"rooms\":[] }"
@@ -105,7 +106,7 @@ func TestReadMansionFile(t *testing.T) {
 	for i := 0; i < testNumber; i++ {
 		_, err = readInfrastructureFile(CreateTestFileWithString(wrongSyntax[i]))
 		if err == nil {
-			t.Fatalf("An error must be thrown when passing a incorrect syntax like 'inst2ruction' on index %d\n",i)
+			t.Fatalf("An error must be thrown when passing a incorrect syntax like 'inst2ruction' on index %d\n", i)
 		} else {
 			t.Log(err)
 		}

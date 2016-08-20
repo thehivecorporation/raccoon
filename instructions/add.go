@@ -6,7 +6,7 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/thehivecorporation/raccoon/connection"
+	"github.com/thehivecorporation/raccoon"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -23,7 +23,7 @@ type ADD struct {
 }
 
 //Execute is the implementation of the Instruction interface for a ADD instruction
-func (c *ADD) Execute(n connection.Node) {
+func (c *ADD) Execute(n raccoon.Node) {
 	session, err := n.GetSession()
 	if err != nil {
 		log.WithFields(log.Fields{

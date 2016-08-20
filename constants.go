@@ -1,4 +1,4 @@
-package constants
+package raccoon
 
 /* GLOBAL */
 
@@ -12,17 +12,17 @@ const (
 
 //INSTRUCTIONS AND HOSTS
 const (
-	COMMANDS_NAME string = "commands"
+	TASKS_NAME string = "commands"
 
 	COMMANDS_FLAG_NAME  string = "commands"
 	COMMANDS_FLAG_ALIAS string = "commands, c"
 	COMMANDS_USAGE      string = "Execute a commands list"
 
-	HOSTS_FLAG_NAME     string = "infrastructure"
-	HOSTS_NAME          string = "cluster"
-	HOST_LAUNCH_MESSAGE string = "Entering " + HOSTS_NAME + "..."
-	HOSTS_FLAG_ALIAS    string = "infrastructure, i"
-	HOSTS_FLAG_USAGE    string = "The Infrastructure file"
+	INFRASTRUCTURE            string = "infrastructure"
+	HOSTS_NAME                string = "cluster"
+	HOST_LAUNCH_MESSAGE       string = "Entering " + HOSTS_NAME + "..."
+	INFRASTRUCTURE_FLAG_ALIAS string = "infrastructure, i"
+	INFRASTRUCTURE_FLAG_USAGE string = "The Infrastructure file"
 
 	RELATIONSHIP_KEY string = "commands"
 

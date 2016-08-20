@@ -3,7 +3,7 @@ package instructions
 import (
 	log "github.com/Sirupsen/logrus"
 
-	"github.com/thehivecorporation/raccoon/connection"
+	"github.com/thehivecorporation/raccoon"
 )
 
 //RUN is a instruction that in the recipe file correspond to the CMD instruction.
@@ -21,7 +21,7 @@ type RUN struct {
 }
 
 //Execute is the implementation of the Instruction interface for a RUN instruction
-func (c *RUN) Execute(n connection.Node) {
+func (c *RUN) Execute(n raccoon.Node) {
 	session, err := n.GetSession()
 
 	if err != nil {

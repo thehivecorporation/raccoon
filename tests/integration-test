@@ -2,10 +2,10 @@
 
 cd examples
 vagrant up --provider virtualbox
-cd ..
+cd ../cli
 go build
-./raccoon zombiebook -z examples/exampleBook.json -m examples/exampleMansion.json
-rm raccoon
+./cli commands -z ../examples/exampleCommands.json -m ../examples/exampleInfrastructure.json
+rm cli
 cd examples
 vagrant halt
 vagrant destroy -f

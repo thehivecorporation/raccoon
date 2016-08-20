@@ -1,15 +1,14 @@
-package connection
+package raccoon
 
 import (
 	"bufio"
 	"fmt"
 
-	"github.com/Sirupsen/logrus"
-
 	"errors"
 
 	"os"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
 )
@@ -37,7 +36,7 @@ type Node struct {
 }
 
 //Specific logger for Node package
-var log = logrus.New()
+var nodeLogger = logrus.New()
 
 //Iterator used as "global variable" to get a new color from following array
 var colorIter int = 0
@@ -47,10 +46,10 @@ var colors [13]color.Attribute
 
 func init() {
 	//Sets our custom text formatter
-	log.Formatter = new(NodeTextFormatter)
+	nodeLogger.Formatter = new(NodeTextFormatter)
 
 	// Output to stderr instead of stdout, could also be a file.
-	log.Out = os.Stdout
+	nodeLogger.Out = os.Stdout
 
 	logrus.SetLevel(logrus.DebugLevel)
 
@@ -88,7 +87,7 @@ func (n *Node) InitializeNode() error {
 // a Node returning it
 func (n *Node) GetClient() (*ssh.Client, error) {
 
-	log.WithFields(logrus.Fields{
+	nodeLogger.WithFields(logrus.Fields{
 		"host":     n.IP,
 		"username": n.Username,
 		"package":  "connection",
@@ -119,7 +118,7 @@ func (n *Node) GetSession() (*ssh.Session, error) {
 		_, err := n.GetClient()
 
 		if err != nil {
-			log.WithFields(logrus.Fields{
+			nodeLogger.WithFields(logrus.Fields{
 				"host":    n.IP,
 				"package": "dispatcher",
 			}).Fatal("Error getting session: " + err.Error())
@@ -153,7 +152,7 @@ func (n *Node) GetSession() (*ssh.Session, error) {
 //parameter a scanner instance that is connected to an output
 func (n *Node) sessionListenerRoutine(s *bufio.Scanner) {
 	for s.Scan() {
-		log.WithFields(logrus.Fields{
+		nodeLogger.WithFields(logrus.Fields{
 			"host":     n.IP,
 			"username": n.Username,
 			"package":  "connection",

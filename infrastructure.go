@@ -1,4 +1,4 @@
-package parser
+package raccoon
 
 import (
 	"encoding/json"
@@ -7,30 +7,21 @@ import (
 	"errors"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/thehivecorporation/raccoon/connection"
-	"github.com/thehivecorporation/raccoon/constants"
 )
 
 //mansion is to parse json files and requests
 type Infrastructure struct {
-	Name     string `json:"name"`
+	Name     string    `json:"name"`
 	Clusters []Cluster `json:"clusters"`
-}
-
-//room is to parse json files and requests
-type Cluster struct {
-	Name     string
-	Commands string
-	Hosts    []connection.Node
 }
 
 //readInfrastructureFile takes a file path with a json containing a Infrastructure file and
 //returns a Infrastructure pointer
-func readInfrastructureFile(f string) (*Infrastructure, error) {
+func ReadInfrastructureFile(f string) (*Infrastructure, error) {
 	log.WithFields(log.Fields{
-		constants.HOSTS_NAME: f,
-		"package":            "parser",
-	}).Info("Reading " + constants.HOSTS_FLAG_NAME + " file")
+		HOSTS_NAME: f,
+		"package":  "parser",
+	}).Info("Reading " + INFRASTRUCTURE + " file")
 
 	var _inf Infrastructure
 
@@ -47,61 +38,60 @@ func readInfrastructureFile(f string) (*Infrastructure, error) {
 	return checkErrors(&_inf)
 }
 
-
 //checkErrors is used to perform error checking on mansion json file
 func checkErrors(m *Infrastructure) (*Infrastructure, error) {
 	err := false
 	if len(m.Clusters) == 0 {
-		log.Error("No " + constants.HOSTS_NAME + " were found on " + constants.HOSTS_FLAG_NAME + " file")
+		log.Error("No " + HOSTS_NAME + " were found on " + INFRASTRUCTURE + " file")
 		err = true
 	}
 
 	if m.Name == "" {
-		log.Errorf("%s name can't be blank", constants.HOSTS_FLAG_NAME)
+		log.Errorf("%s name can't be blank", INFRASTRUCTURE)
 		err = true
 	}
 
-	for _, room := range m.Clusters {
-		if len(room.Hosts) == 0 {
+	for _, cluster := range m.Clusters {
+		if len(cluster.Hosts) == 0 {
 			log.Errorf("No hosts were found on %s '%s' for %s '%s'",
-				constants.HOSTS_NAME, room.Name, constants.RELATIONSHIP_KEY,
-				room.Commands)
+				HOSTS_NAME, cluster.Name, RELATIONSHIP_KEY,
+				cluster.Commands)
 			err = true
 		}
 
-		if room.Name == "" {
-			log.Errorf("%s name can't be blank", constants.HOSTS_NAME)
+		if cluster.Name == "" {
+			log.Errorf("%s name can't be blank", HOSTS_NAME)
 			err = true
 		}
 
-		if room.Commands == "" {
+		if cluster.Commands == "" {
 			log.Errorf("%s name can't be blank on %s '%s'",
-				constants.RELATIONSHIP_KEY, constants.HOSTS_NAME, room.Name)
+				RELATIONSHIP_KEY, HOSTS_NAME, cluster.Name)
 			err = true
 		}
 
-		for _, host := range room.Hosts {
+		for _, host := range cluster.Hosts {
 			if host.Username == "" {
 				log.Errorf("Host username can't be blank on %s '%s'",
-					constants.HOSTS_NAME, room.Name)
+					HOSTS_NAME, cluster.Name)
 				err = true
 			}
 
 			if host.Password == "" {
 				log.Errorf("Host password can't be blank on %s '%s'",
-					constants.HOSTS_NAME, room.Name)
+					HOSTS_NAME, cluster.Name)
 				err = true
 			}
 
 			if host.IP == "" {
 				log.Errorf("Host IP can't be blank on %s '%s'",
-					constants.HOSTS_NAME, room.Name)
+					HOSTS_NAME, cluster.Name)
 				err = true
 			}
 		}
 	}
 	if err {
-		return &Infrastructure{}, errors.New("Error found when parsing " + constants.HOSTS_FLAG_NAME + " file")
+		return &Infrastructure{}, errors.New("Error found when parsing " + INFRASTRUCTURE + " file")
 	}
 
 	return m, nil

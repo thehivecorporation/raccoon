@@ -1,26 +1,26 @@
 package parser
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/thehivecorporation/raccoon"
+)
 
-type request struct {
-	Zombiebook commands  `json:"zombiebook"`
-	Mansion    Infrastructure `json:"mansion"`
-}
+
 
 //ParseRequest is called by the REST server to parse the JSON of a request
 func ParseRequest(byt []byte) error {
-	req := request{}
+	req := raccoon.Request{}
 	err := json.Unmarshal(byt, &req)
 	if err != nil {
 		return err
 	}
 
-	generatedJobs, err := generateCommandsJob(req.Zombiebook)
+	generatedJobs, err := generateCommandsJob(req.CommandsFile)
 	if err != nil {
 		return err
 	}
 
-	generateJobs(&req.Mansion, generatedJobs)
+	generateJobs(&req.Infrastructure, generatedJobs)
 
 	return nil
 }

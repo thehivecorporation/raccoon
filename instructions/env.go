@@ -1,10 +1,9 @@
 package instructions
 
 import (
-	"github.com/thehivecorporation/raccoon/connection"
-
 	log "github.com/Sirupsen/logrus"
 
+	"github.com/thehivecorporation/raccoon"
 	"strings"
 )
 
@@ -14,7 +13,7 @@ type ENV struct {
 	Environment string
 }
 
-func (e *ENV) Execute(n connection.Node) {
+func (e *ENV) Execute(n raccoon.Node) {
 	session, err := n.GetSession()
 	if err != nil {
 		log.WithFields(log.Fields{

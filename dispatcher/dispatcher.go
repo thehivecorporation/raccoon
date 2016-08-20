@@ -4,9 +4,7 @@ import (
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/thehivecorporation/raccoon/connection"
-	"github.com/thehivecorporation/raccoon/constants"
-	"github.com/thehivecorporation/raccoon/job"
+	"github.com/thehivecorporation/raccoon"
 )
 
 // A Sync group to wait all sessions to finish before exiting the app
@@ -15,17 +13,17 @@ var wg sync.WaitGroup
 //Dispatch receives a Job struct and is the one in charge of iterating for each
 //Node within the job cluster of nodes and open a new routine for each of them
 //with the recipe to execute.
-func Dispatch(js *[]job.Job) error {
+func Dispatch(js *[]raccoon.Job) error {
 
 	for _, job := range *js {
 		log.WithFields(log.Fields{
-			constants.HOSTS_NAME: job.Cluster.Name,
-			constants.GROUP_NAME: job.Commands.Title,
-			constants.MAINTAINER: job.Commands.Maintainer,
-			"package":            "dispatcher",
-		}).Info(constants.HOST_LAUNCH_MESSAGE)
+			raccoon.HOSTS_NAME: job.Cluster.Name,
+			raccoon.GROUP_NAME: job.Task.Title,
+			raccoon.MAINTAINER: job.Task.Maintainer,
+			"package":          "dispatcher",
+		}).Info(raccoon.HOST_LAUNCH_MESSAGE)
 
-		for _, node := range job.Cluster.Nodes {
+		for _, node := range job.Cluster.Hosts {
 			wg.Add(1)
 			go executeRecipeOnNode(job, node)
 		}
@@ -37,7 +35,7 @@ func Dispatch(js *[]job.Job) error {
 
 //executeRecipeOnNode will take every instruction of the recipe and execute it
 //in order on each node. Instructions are executed sequentially
-func executeRecipeOnNode(j job.Job, n connection.Node) {
+func executeRecipeOnNode(j raccoon.Job, n raccoon.Node) {
 	err := n.InitializeNode()
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -46,7 +44,7 @@ func executeRecipeOnNode(j job.Job, n connection.Node) {
 		}).Warn("Error initializing node: " + err.Error())
 	}
 
-	for _, instruction := range j.Commands.Commands {
+	for _, instruction := range j.Task.Commands {
 		instruction.Execute(n)
 	}
 

@@ -4,25 +4,25 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
+	"github.com/thehivecorporation/raccoon"
 	"github.com/thehivecorporation/raccoon/parser"
 	"github.com/thehivecorporation/raccoon/server"
-	"github.com/thehivecorporation/raccoon/constants"
 )
 
 //Init initializes the CLI functions
 func main() {
 	app := cli.NewApp()
-	app.Name = constants.APP_NAME
-	app.Usage = constants.APP_DESCRIPTION
-	app.Version = constants.VERSION
+	app.Name = raccoon.APP_NAME
+	app.Usage = raccoon.APP_DESCRIPTION
+	app.Version = raccoon.VERSION
 
 	app.Commands = []cli.Command{
 		{
-			Name:  constants.COMMANDS_NAME,
-			Usage: constants.COMMANDS_USAGE,
+			Name:  raccoon.TASKS_NAME,
+			Usage: raccoon.COMMANDS_USAGE,
 			Action: func(c *cli.Context) error {
-				err := parser.ExecuteCommandsFile(c.String(constants.COMMANDS_NAME),
-					c.String(constants.HOSTS_FLAG_NAME))
+				err := parser.CreateJobWithFiles(c.String(raccoon.TASKS_NAME),
+					c.String(raccoon.INFRASTRUCTURE))
 				if err != nil {
 					return err
 				}
@@ -30,24 +30,23 @@ func main() {
 			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  constants.COMMANDS_FLAG_ALIAS,
-					Usage: constants.COMMANDS_USAGE,
+					Name:  raccoon.COMMANDS_FLAG_ALIAS,
+					Usage: raccoon.COMMANDS_USAGE,
 				},
 				cli.StringFlag{
-					Name: constants.HOSTS_FLAG_ALIAS,
-
-					Usage: constants.HOSTS_FLAG_USAGE,
+					Name:  raccoon.INFRASTRUCTURE_FLAG_ALIAS,
+					Usage: raccoon.INFRASTRUCTURE_FLAG_USAGE,
 				},
 			},
 		},
 		{
-			Name:   constants.SERVER_NAME,
-			Usage:  constants.SERVER_USAGE,
+			Name:   raccoon.SERVER_NAME,
+			Usage:  raccoon.SERVER_USAGE,
 			Action: server.REST,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  constants.PORT_FLAG_ALIAS,
-					Usage: constants.PORT_FLAG_USAGE,
+					Name:  raccoon.PORT_FLAG_ALIAS,
+					Usage: raccoon.PORT_FLAG_USAGE,
 					Value: "8123",
 				},
 			},

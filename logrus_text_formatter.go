@@ -1,4 +1,4 @@
-package connection
+package raccoon
 
 import (
 	"bytes"

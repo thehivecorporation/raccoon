@@ -43,7 +43,7 @@ func main() {
 
 	/** IT WORKS*/
 	scanner := bufio.NewScanner(stdout)
-	go func(){
+	go func() {
 		for scanner.Scan() {
 			fmt.Println("Hello: " + scanner.Text()) // Println will add back the final '\n'
 		}
