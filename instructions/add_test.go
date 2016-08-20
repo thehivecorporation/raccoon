@@ -4,11 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/thehivecorporation/raccoon/connection"
+	"github.com/thehivecorporation/raccoon"
 )
 
 func TestExecuteAddInstruction(t *testing.T) {
-	node := connection.Node{
+	node := raccoon.Host{
 		IP:       "127.0.0.1",
 		Username: "root",
 		Password: "root",
@@ -57,7 +57,7 @@ func TestExecuteAddInstruction(t *testing.T) {
 }
 
 func TestCopyFileToHost(t *testing.T) {
-	node := connection.Node{}
+	node := raccoon.Host{}
 	node.IP = "127.0.0.1"
 	node.Username = "root"
 	node.Password = "root"

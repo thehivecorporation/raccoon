@@ -13,7 +13,7 @@ type ENV struct {
 	Environment string
 }
 
-func (e *ENV) Execute(n raccoon.Node) {
+func (e *ENV) Execute(n raccoon.Host) {
 	session, err := n.GetSession()
 	if err != nil {
 		log.WithFields(log.Fields{

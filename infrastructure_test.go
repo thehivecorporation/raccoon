@@ -33,7 +33,7 @@ func TestReadMansionFile(t *testing.T) {
 	//Create syntactically correct mock object without instructions
 	rawContent := Infrastructure{
 		Name: "mansion name",
-		Clusters: []Cluster{
+		Infrastructure: []Cluster{
 			Cluster{
 				Name:     "room name",
 				Task: "a chapter",

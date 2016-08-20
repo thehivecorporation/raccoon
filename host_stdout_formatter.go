@@ -35,9 +35,9 @@ func miniTS() int {
 	return int(time.Since(baseTimestamp) / time.Second)
 }
 
-//NodeTextFormatter is a custom Logrus text formatter to fit the colored output
-//needs of Raccoon.
-type NodeTextFormatter struct {
+//HostStdoutFormatter is a custom Logrus text formatter to fit the colored
+// output needs of Raccoon.
+type HostStdoutFormatter struct {
 	// Set to true to bypass checking for a TTY before outputting colors.
 	ForceColors bool
 
@@ -71,8 +71,8 @@ type NodeTextFormatter struct {
 //
 //  {"level": "info", "fields.level": 1, "msg": "hello", "time": "..."}
 //
-// It's not exported because it's still using Data in an opinionated way. It's to
-// avoid code duplication between the two default formatters.
+// It's not exported because it's still using Data in an opinionated way. It's
+// to avoid code duplication between the two default formatters.
 func prefixFieldClashes(data logrus.Fields) {
 	if t, ok := data["time"]; ok {
 		data["fields.time"] = t
@@ -87,7 +87,7 @@ func prefixFieldClashes(data logrus.Fields) {
 	}
 }
 
-func (f *NodeTextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (f *HostStdoutFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var keys []string = make([]string, 0, len(entry.Data))
 	for k := range entry.Data {
 		keys = append(keys, k)
@@ -127,7 +127,7 @@ func (f *NodeTextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func (f *NodeTextFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry, keys []string, timestampFormat string) {
+func (f *HostStdoutFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry, keys []string, timestampFormat string) {
 	var levelColor int
 	switch entry.Level {
 	case logrus.DebugLevel:
@@ -148,9 +148,12 @@ func (f *NodeTextFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry, k
 	host, _ := entry.Data["host"].(string)
 
 	if !f.FullTimestamp {
-		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%04d] %-15s %-44s", levelColor, levelText, miniTS(), myColor(host), myColor(entry.Message))
+		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%04d] %-15s %-44s", levelColor,
+			levelText, miniTS(), myColor(host), myColor(entry.Message))
 	} else {
-		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%s] %-15s %-44s", levelColor, levelText, entry.Time.Format(timestampFormat), myColor(host), myColor(entry.Message))
+		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%s] %-15s %-44s", levelColor,
+			levelText, entry.Time.Format(timestampFormat), myColor(host),
+			myColor(entry.Message))
 	}
 	for _, k := range keys {
 		if k != "host" && k != "color" { //Do not print "color" and "host" fields
@@ -179,7 +182,7 @@ func needsQuoting(text string) bool {
 	return false
 }
 
-func (f *NodeTextFormatter) appendKeyValue(b *bytes.Buffer, key string, value interface{}) {
+func (f *HostStdoutFormatter) appendKeyValue(b *bytes.Buffer, key string, value interface{}) {
 
 	b.WriteString(key)
 	b.WriteByte('=')

@@ -5,7 +5,7 @@
     "commands": [
       {
         "name": "ADD",
-        "sourcePath": "raccoon.go",
+        "sourcePath": "main.go",
         "destPath": "/tmp",
         "description": "Raccoon.go to /tmp"
       },
@@ -16,7 +16,7 @@
       },
       {
         "name": "ADD",
-        "sourcePath": "raccoon.go",
+        "sourcePath": "main.go",
         "destPath": "/tmp",
         "description": "copying raccoon.go to /tmp"
       }

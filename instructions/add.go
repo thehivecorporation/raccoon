@@ -23,7 +23,7 @@ type ADD struct {
 }
 
 //Execute is the implementation of the Instruction interface for a ADD instruction
-func (c *ADD) Execute(n raccoon.Node) {
+func (c *ADD) Execute(n raccoon.Host) {
 	session, err := n.GetSession()
 	if err != nil {
 		log.WithFields(log.Fields{

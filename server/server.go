@@ -1,8 +1,10 @@
 package server
 
 import (
-	"io/ioutil"
+	"encoding/json"
 	"net/http"
+
+	"io"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
@@ -13,8 +15,9 @@ import (
 	"github.com/thehivecorporation/raccoon/parser"
 )
 
-type response struct {
-	Status string `json:"status"`
+type request struct {
+	RawTaskList    *[]raccoon.Task         `json:"commandsList"`
+	Infrastructure *raccoon.Infrastructure `json:"infrastructure"`
 }
 
 //REST is the server that is launched when a user selects the "server" option
@@ -27,22 +30,24 @@ func REST(c *cli.Context) {
 	e.Use(middleware.Recover())
 
 	e.POST("/", func(c echo.Context) error {
-		byt, err := ioutil.ReadAll(c.Request().Body())
+		req, err := parseRequest(c.Request().Body())
+
+		jobParser := parser.JobParser{}
+
+		taskList, err := jobParser.GetTaskListFromRawTask(req.RawTaskList)
 		if err != nil {
 			return err
 		}
 
-		err = parser.ParseRequest(byt)
-		if err != nil {
-			log.Error(err)
-			return err
-		}
+		jobParser.BuildJobList(req.Infrastructure, taskList)
 
-		s := response{
+		rsp := struct {
+			Status string
+		}{
 			Status: "ok",
 		}
 
-		return c.JSON(http.StatusOK, s)
+		return c.JSON(http.StatusOK, rsp)
 	})
 
 	log.WithFields(log.Fields{
@@ -50,4 +55,15 @@ func REST(c *cli.Context) {
 	}).Info("Starting Raccoon server...")
 
 	e.Run(standard.New(":" + c.String("port")))
+}
+
+func parseRequest(r io.Reader) (*request, error) {
+	req := request{}
+
+	err := json.NewDecoder(r).Decode(&req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &req, nil
 }

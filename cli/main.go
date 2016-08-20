@@ -19,9 +19,10 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:  raccoon.TASKS_NAME,
-			Usage: raccoon.COMMANDS_USAGE,
+			Usage: raccoon.TASKS_USAGE,
 			Action: func(c *cli.Context) error {
-				err := parser.CreateJobWithFiles(c.String(raccoon.TASKS_NAME),
+				jobParser := parser.JobParser{}
+				err := jobParser.CreateJobWithFilePaths(c.String(raccoon.TASKS_NAME),
 					c.String(raccoon.INFRASTRUCTURE))
 				if err != nil {
 					return err
@@ -30,8 +31,8 @@ func main() {
 			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  raccoon.COMMANDS_FLAG_ALIAS,
-					Usage: raccoon.COMMANDS_USAGE,
+					Name:  raccoon.TASKS_FLAG_ALIAS,
+					Usage: raccoon.TASKS_USAGE,
 				},
 				cli.StringFlag{
 					Name:  raccoon.INFRASTRUCTURE_FLAG_ALIAS,

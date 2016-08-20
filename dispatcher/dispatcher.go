@@ -35,7 +35,7 @@ func Dispatch(js *[]raccoon.Job) error {
 
 //executeRecipeOnNode will take every instruction of the recipe and execute it
 //in order on each node. Instructions are executed sequentially
-func executeRecipeOnNode(j raccoon.Job, n raccoon.Node) {
+func executeRecipeOnNode(j raccoon.Job, n raccoon.Host) {
 	err := n.InitializeNode()
 	if err != nil {
 		log.WithFields(log.Fields{

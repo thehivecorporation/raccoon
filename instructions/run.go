@@ -21,13 +21,13 @@ type RUN struct {
 }
 
 //Execute is the implementation of the Instruction interface for a RUN instruction
-func (c *RUN) Execute(n raccoon.Node) {
-	session, err := n.GetSession()
+func (c *RUN) Execute(h raccoon.Host) {
+	session, err := h.GetSession()
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Instruction": "RUN",
-			"Node":        n.IP,
+			"Instruction": c.Name,
+			"Node":        h.IP,
 			"package":     "instructions",
 		}).Error(err.Error())
 
@@ -38,11 +38,19 @@ func (c *RUN) Execute(n raccoon.Node) {
 
 	log.WithFields(log.Fields{
 		"Instruction": c.Name,
-		"Node":        n.IP,
+		"Node":        h.IP,
 		"package":     "instructions",
 	}).Info(c.Description)
 
-	session.Run(c.Instruction)
+	if err = session.Run(c.Instruction); err != nil {
+		log.WithFields(log.Fields{
+			"Instruction": c.Name,
+			"Description": c.Description,
+			"Command":     "'" + c.Instruction + "'",
+			"Node":        h.IP,
+			"package":     "instructions",
+		}).Error(err.Error())
+	}
 
 	session.Close()
 }

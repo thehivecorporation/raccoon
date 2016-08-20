@@ -12,6 +12,6 @@ type MAINTAINER struct {
 }
 
 //Execute is the implementation of the Instruction interface for a MAINTAINER instruction TODO
-func (c *MAINTAINER) Execute(n raccoon.Node) {
+func (c *MAINTAINER) Execute(n raccoon.Host) {
 	fmt.Printf("Maintainer: %s\n", c.Name)
 }

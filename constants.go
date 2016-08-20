@@ -12,11 +12,11 @@ const (
 
 //INSTRUCTIONS AND HOSTS
 const (
-	TASKS_NAME string = "commands"
+	TASKS_NAME string = "tasks"
 
-	COMMANDS_FLAG_NAME  string = "commands"
-	COMMANDS_FLAG_ALIAS string = "commands, c"
-	COMMANDS_USAGE      string = "Execute a commands list"
+	TASKS_FLAG_NAME  string = "tasks"
+	TASKS_FLAG_ALIAS string = "tasks, t"
+	TASKS_USAGE      string = "Execute a task list"
 
 	INFRASTRUCTURE            string = "infrastructure"
 	HOSTS_NAME                string = "cluster"
