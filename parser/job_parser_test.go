@@ -41,7 +41,7 @@ func TestReadTaskFile(t *testing.T) {
 	//Non existing filepath
 	filePath := "/tmp/i-do-not-exist"
 
-	_, err := jobParser.GetTaskListFromTask(filePath)
+	_, err := jobParser.ParseTaskList(filePath)
 	if err == nil {
 		t.Fatal("After passing a non existing file a descriptive error must be thrown")
 	}
@@ -55,7 +55,7 @@ func TestReadTaskFile(t *testing.T) {
 	f.Close()
 	filePath = f.Name()
 
-	_, err = jobParser.GetTaskListFromTask(filePath)
+	_, err = jobParser.ParseTaskList(filePath)
 	if err == nil {
 		t.Fatal("After passing a json with wrong structure an error must be thrown")
 	}
@@ -66,7 +66,7 @@ func TestReadTaskFile(t *testing.T) {
 	//Pass a correct JSON
 	filePath = "../examples/exampleTasks.json"
 
-	_, err = jobParser.GetTaskListFromTask(filePath)
+	_, err = jobParser.ParseTaskList(filePath)
 	if err != nil {
 		t.Fatalf("JSON file was correct. No error must be here: %s\n", err.Error())
 	}
@@ -85,7 +85,7 @@ func TestReadTaskFile(t *testing.T) {
 	f.Close()
 	filePath = f.Name()
 
-	_, err = jobParser.GetTaskListFromTask(filePath)
+	_, err = jobParser.ParseTaskList(filePath)
 	if err != nil {
 		t.Fatal("No instructions were provided but syntax was correct:", err)
 	}
@@ -137,7 +137,7 @@ func TestReadTaskFile(t *testing.T) {
 		f.Close()
 		filePath = f.Name()
 
-		_, err = jobParser.GetTaskListFromTask(filePath)
+		_, err = jobParser.ParseTaskList(filePath)
 		if err == nil {
 			t.Fatalf("Syntax was incorrect but no error found on index %d", i)
 		}

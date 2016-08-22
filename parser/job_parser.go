@@ -33,7 +33,7 @@ func (j *JobParser) CreateJobWithFilePaths(tasksFilePath, infrastructureFilePath
 	if err != nil {
 		return j.printError(err)
 	}
-	taskList, err := j.GetTaskListFromTask(rawTaskList)
+	taskList, err := j.ParseTaskList(rawTaskList)
 	if err != nil {
 		return j.printError(err)
 	}
@@ -74,9 +74,9 @@ func (j *JobParser) BuildJobList(infrastructure *raccoon.Infrastructure, tasks *
 	return &jobs
 }
 
-//GetTaskListFromTask takes a taskList (group of commands) and check the
+//ParseTaskList takes a taskList (group of commands) and check the
 //commands of each instruction to assign the proper strategy
-func (j *JobParser) GetTaskListFromTask(rawTasks *[]raccoon.Task) (*[]raccoon.Task, error) {
+func (j *JobParser) ParseTaskList(rawTasks *[]raccoon.Task) (*[]raccoon.Task, error) {
 
 	taskList := []raccoon.Task{}
 
