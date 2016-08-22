@@ -37,10 +37,11 @@ func TestExecuteZombieBook(t *testing.T) {
 }
 func TestReadTaskFile(t *testing.T) {
 	jobParser := JobParser{}
+
 	//Non existing filepath
 	filePath := "/tmp/i-do-not-exist"
 
-	_, err := jobParser.GetTaskListFromRawTask(filePath)
+	_, err := jobParser.GetTaskListFromTask(filePath)
 	if err == nil {
 		t.Fatal("After passing a non existing file a descriptive error must be thrown")
 	}
@@ -54,7 +55,7 @@ func TestReadTaskFile(t *testing.T) {
 	f.Close()
 	filePath = f.Name()
 
-	_, err = jobParser.GetTaskListFromRawTask(filePath)
+	_, err = jobParser.GetTaskListFromTask(filePath)
 	if err == nil {
 		t.Fatal("After passing a json with wrong structure an error must be thrown")
 	}
@@ -65,15 +66,15 @@ func TestReadTaskFile(t *testing.T) {
 	//Pass a correct JSON
 	filePath = "../examples/exampleTasks.json"
 
-	_, err = jobParser.GetTaskListFromRawTask(filePath)
+	_, err = jobParser.GetTaskListFromTask(filePath)
 	if err != nil {
 		t.Fatalf("JSON file was correct. No error must be here: %s\n", err.Error())
 	}
 
 	//Pass a syntactically correct zbook with no content
 	f, _ = ioutil.TempFile("/tmp", "no-content")
-	c := []raccoon.RawTask{
-		raccoon.RawTask{
+	c := []raccoon.Task{
+		raccoon.Task{
 			Title:      "chapter1",
 			Maintainer: "maintainer",
 			Command:    make([]map[string]string, 0), //Empty
@@ -84,14 +85,14 @@ func TestReadTaskFile(t *testing.T) {
 	f.Close()
 	filePath = f.Name()
 
-	_, err = jobParser.GetTaskListFromRawTask(filePath)
+	_, err = jobParser.GetTaskListFromTask(filePath)
 	if err != nil {
 		t.Fatal("No instructions were provided but syntax was correct:", err)
 	}
 
 	//Create mocked data
-	cs := []raccoon.RawTask{
-		raccoon.RawTask{
+	cs := []raccoon.Task{
+		raccoon.Task{
 			Title:      "chapter1",
 			Maintainer: "maintainer",
 			Command: []map[string]string{
@@ -111,7 +112,7 @@ func TestReadTaskFile(t *testing.T) {
 	}
 
 	//Clone the data 5 times
-	batteryTests := make([][]raccoon.RawTask, 5)
+	batteryTests := make([][]raccoon.Task, 5)
 	for i := 0; i < 5; i++ {
 		batteryTests[i] = cs
 	}
@@ -136,7 +137,7 @@ func TestReadTaskFile(t *testing.T) {
 		f.Close()
 		filePath = f.Name()
 
-		_, err = jobParser.GetTaskListFromRawTask(filePath)
+		_, err = jobParser.GetTaskListFromTask(filePath)
 		if err == nil {
 			t.Fatalf("Syntax was incorrect but no error found on index %d", i)
 		}

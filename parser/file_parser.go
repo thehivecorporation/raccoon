@@ -13,7 +13,7 @@ type FileParser struct{}
 func (t *FileParser) Parse(filePath string) (io.Reader, error) {
 	log.WithFields(log.Fields{
 		"cluster": filePath,
-		"package": "parser",
+		"package": packageName,
 	}).Info("Reading " + filePath + " file")
 
 	if filePath == "" {
@@ -26,8 +26,9 @@ func (t *FileParser) Parse(filePath string) (io.Reader, error) {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"tasks":   filePath,
-			"package": "parser",
+			"package": packageName,
 		}).Errorf("Could not read %s file\n", filePath)
+
 		return nil, fmt.Errorf("Could not read %s file\n", filePath)
 	}
 

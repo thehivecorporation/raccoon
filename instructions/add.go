@@ -10,61 +10,55 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-//ADD is a instruction to copy files with scp
+//ADD copies a single file to the destination host folder
 type ADD struct {
 	//Source path of the file
 	SourcePath string
-	//Destination path of the file
+	//Destination path of the file in host
 	DestPath string
-	//Description of the instruction
+	//Description of the instruction (optional)
 	Description string
 	//The name that identifies this struct ("ADD" in this case)
 	Name string
 }
 
+func (a *ADD) GetCommandName() string {
+	return "ADD"
+}
+
 //Execute is the implementation of the Instruction interface for a ADD instruction
-func (c *ADD) Execute(n raccoon.Host) {
-	session, err := n.GetSession()
+func (a *ADD) Execute(h raccoon.Host) {
+	session, err := h.GetSession()
 	if err != nil {
-		log.WithFields(log.Fields{
-			"Instruction": "ADD",
-			"Node":        n.IP,
-			"package":     "instructions",
-		}).Error(err.Error())
+		logError(err, a, &h)
 		session.Close()
 
 		return
 	}
 	defer session.Close()
 
-	log.WithFields(log.Fields{
-		"Instruction": "ADD",
-		"Node":        n.IP,
-		"SourcePath":  c.SourcePath,
-		"DestPath":    c.DestPath,
-		"package":     "instructions",
-	}).Info(c.Description)
+	a.LogCommand(&h)
 
-	f, err := os.Open(c.SourcePath)
+	f, err := os.Open(a.SourcePath)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"Instruction": "ADD",
-			"Node":        n.IP,
-			"package":     "instructions",
-		}).Error(err.Error())
+		logError(err, a, &h)
 		return
 	}
 	defer f.Close()
 
-	err = copyToSession(session, c.DestPath, f)
-
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Instruction": "ADD",
-			"Node":        n.IP,
-			"package":     "instructions",
-		}).Error(err.Error())
+	if err = copyToSession(session, a.DestPath, f); err != nil {
+		logError(err, a, &h)
 	}
+}
+
+func (a *ADD)LogCommand(h *raccoon.Host){
+	log.WithFields(log.Fields{
+		"Instruction": a.GetCommandName(),
+		"Node":        h.IP,
+		"SourcePath":  a.SourcePath,
+		"DestPath":    a.DestPath,
+		"package":     "instructions",
+	}).Info(a.Description)
 }
 
 func copyToSession(session *ssh.Session, destinationFolder string, f *os.File) error {

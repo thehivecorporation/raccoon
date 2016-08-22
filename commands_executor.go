@@ -7,4 +7,10 @@ type CommandsExecutor interface {
 	//Execute is the method that each strategy will execute on the provided
 	//Host n
 	Execute(n Host)
+
+	//GetCommandName conveniently must return the name of the command that is
+	//implementing this interfacee. Possible values are ADD, RUN...
+	GetCommandName() string
+
+	LogCommand(h *Host)
 }

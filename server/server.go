@@ -34,7 +34,7 @@ func REST(c *cli.Context) {
 
 		jobParser := parser.JobParser{}
 
-		taskList, err := jobParser.GetTaskListFromRawTask(req.RawTaskList)
+		taskList, err := jobParser.GetTaskListFromTask(req.RawTaskList)
 		if err != nil {
 			return err
 		}

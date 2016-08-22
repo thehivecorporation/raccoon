@@ -1,12 +1,5 @@
 package raccoon
 
-//RawTask is a list of commands with a name and a maintainer
-type RawTask struct {
-	Title      string              `json:"title"`
-	Maintainer string              `json:"maintainer"`
-	Command    []map[string]string `json:"command"`
-}
-
 //Task is a list of commands to execute on a host. A task must have a Title
 //that must match with the title that was written in the task key of the
 //infrastructure file

@@ -24,7 +24,7 @@ func (t *InfrastructureFileParser) Build(r io.Reader) (*raccoon.Infrastructure, 
 	return t.checkErrors(&infrastructure)
 }
 
-//checkErrors is used to perform error checking on mansion json file
+//checkErrors is used to perform error checking on Infrastructure json file
 func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*raccoon.Infrastructure, error) {
 	err := false
 	if len(m.Infrastructure) == 0 {
@@ -49,8 +49,8 @@ func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*racc
 			err = true
 		}
 
-		if cluster.Task == "" {
-			log.Errorf("commands name can't be blank on cluster '%s'", cluster.Name)
+		if len(cluster.Task) == 0 {
+			log.Errorf("You haven't specified any task. Specify at least one as an string array on cluster '%s'", cluster.Name)
 			err = true
 		}
 

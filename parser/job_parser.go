@@ -21,7 +21,7 @@ func (j *JobParser) printError(err error) error {
 	return err
 }
 
-//CreateJobWithFiles will take a tasks and a infrastructure file as
+//CreateJobWithFilePaths will take a tasks and a infrastructure file as
 //arguments to pair them and use the job dispatcher (also in this file)
 func (j *JobParser) CreateJobWithFilePaths(tasksFilePath, infrastructureFilePath string) error {
 	taskParser := new(TaskFileParser)
@@ -33,7 +33,7 @@ func (j *JobParser) CreateJobWithFilePaths(tasksFilePath, infrastructureFilePath
 	if err != nil {
 		return j.printError(err)
 	}
-	taskList, err := j.GetTaskListFromRawTask(rawTaskList)
+	taskList, err := j.GetTaskListFromTask(rawTaskList)
 	if err != nil {
 		return j.printError(err)
 	}
@@ -57,27 +57,26 @@ func (j *JobParser) CreateJobWithFilePaths(tasksFilePath, infrastructureFilePath
 func (j *JobParser) BuildJobList(infrastructure *raccoon.Infrastructure, tasks *[]raccoon.Task) *[]raccoon.Job {
 	jobs := make([]raccoon.Job, 0)
 
-	for _, room := range infrastructure.Infrastructure {
-		//Each room is a cluster
-		for _, commands := range *tasks {
-			//Compare every assigned chapter to every cluster
-			if strings.ToLower(commands.Title) == strings.ToLower(room.Task) {
-				jobs = append(jobs, raccoon.Job{
-					Cluster: raccoon.Cluster{
-						Name:     room.Name,
-						Task: room.Task,
-						Hosts:    room.Hosts,
-					},
-					Task: commands,
-				})
+	for _, cluster := range infrastructure.Infrastructure {
+		for _, task := range cluster.Task {
+			for _, commands := range *tasks {
+				//Find the associated tasks for each cluster
+				if strings.ToLower(commands.Title) == strings.ToLower(task) {
+					jobs = append(jobs, raccoon.Job{
+						Cluster: cluster,
+						Task:    commands,
+					})
+				}
 			}
 		}
 	}
 
 	return &jobs
-} //GenerateTaskList takes a taskList (group of commands) and check the
+}
+
+//GetTaskListFromTask takes a taskList (group of commands) and check the
 //commands of each instruction to assign the proper strategy
-func (j *JobParser) GetTaskListFromRawTask(rawTasks *[]raccoon.Task) (*[]raccoon.Task, error) {
+func (j *JobParser) GetTaskListFromTask(rawTasks *[]raccoon.Task) (*[]raccoon.Task, error) {
 
 	taskList := []raccoon.Task{}
 

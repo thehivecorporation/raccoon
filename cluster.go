@@ -16,5 +16,5 @@ type Cluster struct {
 	//Task is the name of the commands group that will be executed in this
 	//cluster. This name must match the name written in the 'Title' member of the
 	//Tasks file. In future version it will work with an array os tasks too.
-	Task string `json:"tasks"`
+	Task []string `json:"tasks"`
 }
