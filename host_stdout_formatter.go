@@ -37,7 +37,7 @@ func miniTS() int {
 
 //HostStdoutFormatter is a custom Logrus text formatter to fit the colored
 // output needs of Raccoon.
-type HostStdoutFormatter struct {
+type hostStdoutFormatter struct {
 	// Set to true to bypass checking for a TTY before outputting colors.
 	ForceColors bool
 
@@ -87,7 +87,7 @@ func prefixFieldClashes(data logrus.Fields) {
 	}
 }
 
-func (f *HostStdoutFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (f *hostStdoutFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	var keys []string = make([]string, 0, len(entry.Data))
 	for k := range entry.Data {
 		keys = append(keys, k)
@@ -127,7 +127,7 @@ func (f *HostStdoutFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func (f *HostStdoutFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry, keys []string, timestampFormat string) {
+func (f *hostStdoutFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry, keys []string, timestampFormat string) {
 	var levelColor int
 	switch entry.Level {
 	case logrus.DebugLevel:
@@ -182,7 +182,7 @@ func needsQuoting(text string) bool {
 	return false
 }
 
-func (f *HostStdoutFormatter) appendKeyValue(b *bytes.Buffer, key string, value interface{}) {
+func (f *hostStdoutFormatter) appendKeyValue(b *bytes.Buffer, key string, value interface{}) {
 
 	b.WriteString(key)
 	b.WriteByte('=')

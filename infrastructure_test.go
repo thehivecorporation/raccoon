@@ -9,6 +9,7 @@ import (
 	"github.com/thehivecorporation/raccoon"
 )
 
+//TODO fix this test
 func CreateTestFileWithJSON(content interface{}) (filePath string) {
 	by, _ := json.Marshal(content)
 
@@ -37,13 +38,13 @@ func TestReadMansionFile(t *testing.T) {
 			Cluster{
 				Name:     "room name",
 				Task: "a chapter",
-				Hosts: []connection.Node{
-					connection.Node{
+				Hosts: []Host{
+					Host{
 						IP:       "192.168.1.44",
 						Username: "vagrant",
 						Password: "vagrant",
 					},
-					connection.Node{
+					Host{
 						IP:       "192.168.1.45",
 						Username: "vagrant",
 						Password: "vagrant",

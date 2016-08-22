@@ -6,7 +6,6 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/thehivecorporation/raccoon"
 )
 
 type FileParser struct{}
@@ -14,7 +13,7 @@ type FileParser struct{}
 func (t *FileParser) Parse(filePath string) (io.Reader, error) {
 	log.WithFields(log.Fields{
 		"cluster": filePath,
-		"package":          "parser",
+		"package": "parser",
 	}).Info("Reading " + filePath + " file")
 
 	if filePath == "" {

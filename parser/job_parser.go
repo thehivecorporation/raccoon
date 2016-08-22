@@ -61,11 +61,11 @@ func (j *JobParser) BuildJobList(infrastructure *raccoon.Infrastructure, tasks *
 		//Each room is a cluster
 		for _, commands := range *tasks {
 			//Compare every assigned chapter to every cluster
-			if strings.ToLower(commands.Title) == strings.ToLower(room.Commands) {
+			if strings.ToLower(commands.Title) == strings.ToLower(room.Task) {
 				jobs = append(jobs, raccoon.Job{
 					Cluster: raccoon.Cluster{
 						Name:     room.Name,
-						Commands: room.Commands,
+						Task: room.Task,
 						Hosts:    room.Hosts,
 					},
 					Task: commands,

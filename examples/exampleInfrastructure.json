@@ -3,7 +3,7 @@
   "infrastructure":[
     {
       "name":"some cluster",
-      "commands":"chapter1",
+      "tasks":"chapter1",
       "hosts":[
         {
           "ip":"192.168.31.11",
@@ -14,7 +14,7 @@
     },
     {
       "name":"some cluster2",
-      "commands":"chapter2",
+      "tasks":"chapter2",
       "hosts":[
         {
           "ip":"192.168.31.10",

@@ -1,7 +1,6 @@
 package raccoon
 
-//Job is a entire instruction list to perform on each Node of the "connection.Cluster" array
-//and the book (list of instructions) that must be executed
+//Job is that relate a Cluster with the Task that must be performed on it
 type Job struct {
 	Cluster Cluster
 	Task    Task

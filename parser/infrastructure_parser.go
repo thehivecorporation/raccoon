@@ -40,7 +40,7 @@ func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*racc
 	for _, cluster := range m.Infrastructure {
 		if len(cluster.Hosts) == 0 {
 			log.Errorf("No hosts were found on cluster '%s' for commands '%s'",
-				cluster.Name, cluster.Commands)
+				cluster.Name, cluster.Task)
 			err = true
 		}
 
@@ -49,7 +49,7 @@ func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*racc
 			err = true
 		}
 
-		if cluster.Commands == "" {
+		if cluster.Task == "" {
 			log.Errorf("commands name can't be blank on cluster '%s'", cluster.Name)
 			err = true
 		}

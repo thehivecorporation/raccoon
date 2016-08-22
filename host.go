@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-//Host is a remote machine (virtual or physical) that we will execute our
+//Host is a remote machine (virtual or physical) where we will execute our
 //instructions on.
 type Host struct {
 	//IP of the remote host
@@ -46,7 +46,7 @@ var colors [13]color.Attribute
 
 func init() {
 	//Sets our custom text formatter
-	hostLogger.Formatter = new(HostStdoutFormatter)
+	hostLogger.Formatter = new(hostStdoutFormatter)
 
 	// Output to stderr instead of stdout, could also be a file.
 	hostLogger.Out = os.Stdout
@@ -71,7 +71,8 @@ func (n *Host) generateUniqueColor() {
 	colorIter++
 }
 
-//InitializeNode must be called prior any execution on Nodes
+//InitializeNode must be called prior any execution on Hosts. It will try to
+//get a ssh.Client object to open ssh session on host
 func (n *Host) InitializeNode() error {
 	n.generateUniqueColor()
 
@@ -83,8 +84,10 @@ func (n *Host) InitializeNode() error {
 	return nil
 }
 
-//GetClient will create a random color for out and a new connection to
-// a Node returning it
+//GetClient will create a random color for logging and a new connection to
+//a Host on port 22.
+//
+//TODO Make connection port configurable on JSON
 func (n *Host) GetClient() (*ssh.Client, error) {
 
 	hostLogger.WithFields(logrus.Fields{
@@ -111,8 +114,8 @@ func (n *Host) GetClient() (*ssh.Client, error) {
 	return client, nil
 }
 
-//GetSession returns a new session once a client is created and the connection
-//has been established successfully
+//GetSession returns a new session once a client is created. In case the
+//connection was lost, it tries to connect again with the Host
 func (n *Host) GetSession() (*ssh.Session, error) {
 	if n.sshClient == nil {
 		_, err := n.GetClient()
@@ -161,7 +164,7 @@ func (n *Host) sessionListenerRoutine(s *bufio.Scanner) {
 	}
 }
 
-//CloseNode closes stored ssh session in Node. Remember to call it explicitly
+//CloseNode closes stored ssh session in Host. Remember to call it explicitly
 //after all instructions has finished
 func (n *Host) CloseNode() error {
 	if n.sshClient != nil {
