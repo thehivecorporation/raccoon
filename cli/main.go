@@ -18,12 +18,12 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:  raccoon.TASKS_NAME,
-			Usage: raccoon.TASKS_USAGE,
+			Name:  "tasks",
+			Usage: "Execute a task list",
 			Action: func(c *cli.Context) error {
 				jobParser := parser.JobParser{}
-				err := jobParser.CreateJobWithFilePaths(c.String(raccoon.TASKS_NAME),
-					c.String(raccoon.INFRASTRUCTURE))
+				err := jobParser.CreateJobWithFilePaths(c.String("tasks"),
+					c.String("infrastructure"))
 				if err != nil {
 					return err
 				}
@@ -31,23 +31,23 @@ func main() {
 			},
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  raccoon.TASKS_FLAG_ALIAS,
-					Usage: raccoon.TASKS_USAGE,
+					Name:  "tasks, t",
+					Usage: "Execute a task list",
 				},
 				cli.StringFlag{
-					Name:  raccoon.INFRASTRUCTURE_FLAG_ALIAS,
-					Usage: raccoon.INFRASTRUCTURE_FLAG_USAGE,
+					Name:  "infrastructure, i",
+					Usage: "The Infrastructure file",
 				},
 			},
 		},
 		{
-			Name:   raccoon.SERVER_NAME,
-			Usage:  raccoon.SERVER_USAGE,
+			Name:   "server",
+			Usage:  "Launch a server to receive Commands JSON files",
 			Action: server.REST,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:  raccoon.PORT_FLAG_ALIAS,
-					Usage: raccoon.PORT_FLAG_USAGE,
+					Name:  "port",
+					Usage: "port, p",
 					Value: "8123",
 				},
 			},

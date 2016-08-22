@@ -17,11 +17,11 @@ func Dispatch(js *[]raccoon.Job) error {
 
 	for _, job := range *js {
 		log.WithFields(log.Fields{
-			raccoon.HOSTS_NAME: job.Cluster.Name,
-			raccoon.GROUP_NAME: job.Task.Title,
-			raccoon.MAINTAINER: job.Task.Maintainer,
+			"cluster": job.Cluster.Name,
+			"infrastructure": job.Task.Title,
+			"maintainer": job.Task.Maintainer,
 			"package":          "dispatcher",
-		}).Info(raccoon.HOST_LAUNCH_MESSAGE)
+		}).Info("Launching Raccoon...")
 
 		for _, node := range job.Cluster.Hosts {
 			wg.Add(1)

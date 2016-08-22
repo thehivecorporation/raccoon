@@ -94,7 +94,7 @@ func (j *JobParser) GetTaskListFromRawTask(rawTasks *[]raccoon.Task) (*[]raccoon
 				if i["instruction"] == "" {
 					return nil, errors.New("At least one " +
 						"'instruction' was missing on a RUN command in the " +
-						raccoon.TASKS_NAME + " file")
+						"tasks file")
 				}
 				run := instructions.RUN{
 					Name:        "RUN",

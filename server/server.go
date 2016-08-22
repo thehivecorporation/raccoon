@@ -51,7 +51,7 @@ func REST(c *cli.Context) {
 	})
 
 	log.WithFields(log.Fields{
-		raccoon.PORT_FLAG_NAME: c.String("port"),
+		"port": c.String("port"),
 	}).Info("Starting Raccoon server...")
 
 	e.Run(standard.New(":" + c.String("port")))
