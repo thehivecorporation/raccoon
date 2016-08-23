@@ -8,5 +8,6 @@ type CommandsExecutor interface {
 	//Host n
 	Execute(n Host)
 
+	//GetCommands returns the Command value that must be within every CommandExecutor implementor
 	GetCommand() *Command
 }

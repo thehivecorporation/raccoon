@@ -54,18 +54,19 @@ package main
 import (
 	"os"
 
+	"fmt"
+
 	"github.com/codegangsta/cli"
 	"github.com/thehivecorporation/raccoon"
 	"github.com/thehivecorporation/raccoon/parser"
 	"github.com/thehivecorporation/raccoon/server"
-	"fmt"
 )
 
-	func main() {
+func main() {
 	fmt.Printf("\nRaccon\nCopyright (C) 2016 The Hive Corporation\n\nThis program " +
-	"comes with ABSOLUTELY NO WARRANTY; for details type 'warranty'.\nThis is " +
-	"free software, and you are welcome to redistribute it under certain " +
-	"conditions; read License.md file for details.\n\n")
+		"comes with ABSOLUTELY NO WARRANTY; for details type 'warranty'.\nThis is " +
+		"free software, and you are welcome to redistribute it under certain " +
+		"conditions; read License.md file for details.\n\n")
 
 	app := cli.NewApp()
 	app.Name = raccoon.APP_NAME
@@ -78,11 +79,24 @@ import (
 			Usage: "Execute a task list",
 			Action: func(c *cli.Context) error {
 				jobParser := parser.JobParser{}
-				err := jobParser.CreateJobWithFilePaths(c.String("tasks"),
-					c.String("infrastructure"))
-				if err != nil {
+
+				switch c.String("dispatcher") {
+				default:
+					jobParser.Dispatcher = new(raccoon.SimpleDispatcher)
+				case "sequential":
+					jobParser.Dispatcher = new(raccoon.SequentialDispatcher)
+				case "workers_pool":
+					workersSize := c.Int("workers")
+					jobParser.Dispatcher = &raccoon.WorkerPoolDispatcher{
+						Workers: workersSize,
+					}
+				}
+
+				if err := jobParser.CreateJobWithFilePaths(c.String("tasks"),
+					c.String("infrastructure")); err != nil {
 					return err
 				}
+
 				return nil
 			},
 			Flags: []cli.Flag{
@@ -91,8 +105,20 @@ import (
 					Usage: "Tasks file",
 				},
 				cli.StringFlag{
-					Name:  "infrastructure,warranty i",
+					Name:  "infrastructure, i",
 					Usage: "Infrastructure file",
+				},
+				cli.StringFlag{
+					Name: "dispatcher, d",
+					Usage: "Dispatching method between 3 options: sequential (no concurrent " +
+						"dispatch). simple (a Goroutine for each host) and worker_pool (a fixed " +
+						"number of workers)",
+					Value: "simple",
+				},
+				cli.IntFlag{
+					Name:  "workersNumber, w",
+					Usage: "In case of worker_pool dispath method, define the maximum number of workers here",
+					Value: 5,
 				},
 			},
 		},
@@ -109,12 +135,12 @@ import (
 			},
 		},
 		{
-			Name:   "show",
-			Usage:  "Show special information about Raccoon",
+			Name:  "show",
+			Usage: "Show special information about Raccoon",
 			Action: func(c *cli.Context) error {
 				if !c.Bool("warranty") {
 					fmt.Println(
-`THERE IS NO WARRANTY FOR THE PROGRAM, TO THE
+						`THERE IS NO WARRANTY FOR THE PROGRAM, TO THE
 EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE
 STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
 PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND,

@@ -7,11 +7,12 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/thehivecorporation/raccoon"
-	"github.com/thehivecorporation/raccoon/dispatcher"
 	"github.com/thehivecorporation/raccoon/instructions"
 )
 
-type JobParser struct{}
+type JobParser struct {
+	Dispatcher raccoon.Dispatcher
+}
 
 func (j *JobParser) printError(err error) error {
 	log.WithFields(log.Fields{
@@ -51,7 +52,9 @@ func (j *JobParser) CreateJobWithFilePaths(tasksFilePath, infrastructureFilePath
 	jobs := j.BuildJobList(infrastructure, taskList)
 
 	//Send jobs to dispatcher
-	return dispatcher.Dispatch(jobs)
+	j.Dispatcher.Dispatch(*jobs)
+
+	return nil
 }
 
 func (j *JobParser) BuildJobList(infrastructure *raccoon.Infrastructure, tasks *[]raccoon.Task) *[]raccoon.Job {
@@ -118,8 +121,8 @@ func (j *JobParser) ParseTaskList(rawTasks *[]raccoon.Task) (*[]raccoon.Task, er
 						Name:        "RUN",
 						Description: i["description"],
 					},
-					SourcePath:  i["sourcePath"],
-					DestPath:    i["destPath"],
+					SourcePath: i["sourcePath"],
+					DestPath:   i["destPath"],
 				}
 				parsedInstructions = append(parsedInstructions, &add)
 			}

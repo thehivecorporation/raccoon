@@ -35,23 +35,23 @@ func Dispatch(js *[]raccoon.Job) error {
 
 //executeRecipeOnNode will take every instruction of the recipe and execute it
 //in order on each node. Instructions are executed sequentially
-func executeRecipeOnNode(j raccoon.Job, n raccoon.Host) {
-	err := n.InitializeNode()
+func executeRecipeOnNode(j raccoon.Job, h raccoon.Host) {
+	err := h.InitializeNode()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"host":    n.IP,
+			"host":    h.IP,
 			"package": "dispatcher",
 		}).Warn("Error initializing node: " + err.Error())
 	}
 
 	for _, instruction := range j.Task.Commands {
-		instruction.Execute(n)
+		instruction.Execute(h)
 	}
 
-	err = n.CloseNode()
+	err = h.CloseNode()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"host":    n.IP,
+			"host":    h.IP,
 			"package": "dispatcher",
 		}).Warn("Error closing session: " + err.Error())
 	}
