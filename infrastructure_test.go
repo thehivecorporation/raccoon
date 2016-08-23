@@ -37,7 +37,7 @@ func TestReadMansionFile(t *testing.T) {
 		Infrastructure: []Cluster{
 			Cluster{
 				Name:     "room name",
-				Task: "a chapter",
+				TasksToExecute: "a chapter",
 				Hosts: []Host{
 					Host{
 						IP:       "192.168.1.44",

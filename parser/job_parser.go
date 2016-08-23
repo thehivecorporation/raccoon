@@ -58,7 +58,7 @@ func (j *JobParser) BuildJobList(infrastructure *raccoon.Infrastructure, tasks *
 	jobs := make([]raccoon.Job, 0)
 
 	for _, cluster := range infrastructure.Infrastructure {
-		for _, task := range cluster.Task {
+		for _, task := range cluster.TasksToExecute {
 			for _, commands := range *tasks {
 				//Find the associated tasks for each cluster
 				if strings.ToLower(commands.Title) == strings.ToLower(task) {

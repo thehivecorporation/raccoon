@@ -8,13 +8,13 @@ package raccoon
 //executed on this cluster
 type Cluster struct {
 	//Name that identifies this cluster respect to others
-	Name string `json:"name"`
+	Name           string `json:"name"`
 
 	//Hosts are the array of hosts on this cluster
-	Hosts []Host `json:"hosts"`
+	Hosts          []Host `json:"hosts"`
 
-	//Task is the name of the commands group that will be executed in this
-	//cluster. This name must match the name written in the 'Title' member of the
-	//Tasks file. In future version it will work with an array os tasks too.
-	Task []string `json:"tasks"`
+	//TasksToExecute is the name of the commands group that will be executed in
+	// this cluster. This name must match the name written in the 'Title' member
+	// of the Tasks file. In future version it will work with an array os tasks too.
+	TasksToExecute []string `json:"tasks"`
 }

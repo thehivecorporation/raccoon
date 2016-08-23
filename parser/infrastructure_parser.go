@@ -40,7 +40,7 @@ func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*racc
 	for _, cluster := range m.Infrastructure {
 		if len(cluster.Hosts) == 0 {
 			log.Errorf("No hosts were found on cluster '%s' for commands '%s'",
-				cluster.Name, cluster.Task)
+				cluster.Name, cluster.TasksToExecute)
 			err = true
 		}
 
@@ -49,7 +49,7 @@ func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*racc
 			err = true
 		}
 
-		if len(cluster.Task) == 0 {
+		if len(cluster.TasksToExecute) == 0 {
 			log.Errorf("You haven't specified any task. Specify at least one as an string array on cluster '%s'", cluster.Name)
 			err = true
 		}
