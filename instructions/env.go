@@ -1,8 +1,6 @@
 package instructions
 
 import (
-	log "github.com/Sirupsen/logrus"
-
 	"fmt"
 	"strings"
 
@@ -28,7 +26,7 @@ func (e *ENV) Execute(h raccoon.Host) {
 		return
 	}
 
-	e.LogCommand(&h)
+	logCommand(nil, h.IP, e.Description, e.GetCommandName())
 
 	env := strings.Split(e.Environment, "=")
 	if len(env) == 2 {
@@ -36,12 +34,4 @@ func (e *ENV) Execute(h raccoon.Host) {
 	} else {
 		logError(fmt.Errorf("More than one '=' found on ENV instruction"), e, &h)
 	}
-}
-
-func (e *ENV) LogCommand(h *raccoon.Host) {
-	log.WithFields(log.Fields{
-		"Instruction": e.GetCommandName(),
-		"Node":        h.IP,
-		"package":     packageName,
-	}).Info(e.Description)
 }

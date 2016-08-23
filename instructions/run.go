@@ -1,10 +1,6 @@
 package instructions
 
-import (
-	log "github.com/Sirupsen/logrus"
-
-	"github.com/thehivecorporation/raccoon"
-)
+import "github.com/thehivecorporation/raccoon"
 
 //RUN is a instruction that in the recipe file correspond to the CMD instruction.
 //It will execute the "Command" on every machine. Ideally, every command must
@@ -27,26 +23,15 @@ func (r *RUN) GetCommandName() string {
 //Execute is the implementation of the Instruction interface for a RUN instruction
 func (r *RUN) Execute(h raccoon.Host) {
 	session, err := h.GetSession()
-
 	if err != nil {
 		logError(err, r, &h)
-
-		session.Close()
-
 		return
 	}
 	defer session.Close()
 
-	r.LogCommand(&h)
+	logCommand(nil, h.IP, r.Description, r.GetCommandName())
 
 	if err = session.Run(r.Instruction); err != nil {
 		logError(err, r, &h)
 	}
-}
-func (r *RUN) LogCommand(h *raccoon.Host) {
-	log.WithFields(log.Fields{
-		"Instruction": r.Name,
-		"Node":        h.IP,
-		"package":     packageName,
-	}).Info(r.Description)
 }

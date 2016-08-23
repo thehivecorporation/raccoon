@@ -11,6 +11,4 @@ type CommandsExecutor interface {
 	//GetCommandName conveniently must return the name of the command that is
 	//implementing this interfacee. Possible values are ADD, RUN...
 	GetCommandName() string
-
-	LogCommand(h *Host)
 }

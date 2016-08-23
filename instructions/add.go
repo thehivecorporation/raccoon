@@ -31,13 +31,14 @@ func (a *ADD) Execute(h raccoon.Host) {
 	session, err := h.GetSession()
 	if err != nil {
 		logError(err, a, &h)
-		session.Close()
-
 		return
 	}
 	defer session.Close()
 
-	a.LogCommand(&h)
+	logCommand(log.Fields{
+		"SourcePath": a.SourcePath,
+		"DestPath":   a.DestPath,
+	}, h.IP, a.Description, a.GetCommandName())
 
 	f, err := os.Open(a.SourcePath)
 	if err != nil {
@@ -49,16 +50,6 @@ func (a *ADD) Execute(h raccoon.Host) {
 	if err = copyToSession(session, a.DestPath, f); err != nil {
 		logError(err, a, &h)
 	}
-}
-
-func (a *ADD)LogCommand(h *raccoon.Host){
-	log.WithFields(log.Fields{
-		"Instruction": a.GetCommandName(),
-		"Node":        h.IP,
-		"SourcePath":  a.SourcePath,
-		"DestPath":    a.DestPath,
-		"package":     "instructions",
-	}).Info(a.Description)
 }
 
 func copyToSession(session *ssh.Session, destinationFolder string, f *os.File) error {
