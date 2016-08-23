@@ -16,14 +16,12 @@ type ADD struct {
 	SourcePath string
 	//Destination path of the file in host
 	DestPath string
-	//Description of the instruction (optional)
-	Description string
-	//The name that identifies this struct ("ADD" in this case)
-	Name string
+
+	Command raccoon.Command
 }
 
-func (a *ADD) GetCommandName() string {
-	return "ADD"
+func (a *ADD) GetCommand() *raccoon.Command {
+	return &a.Command
 }
 
 //Execute is the implementation of the Instruction interface for a ADD instruction
@@ -38,7 +36,7 @@ func (a *ADD) Execute(h raccoon.Host) {
 	logCommand(log.Fields{
 		"SourcePath": a.SourcePath,
 		"DestPath":   a.DestPath,
-	}, h.IP, a.Description, a.GetCommandName())
+	}, h.IP, a)
 
 	f, err := os.Open(a.SourcePath)
 	if err != nil {

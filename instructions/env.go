@@ -8,13 +8,8 @@ import (
 )
 
 type ENV struct {
-	Name        string
-	Description string
+	Command *raccoon.Command
 	Environment string
-}
-
-func (e *ENV) GetCommandName() string {
-	return "ENV"
 }
 
 func (e *ENV) Execute(h raccoon.Host) {
@@ -26,7 +21,7 @@ func (e *ENV) Execute(h raccoon.Host) {
 		return
 	}
 
-	logCommand(nil, h.IP, e.Description, e.GetCommandName())
+	logCommand(nil, h.IP, e)
 
 	env := strings.Split(e.Environment, "=")
 	if len(env) == 2 {
@@ -34,4 +29,8 @@ func (e *ENV) Execute(h raccoon.Host) {
 	} else {
 		logError(fmt.Errorf("More than one '=' found on ENV instruction"), e, &h)
 	}
+}
+
+func (e *ENV) GetCommand() *raccoon.Command {
+	return e.Command
 }

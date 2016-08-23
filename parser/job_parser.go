@@ -96,8 +96,10 @@ func (j *JobParser) ParseTaskList(rawTasks *[]raccoon.Task) (*[]raccoon.Task, er
 						"tasks file")
 				}
 				run := instructions.RUN{
-					Name:        "RUN",
-					Description: i["description"],
+					Command: raccoon.Command{
+						Name:        "RUN",
+						Description: i["description"],
+					},
 					Instruction: i["instruction"],
 				}
 				parsedInstructions = append(parsedInstructions, &run)
@@ -112,10 +114,12 @@ func (j *JobParser) ParseTaskList(rawTasks *[]raccoon.Task) (*[]raccoon.Task, er
 						"on ADD instruction")
 				}
 				add := instructions.ADD{
-					Name:        "ADD",
+					Command: raccoon.Command{
+						Name:        "RUN",
+						Description: i["description"],
+					},
 					SourcePath:  i["sourcePath"],
 					DestPath:    i["destPath"],
-					Description: i["description"],
 				}
 				parsedInstructions = append(parsedInstructions, &add)
 			}

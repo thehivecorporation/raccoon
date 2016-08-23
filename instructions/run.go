@@ -6,18 +6,14 @@ import "github.com/thehivecorporation/raccoon"
 //It will execute the "Command" on every machine. Ideally, every command must
 //be bash
 type RUN struct {
-	//The name that identifies this struct ("RUN" in this case)
-	Name string
-
-	//Description of the instruction that must be set by the user
-	Description string
+	Command raccoon.Command
 
 	//Bash instruction to execute
 	Instruction string
 }
 
-func (r *RUN) GetCommandName() string {
-	return "RUN"
+func (r *RUN) GetCommand() *raccoon.Command {
+	return &r.Command
 }
 
 //Execute is the implementation of the Instruction interface for a RUN instruction
@@ -29,7 +25,7 @@ func (r *RUN) Execute(h raccoon.Host) {
 	}
 	defer session.Close()
 
-	logCommand(nil, h.IP, r.Description, r.GetCommandName())
+	logCommand(nil, h.IP, r)
 
 	if err = session.Run(r.Instruction); err != nil {
 		logError(err, r, &h)
