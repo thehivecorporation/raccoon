@@ -15,6 +15,7 @@ import (
 	"github.com/docker/engine-api/types/container"
 	"github.com/docker/engine-api/types/network"
 	"github.com/docker/go-connections/nat"
+	"fmt"
 )
 
 //IOWriterTester is a small utility to help writing unit tests where the output
@@ -137,11 +138,11 @@ func createSessionPrototype() (*ssh.Session, error) {
 	}
 	client, err := ssh.Dial("tcp", "127.0.0.1:22", clientConfig)
 	if err != nil {
-		panic("Failed to dial: " + err.Error())
+		return nil, fmt.Errorf("Failed to dial: " + err.Error())
 	}
 	session, err := client.NewSession()
 	if err != nil {
-		panic("Failed to create session: " + err.Error())
+		return nil, fmt.Errorf("Failed to create session: " + err.Error())
 	}
 	return session, nil
 }

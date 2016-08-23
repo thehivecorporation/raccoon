@@ -1,11 +1,11 @@
 [
   {
-    "title": "chapter1",
+    "title": "task1",
     "maintainer": "Burkraith",
     "commands": [
       {
         "name": "ADD",
-        "sourcePath": "main.go",
+        "sourcePath": "doc.go",
         "destPath": "/tmp",
         "description": "Raccoon.go to /tmp"
       },
@@ -23,18 +23,19 @@
     ]
   },
   {
-    "title": "chapter2",
+    "title": "task2",
     "maintainer": "Mario",
     "commands": [
       {
         "name": "RUN",
-        "description": "Install htop",
-        "instruction": "sudo yum install -y htop"
+        "description": "Removing htop",
+        "instruction": "sudo apt-get remove -y htop"
       },
       {
-        "name": "RUN",
-        "description": "Removing htop",
-        "instruction": "sudo yum remove -y htop"
+        "name":"ADD",
+        "description":"Adding the main.go file",
+        "sourcePath":"main.go",
+        "destPath":"/tmp"
       }
     ]
   }

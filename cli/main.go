@@ -86,7 +86,7 @@ func main() {
 				case "sequential":
 					jobParser.Dispatcher = new(raccoon.SequentialDispatcher)
 				case "workers_pool":
-					workersSize := c.Int("workers")
+					workersSize := c.Int("workersNumber")
 					jobParser.Dispatcher = &raccoon.WorkerPoolDispatcher{
 						Workers: workersSize,
 					}

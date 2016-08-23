@@ -25,7 +25,7 @@ func (r *RUN) Execute(h raccoon.Host) {
 	}
 	defer session.Close()
 
-	logCommand(nil, h.IP, r)
+	logCommand(nil, h, r)
 
 	if err = session.Run(r.Instruction); err != nil {
 		logError(err, r, &h)

@@ -14,6 +14,7 @@ import (
 type ADD struct {
 	//Source path of the file
 	SourcePath string
+
 	//Destination path of the file in host
 	DestPath string
 
@@ -36,7 +37,7 @@ func (a *ADD) Execute(h raccoon.Host) {
 	logCommand(log.Fields{
 		"SourcePath": a.SourcePath,
 		"DestPath":   a.DestPath,
-	}, h.IP, a)
+	}, h, a)
 
 	f, err := os.Open(a.SourcePath)
 	if err != nil {

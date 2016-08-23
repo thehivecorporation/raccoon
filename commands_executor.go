@@ -5,8 +5,8 @@ package raccoon
 type CommandsExecutor interface {
 
 	//Execute is the method that each strategy will execute on the provided
-	//Host n
-	Execute(n Host)
+	//Host h
+	Execute(h Host)
 
 	//GetCommands returns the Command value that must be within every CommandExecutor implementor
 	GetCommand() *Command

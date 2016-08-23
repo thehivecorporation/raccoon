@@ -3,23 +3,25 @@
   "infrastructure":[
     {
       "name":"some cluster",
-      "tasks":"chapter1",
+      "tasks":["task2"],
       "hosts":[
         {
-          "ip":"192.168.31.11",
-          "username":"vagrant",
-          "password":"vagrant"
-        }
-      ]
-    },
-    {
-      "name":"some cluster2",
-      "tasks":"chapter2",
-      "hosts":[
+          "ip":"172.17.42.1",
+          "sshPort":32768,
+          "username":"root",
+          "password":"root"
+        },
         {
-          "ip":"192.168.31.10",
-          "username":"vagrant",
-          "password":"vagrant"
+          "ip":"172.17.42.1",
+          "sshPort":32769,
+          "username":"root",
+          "password":"root"
+        },
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32770,
+          "username":"root",
+          "password":"root"
         }
       ]
     }

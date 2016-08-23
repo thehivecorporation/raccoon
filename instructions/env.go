@@ -21,7 +21,7 @@ func (e *ENV) Execute(h raccoon.Host) {
 		return
 	}
 
-	logCommand(nil, h.IP, e)
+	logCommand(nil, h, e)
 
 	env := strings.Split(e.Environment, "=")
 	if len(env) == 2 {

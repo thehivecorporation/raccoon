@@ -3,6 +3,8 @@ package raccoon
 import (
 	"sync"
 
+	"fmt"
+
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -12,47 +14,63 @@ type Dispatcher interface {
 
 type WorkerPoolDispatcher struct {
 	Workers int
+	sync.WaitGroup
+}
+
+type dispatchingJob struct {
+	job  Job
+	host Host
 }
 
 func (w *WorkerPoolDispatcher) Dispatch(jobs []Job) {
-	freeWorkersPool := make(chan chan Job, w.Workers)
+	log.WithFields(log.Fields{
+		"package": "dispatcher",
+	}).Info(fmt.Sprintf("%d workers pool selected", w.Workers))
 
-	jobsCh := make(chan Job)
+	freeWorkersPool := make(chan chan dispatchingJob, w.Workers)
+	dispatchingJobCh := make(chan dispatchingJob)
 
-	go w.dispatcher(jobsCh, freeWorkersPool)
+	//Launch workers
+	for i := 0; i < w.Workers; i++ {
+		ch := make(chan dispatchingJob)
+		go w.worker(ch, freeWorkersPool)
+		freeWorkersPool <- ch
+	}
+
+	go w.dispatcher(dispatchingJobCh, freeWorkersPool)
 
 	for _, job := range jobs {
-		jobsCh <- job
+		w.Add(len(job.Cluster.Hosts))
+		for _, host := range job.Cluster.Hosts {
+			dispatchingJobCh <- dispatchingJob{job, host}
+		}
 	}
+
+	w.Wait()
 
 	//Close channels
 	close(freeWorkersPool)
-	close(jobsCh)
+	close(dispatchingJobCh)
 }
 
-func (w *WorkerPoolDispatcher) dispatcher(jobsCh chan Job, freeWorkersPool chan chan Job) {
+func (w *WorkerPoolDispatcher) dispatcher(dispatchingJobCh chan dispatchingJob, freeWorkersPool chan chan dispatchingJob) {
 	for {
-		job := <-jobsCh
-		log.WithFields(log.Fields{
-			"cluster":        job.Cluster.Name,
-			"infrastructure": job.Task.Title,
-			"maintainer":     job.Task.Maintainer,
-			"package":        "dispatcher",
-		}).Info("Launching Raccoon...")
-
+		dispatchingJob := <-dispatchingJobCh
 		worker := <-freeWorkersPool
-		worker <- job
+		worker <- dispatchingJob
 	}
 }
 
-func (w *WorkerPoolDispatcher) worker(jobsCh chan Job, freeWorkersPool chan chan Job) {
+func (w *WorkerPoolDispatcher) worker(dispatchingJobCh chan dispatchingJob, freeWorkersPool chan chan dispatchingJob) {
 	for {
-		job := <-jobsCh
+		dispatchingJob := <-dispatchingJobCh
+		fmt.Printf("Receiving host %s on ssh port %d\n", dispatchingJob.host.IP, dispatchingJob.host.SSH_port)
 
 		dispatcher := SequentialDispatcher{}
-		dispatcher.Dispatch([]Job{job})
+		dispatcher.executeJobOnHost(dispatchingJob.job, dispatchingJob.host)
+		w.Done()
 
-		freeWorkersPool <- jobsCh
+		freeWorkersPool <- dispatchingJobCh
 	}
 }
 
@@ -77,7 +95,8 @@ func (s *SimpleDispatcher) executeJobOnHost(j Job, h Host) {
 		log.WithFields(log.Fields{
 			"host":    h.IP,
 			"package": "dispatcher",
-		}).Warn("Error initializing node: " + err.Error())
+		}).Error("Error initializing node: " + err.Error())
+		return
 	}
 
 	for _, instruction := range j.Task.Commands {
@@ -118,7 +137,8 @@ func (s *SequentialDispatcher) executeJobOnHost(j Job, h Host) {
 		log.WithFields(log.Fields{
 			"host":    h.IP,
 			"package": "dispatcher",
-		}).Warn("Error initializing node: " + err.Error())
+		}).Error("Error initializing node: " + err.Error())
+		return
 	}
 
 	for _, instruction := range j.Task.Commands {

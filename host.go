@@ -17,26 +17,30 @@ import (
 //instructions on.
 type Host struct {
 	//IP of the remote host
-	IP string `json:"ip"`
+	IP           string `json:"ip"`
+
+	SSH_port     int `json:"sshPort",omitempty`
 
 	//Username to access remote host
-	Username string `json:"username,omitempty"`
+	Username     string `json:"username,omitempty"`
 
 	//Password to access remote host
-	Password string `json:"password,omitempty"`
+	Password     string `json:"password,omitempty"`
 
 	// TODO AuthFilePath corresponds to the path of the private key that could
 	// give access to a remote machine.
 	AuthFilePath string `json:"authFilePath,omitempty"`
 
 	//Color that this host will output when printing in stdout
-	Color color.Attribute
+	Color        color.Attribute
 
-	sshClient *ssh.Client
+	sshClient    *ssh.Client
+
+	HostLogger   *logrus.Logger
 }
 
 //Specific logger for Node package
-var hostLogger = logrus.New()
+//var hostLogger = logrus.New()
 
 //Iterator used as "global variable" to get a new color from following array
 var colorIter int = 0
@@ -45,11 +49,6 @@ var colorIter int = 0
 var colors [13]color.Attribute
 
 func init() {
-	//Sets our custom text formatter
-	hostLogger.Formatter = new(hostStdoutFormatter)
-
-	// Output to stderr instead of stdout, could also be a file.
-	hostLogger.Out = os.Stdout
 
 	logrus.SetLevel(logrus.DebugLevel)
 
@@ -73,10 +72,16 @@ func (n *Host) generateUniqueColor() {
 
 //InitializeNode must be called prior any execution on Hosts. It will try to
 //get a ssh.Client object to open ssh session on host
-func (n *Host) InitializeNode() error {
-	n.generateUniqueColor()
+func (h *Host) InitializeNode() error {
+	h.generateUniqueColor()
+	h.HostLogger = logrus.New()
+	//Sets our custom text formatter
+	h.HostLogger.Formatter = new(hostStdoutFormatter)
 
-	_, err := n.GetClient()
+	// Output to stderr instead of stdout, could also be a file.
+	h.HostLogger.Out = os.Stdout
+
+	_, err := h.GetClient()
 	if err != nil {
 		return err
 	}
@@ -86,80 +91,83 @@ func (n *Host) InitializeNode() error {
 
 //GetClient will create a random color for logging and a new connection to
 //a Host on port 22.
-//
-//TODO Make connection port configurable on JSON
-func (n *Host) GetClient() (*ssh.Client, error) {
+func (h *Host) GetClient() (*ssh.Client, error) {
 
-	hostLogger.WithFields(logrus.Fields{
-		"host":     n.IP,
-		"username": n.Username,
+	h.HostLogger.WithFields(logrus.Fields{
+		"host":     h.IP,
+		"username": h.Username,
+		"ssh_port": h.SSH_port,
 		"package":  "connection",
-		"color":    n.Color,
+		"color":    h.Color,
 	}).Info("Opening SSH session")
 
 	sshConfig := &ssh.ClientConfig{
-		User: n.Username,
+		User: h.Username,
 		Auth: []ssh.AuthMethod{
-			ssh.Password(n.Password),
+			ssh.Password(h.Password),
 		},
 	}
 
-	client, err := ssh.Dial("tcp", n.IP+":22", sshConfig)
-	if err != nil {
-		return nil, errors.New("Failed to dial: " + n.IP)
+	if h.SSH_port == 0 {
+		h.SSH_port = 22
 	}
 
-	n.sshClient = client
+	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", h.IP, h.SSH_port), sshConfig)
+	if err != nil {
+		return nil, errors.New("Failed to dial: " + h.IP)
+	}
+
+	h.sshClient = client
 
 	return client, nil
 }
 
 //GetSession returns a new session once a client is created. In case the
 //connection was lost, it tries to connect again with the Host
-func (n *Host) GetSession() (*ssh.Session, error) {
-	if n.sshClient == nil {
-		_, err := n.GetClient()
+func (h *Host) GetSession() (*ssh.Session, error) {
+	if h.sshClient == nil {
+		_, err := h.GetClient()
 
 		if err != nil {
-			hostLogger.WithFields(logrus.Fields{
-				"host":    n.IP,
+			h.HostLogger.WithFields(logrus.Fields{
+				"host":    h.IP,
 				"package": "dispatcher",
-			}).Fatal("Error getting session: " + err.Error())
+			}).Error("Error getting session: " + err.Error())
 
-			return &ssh.Session{}, errors.New("Error getting session: " + err.Error())
+			return nil, errors.New("Error getting session: " + err.Error())
 		}
 	}
 
-	session, err := n.sshClient.NewSession()
+	session, err := h.sshClient.NewSession()
 	if err != nil {
-		return &ssh.Session{}, errors.New("Failed to create session: " + err.Error())
+		return nil, errors.New("Failed to create session: " + err.Error())
 	}
 
 	stdout, err := session.StdoutPipe()
 	if err != nil {
-		return &ssh.Session{}, fmt.Errorf("Error getting stdout pipe from session: %s", err.Error())
+		return nil, fmt.Errorf("Error getting stdout pipe from session: %s", err.Error())
 	}
 
 	stderr, err := session.StderrPipe()
 	if err != nil {
-		return &ssh.Session{}, fmt.Errorf("Error getting stdin pipe from session: %s", err.Error())
+		return nil, fmt.Errorf("Error getting stdin pipe from session: %s", err.Error())
 	}
 
-	go n.sessionListenerRoutine(bufio.NewScanner(stdout))
-	go n.sessionListenerRoutine(bufio.NewScanner(stderr))
+	go h.sessionListenerRoutine(bufio.NewScanner(stdout))
+	go h.sessionListenerRoutine(bufio.NewScanner(stderr))
 
 	return session, nil
 }
 
 //sessionListenerRoutine is expected to use as a goroutine and receive as a
 //parameter a scanner instance that is connected to an output
-func (n *Host) sessionListenerRoutine(s *bufio.Scanner) {
+func (h *Host) sessionListenerRoutine(s *bufio.Scanner) {
 	for s.Scan() {
-		hostLogger.WithFields(logrus.Fields{
-			"host":     n.IP,
-			"username": n.Username,
+		h.HostLogger.WithFields(logrus.Fields{
+			"host":     h.IP,
+			"username": h.Username,
 			"package":  "connection",
-			"color":    n.Color,
+			"color":    h.Color,
 		}).Info(s.Text())
 	}
 }
