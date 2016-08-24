@@ -10,6 +10,7 @@ import (
 	"github.com/thehivecorporation/raccoon/instructions"
 )
 
+//JobParser is used to parse JSON objects (tasks and infrastructure files) into their corresponding types
 type JobParser struct {
 	Dispatcher raccoon.Dispatcher
 }
@@ -57,6 +58,7 @@ func (j *JobParser) CreateJobWithFilePaths(tasksFilePath, infrastructureFilePath
 	return nil
 }
 
+//BuildJobList takes every cluster of an infrastructure file and searches its associated task in the task list to create the needed jobs
 func (j *JobParser) BuildJobList(infrastructure *raccoon.Infrastructure, tasks *[]raccoon.Task) *[]raccoon.Job {
 	jobs := make([]raccoon.Job, 0)
 

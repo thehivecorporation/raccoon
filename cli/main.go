@@ -1,13 +1,14 @@
 //Package main contains the CLI application of Raccoon along with the options
 //of the CLI interface
-//
+package main
+
 // CLI
 //
 //	NAME:
 //	Raccoon - WIP Automation utility made easy with Dockerfile syntax
 //
 //	USAGE:
-//	cli [global options] command [command options] [arguments...]
+//	raccoon [global options] command [command options] [arguments...]
 //
 //	VERSION:
 //	0.2.2
@@ -24,10 +25,10 @@
 // Tasks command
 //
 //	NAME:
-//	cli tasks - Execute a task list
+//	raccoon tasks - Execute a task list
 //
 //	USAGE:
-//	cli tasks [command options] [arguments...]
+//	raccoon tasks [command options] [arguments...]
 //
 //	OPTIONS:
 //	--tasks value, -t value                     Tasks file
@@ -39,17 +40,16 @@
 // Server command
 //
 //	NAME:
-//	cli server - Launch a server to receive Commands JSON files
+//	raccoon server - Launch a server to receive Commands JSON files
 //
 //	USAGE:
-//	cli server [command options] [arguments...]
+//	raccoon server [command options] [arguments...]
 //
 //	OPTIONS:
 //	--port value  port, p (default: "8123")
 //
 // For example:
 //	raccoon server -p 8080
-package main
 
 import (
 	"os"
@@ -75,8 +75,8 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:  "tasks",
-			Usage: "Execute a task list",
+			Name:  "job",
+			Usage: "Execute a job",
 			Action: func(c *cli.Context) error {
 				jobParser := parser.JobParser{}
 
