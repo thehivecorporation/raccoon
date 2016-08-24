@@ -37,6 +37,14 @@ WIP App orchestration, configuration and deployment
   * [ENV](#env)
   * [ADD](#add)
   * [MAINTAINER](#maintainer)
+* [Dispatching strategies](#dispatching-strategies)
+  * [Simple Dispatching](#simple-dispatching)
+  * [Workers pool](#workers-pool)
+  * [Sequential Dispatching](#sequential-dispatching)
+* [Authentication methods](#authentication-methods)
+  * [User and password](#user-and-password)
+  * [Identity file](#identity-file)
+  * [Interactive authentication](#interactive-authentication)
 
 ## Raccoon CLI syntax
 When you execute Raccoon from the command line without options, the following help will appear:
@@ -247,7 +255,7 @@ Prints the name of a maintainer as a specific command:
 ## Dispatching strategies
 Raccoon can use 3 dispatching strategies. This strategies must be used in some specific scenarios:
 
-### Simple Strategy
+### Simple dispatching
 This is the default strategy, Raccoon will launch a new goroutine for each host
 found on the infrastructure definition. This means that if you have 5 clusters
 of 5 hosts each, you have a total of 25 hosts and 25 goroutines will be launched
@@ -270,7 +278,7 @@ reach the end. Use this strategy if you are having performance issues.
 To use the workers pool strategy pass `-d workers_pool -w [n]` when launching
 Raccoon through the CLI. `[n]` is the maximum number of workers you want.
 
-### Sequential strategy
+### Sequential dispatching
 In some special situations, you could want to avoid concurrency when accessing
 hosts. The sequential strategy will go one host each time. This is useful, for
 example, if you use the interactive authentication.
