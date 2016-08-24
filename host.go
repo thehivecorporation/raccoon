@@ -11,6 +11,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
+	"io/ioutil"
 )
 
 //Host is a remote machine (virtual or physical) where we will execute our
@@ -29,6 +30,12 @@ type Host struct {
 
 	//Password to access remote host
 	Password string `json:"password,omitempty"`
+
+	//Identity file for auth
+	IdentityFile string `json:"identityFile,omitempty"`
+
+	//Choose to enter user and password during Raccoon execution
+	InteractiveAuth bool `json:"interactiveAuth,omitempty"`
 
 	// TODO AuthFilePath corresponds to the path of the private key that could
 	// give access to a remote machine.
@@ -66,12 +73,12 @@ func init() {
 
 //generateUniqueColor must be called every time a new host is created to assign
 //a new color profile for the host
-func (n *Host) generateUniqueColor() {
+func (h *Host) generateUniqueColor() {
 	if colorIter == 13 {
 		colorIter = 0
 	}
 
-	n.Color = colors[colorIter]
+	h.Color = colors[colorIter]
 	colorIter++
 }
 
@@ -106,11 +113,46 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 		"color":    h.Color,
 	}).Info("Opening SSH session")
 
+	authMethods := make([]ssh.AuthMethod, 0)
+
+	if h.IdentityFile != "" {
+		key, err := ioutil.ReadFile("/home/user/.ssh/id_rsa")
+		if err != nil {
+			h.HostLogger.Errorf("unable to read private key: %v", err)
+		}
+
+		// Create the Signer for this private key.
+		signer, err := ssh.ParsePrivateKey(key)
+		if err != nil {
+			h.HostLogger.Errorf("unable to parse private key: %v", err)
+		}
+		authMethods = append(authMethods, ssh.PublicKeys(signer))
+	}
+
+	if h.InteractiveAuth == true {
+		authMethods = append(authMethods, ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
+			println("ASDfasdfasdf")
+
+			h.HostLogger.Info("Keyboard interactive challenge: ")
+			h.HostLogger.Info("-- User: %s", user)
+			h.HostLogger.Info("-- Instructions: %s", instruction)
+			for i, question := range questions {
+				h.HostLogger.Info("-- Question %d: %s", i+1, question)
+			}
+
+			// Just send the password back for all questions
+			answers = make([]string, len(questions))
+			for i := range answers {
+				answers[i] = "Sdfasdf"
+			}
+
+			return answers, nil
+		}))
+	}
+
 	sshConfig := &ssh.ClientConfig{
 		User: h.Username,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(h.Password),
-		},
+		Auth: authMethods,
 	}
 
 	if h.SSHPort == 0 {
@@ -179,9 +221,9 @@ func (h *Host) sessionListenerRoutine(s *bufio.Scanner) {
 
 //CloseNode closes stored ssh session in Host. Remember to call it explicitly
 //after all instructions has finished
-func (n *Host) CloseNode() error {
-	if n.sshClient != nil {
-		err := n.sshClient.Close()
+func (h *Host) CloseNode() error {
+	if h.sshClient != nil {
+		err := h.sshClient.Close()
 
 		if err != nil {
 			return err

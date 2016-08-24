@@ -61,8 +61,7 @@ func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*racc
 			}
 
 			if host.Password == "" {
-				log.Errorf("Host password can't be blank on cluster '%s'", cluster.Name)
-				err = true
+				log.Warnf("Host password can't be blank on cluster '%s'", cluster.Name)
 			}
 
 			if host.IP == "" {
