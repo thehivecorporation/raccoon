@@ -56,16 +56,18 @@ func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*racc
 
 		for _, host := range cluster.Hosts {
 			if host.Username == "" {
-				log.Errorf("Host username can't be blank on cluster '%s'", cluster.Name)
+				log.Error("Host username is blank on host '%s'", host.IP)
 				err = true
 			}
 
 			if host.Password == "" {
-				log.Warnf("Host password can't be blank on cluster '%s'", cluster.Name)
+				log.Warnf("Host password is blank on host '%s'. If no password" +
+				" is specified you must use an identity file or an interactive" +
+				" authentication method", host.IP)
 			}
 
 			if host.IP == "" {
-				log.Errorf("Host IP can't be blank on cluster '%s'", cluster.Name)
+				log.Errorf("Host IP can't be blank on host '%s'", host.IP)
 				err = true
 			}
 		}

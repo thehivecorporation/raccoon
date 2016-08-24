@@ -30,12 +30,6 @@
         "name": "RUN",
         "description": "Removing htop",
         "instruction": "sudo apt-get remove -y htop"
-      },
-      {
-        "name":"ADD",
-        "description":"Adding the main.go file",
-        "sourcePath":"main.go",
-        "destPath":"/tmp"
       }
     ]
   }

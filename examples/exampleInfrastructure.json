@@ -9,17 +9,17 @@
           "ip":"172.17.42.1",
           "sshPort":32768,
           "username":"root",
-          "password":"root"
+          "identityFile":"/home/mariocaster/.ssh/id_rsa"
         },
         {
           "ip":"172.17.42.1",
           "sshPort":32769,
           "username":"root",
-          "password":"root"
+          "interactiveAuth":true
         },
         {
           "ip":"172.17.42.1",
-          "sshPort":32770,
+          "sshPort":32768,
           "username":"root",
           "password":"root"
         }

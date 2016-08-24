@@ -5,7 +5,7 @@ WIP App orchestration, configuration and deployment
 
 [![asciicast](https://asciinema.org/a/45363.png)](https://asciinema.org/a/45363)
 
-### Features
+## Features
 - [x] Pretty Output in real time
 - [ ] Dockerfile Syntax to ease learning path. WIP
     - [x] RUN
@@ -24,8 +24,8 @@ WIP App orchestration, configuration and deployment
 - [ ] Automation tests
 - [ ] Templating
 - [ ] Target information retrieval
-- [ ] Target "gathering facts"
-- [ ] Identity file auth.
+- [x] Identity file auth.
+- [x] Interactive user/password auth.
 
 ## Index
 * [Raccoon CLI syntax](#raccoon-cli-syntax)
@@ -242,3 +242,81 @@ Prints the name of a maintainer as a specific command:
 
 * name: Must always contain "MAINTAINER" if you want to use this feature.
 * description: the name of the maintainer.
+
+
+## Dispatching strategies
+Raccoon can use 3 dispatching strategies. This strategies must be used in some specific scenarios:
+
+### Simple Strategy
+This is the default strategy, Raccoon will launch a new goroutine for each host
+found on the infrastructure definition. This means that if you have 5 clusters
+of 5 hosts each, you have a total of 25 hosts and 25 goroutines will be launched
+concurrently to execute the task list.
+
+As you can imagine, if your definition has a large number of hosts this could
+not be the best strategy. Depending on your server machine, you could be able to
+reach a higher or lower amount of hosts. Check the workers pool strategy if you
+have performance issues.
+
+Simple strategy is used by default but you can force it by passing `-d simple` when launching Raccoon CLI.
+
+### Workers pool
+Workers pool strategy limits the amount of goroutines that can be accessing
+hosts concurrently. This means that if you have 1000 hosts, you can set the
+workers pool to 10 and only 10 goroutines will be launched to work. Every time
+that a goroutine finishes with some host it starts with the next until they
+reach the end. Use this strategy if you are having performance issues.
+
+To use the workers pool strategy pass `-d workers_pool -w [n]` when launching
+Raccoon through the CLI. `[n]` is the maximum number of workers you want.
+
+### Sequential strategy
+In some special situations, you could want to avoid concurrency when accessing
+hosts. The sequential strategy will go one host each time. This is useful, for
+example, if you use the interactive authentication.
+
+## Authentication methods
+Raccoon uses 3 possible authentication methods: user and password, identity file and interactive access.
+
+### User and password
+When using user and password authentication, you have to provide in the
+infrastructure definition a `username` and `password` key in the host
+definition. For example:
+
+```json
+  {
+    "ip":"172.17.42.1",
+    "sshPort":32768,
+    "username":"root",
+    "password":"root"
+  }
+```
+
+### Identity file
+You can also use private/public key authentication to access some host. To use
+it, add the path to the identity file as a key called `identityFile` in host
+definition. **don't forget to add the `username` key on host too**. For example:
+
+```json
+  {
+    "ip":"172.17.42.1",
+    "sshPort":32768,
+    "username":"root",
+    "identityFile":"/home/mcastro/.ssh/id_rsa"
+  }
+```
+
+### Interactive authentication
+The interactive authentication will prompt the user for a password. Set
+`interactiveAuth` to `true` on host definition. As before, the user must be set in the
+host. **Use sequential dispatching** to avoid that the stdout gets filled before
+you can actually see the prompt for the password. For example:
+
+```json
+  {
+    "ip":"172.17.42.1",
+    "sshPort":32768,
+    "username":"root",
+    "interactiveAuth": true
+  }
+```

@@ -8,10 +8,15 @@ import (
 
 	"os"
 
+	"io/ioutil"
+
+	"strings"
+	"syscall"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
-	"io/ioutil"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 //Host is a remote machine (virtual or physical) where we will execute our
@@ -116,7 +121,15 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 	authMethods := make([]ssh.AuthMethod, 0)
 
 	if h.IdentityFile != "" {
-		key, err := ioutil.ReadFile("/home/user/.ssh/id_rsa")
+		h.HostLogger.WithFields(logrus.Fields{
+			"host":     h.IP,
+			"username": h.Username,
+			"ssh_port": h.SSHPort,
+			"package":  "connection",
+			"color":    h.Color,
+		}).Infof("Using identity file %s", h.IdentityFile)
+
+		key, err := ioutil.ReadFile(h.IdentityFile)
 		if err != nil {
 			h.HostLogger.Errorf("unable to read private key: %v", err)
 		}
@@ -130,24 +143,46 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 	}
 
 	if h.InteractiveAuth == true {
-		authMethods = append(authMethods, ssh.KeyboardInteractive(func(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
-			println("ASDfasdfasdf")
+		h.HostLogger.WithFields(logrus.Fields{
+			"host":     h.IP,
+			"username": h.Username,
+			"ssh_port": h.SSHPort,
+			"package":  "connection",
+			"color":    h.Color,
+		}).Infof("Using interactive auth method")
 
-			h.HostLogger.Info("Keyboard interactive challenge: ")
-			h.HostLogger.Info("-- User: %s", user)
-			h.HostLogger.Info("-- Instructions: %s", instruction)
-			for i, question := range questions {
-				h.HostLogger.Info("-- Question %d: %s", i+1, question)
+		authMethods = append(authMethods, ssh.PasswordCallback(func() (secret string, err error) {
+			h.HostLogger.WithFields(logrus.Fields{
+				"host":     h.IP,
+				"username": h.Username,
+				"ssh_port": h.SSHPort,
+				"package":  "connection",
+				"color":    h.Color,
+			}).Warnf("Enter password to access host %s on port %d:", h.IP, h.SSHPort)
+
+			bytePass, err := terminal.ReadPassword(int(syscall.Stdin))
+			if err != nil {
+				return "", err
 			}
 
-			// Just send the password back for all questions
-			answers = make([]string, len(questions))
-			for i := range answers {
-				answers[i] = "Sdfasdf"
-			}
-
-			return answers, nil
+			return strings.TrimSpace(string(bytePass)), nil
 		}))
+	}
+
+	if h.Password != "" {
+		authMethods = append(authMethods, ssh.Password(h.Password))
+	}
+
+	if len(authMethods) == 0 {
+		h.HostLogger.WithFields(logrus.Fields{
+			"host":     h.IP,
+			"username": h.Username,
+			"ssh_port": h.SSHPort,
+			"package":  "connection",
+			"color":    h.Color,
+		}).Errorf("No auth method found. Try at least one between " +
+			"interactive, user & password and identity file. Check the README for " +
+			"more info about each method")
 	}
 
 	sshConfig := &ssh.ClientConfig{
