@@ -17,26 +17,31 @@ import (
 //instructions on.
 type Host struct {
 	//IP of the remote host
-	IP           string `json:"ip"`
+	IP string `json:"ip"`
 
-	SSH_port     int `json:"sshPort",omitempty`
+	//SSHPort is a optional non standard port for SSH. We consider 22 as the
+	//standard port so set this field in case you are using a different one in
+	//any host
+	SSHPort int `json:"sshPort,omitempty"`
 
 	//Username to access remote host
-	Username     string `json:"username,omitempty"`
+	Username string `json:"username,omitempty"`
 
 	//Password to access remote host
-	Password     string `json:"password,omitempty"`
+	Password string `json:"password,omitempty"`
 
 	// TODO AuthFilePath corresponds to the path of the private key that could
 	// give access to a remote machine.
 	AuthFilePath string `json:"authFilePath,omitempty"`
 
 	//Color that this host will output when printing in stdout
-	Color        color.Attribute
+	Color color.Attribute
 
-	sshClient    *ssh.Client
+	sshClient *ssh.Client
 
-	HostLogger   *logrus.Logger
+	//HostLogger is the logging mechanism for each host. Use this when logging
+	//anything to stdout so it will be formatted and colored
+	HostLogger *logrus.Logger
 }
 
 //Specific logger for Node package
@@ -96,7 +101,7 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 	h.HostLogger.WithFields(logrus.Fields{
 		"host":     h.IP,
 		"username": h.Username,
-		"ssh_port": h.SSH_port,
+		"ssh_port": h.SSHPort,
 		"package":  "connection",
 		"color":    h.Color,
 	}).Info("Opening SSH session")
@@ -108,11 +113,11 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 		},
 	}
 
-	if h.SSH_port == 0 {
-		h.SSH_port = 22
+	if h.SSHPort == 0 {
+		h.SSHPort = 22
 	}
 
-	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", h.IP, h.SSH_port), sshConfig)
+	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", h.IP, h.SSHPort), sshConfig)
 	if err != nil {
 		return nil, errors.New("Failed to dial: " + h.IP)
 	}

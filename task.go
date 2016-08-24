@@ -4,6 +4,7 @@ package raccoon
 //that must match with the title that was written in the task key of the
 //infrastructure file
 type Task struct {
+
 	//Title of the task that will be referenced from clusters
 	Title      string              `json:"title"`
 

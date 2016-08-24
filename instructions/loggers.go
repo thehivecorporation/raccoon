@@ -20,7 +20,7 @@ func logCommand(fields map[string]interface{}, h raccoon.Host, c raccoon.Command
 		"package":  packageName,
 		"color":    h.Color,
 		"username": h.Username,
-		"ssh_port": h.SSH_port,
+		"ssh_port": h.SSHPort,
 	}
 
 	if fields != nil {

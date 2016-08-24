@@ -8,10 +8,14 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+//Dispatcher is the interface to implement new dispatching strategies in the app
 type Dispatcher interface {
 	Dispatch(js []Job)
 }
 
+//WorkerPoolDispatcher is a dispatcher that acts as a worker pool. It won't
+//maintain more connections to hosts atthe same time than the specified number
+//in the Workers field
 type WorkerPoolDispatcher struct {
 	Workers int
 	sync.WaitGroup
@@ -22,6 +26,10 @@ type dispatchingJob struct {
 	host Host
 }
 
+//Dispatch will create the specified workers on the workers field, launching a
+//goroutine with each. Then it will create a dispatcher routing in a different
+//goroutine and finally it will send the jobs to the launched dispatcher for
+//distribution.
 func (w *WorkerPoolDispatcher) Dispatch(jobs []Job) {
 	log.WithFields(log.Fields{
 		"package": "dispatcher",
@@ -64,7 +72,7 @@ func (w *WorkerPoolDispatcher) dispatcher(dispatchingJobCh chan dispatchingJob, 
 func (w *WorkerPoolDispatcher) worker(dispatchingJobCh chan dispatchingJob, freeWorkersPool chan chan dispatchingJob) {
 	for {
 		dispatchingJob := <-dispatchingJobCh
-		fmt.Printf("Receiving host %s on ssh port %d\n", dispatchingJob.host.IP, dispatchingJob.host.SSH_port)
+		fmt.Printf("Receiving host %s on ssh port %d\n", dispatchingJob.host.IP, dispatchingJob.host.SSHPort)
 
 		dispatcher := SequentialDispatcher{}
 		dispatcher.executeJobOnHost(dispatchingJob.job, dispatchingJob.host)
@@ -74,10 +82,17 @@ func (w *WorkerPoolDispatcher) worker(dispatchingJobCh chan dispatchingJob, free
 	}
 }
 
+//SimpleDispatcher is the dispatching strategy to use when the number of hosts
+//isn't very high. It will open a new SSH connection to each host at the same
+//time since the beginning so, if you are having performance issues, try the
+//workers pool or the sequential dispatcher to see if they get solved.
+//SimpleDispatcher is the default dispatching strategy
 type SimpleDispatcher struct {
 	sync.WaitGroup
 }
 
+//Dispatch will create a new goroutine for each host in the job and launch the
+//tasks that were specified on it.
 func (s *SimpleDispatcher) Dispatch(jobs []Job) {
 	for _, job := range jobs {
 		for _, node := range job.Cluster.Hosts {
@@ -114,8 +129,12 @@ func (s *SimpleDispatcher) executeJobOnHost(j Job, h Host) {
 	s.Done()
 }
 
+//SequentialDispatcher is a dispatching strategy that doesn't use any concurrent
+//approach. It will execute each command on each host sequentially and waits for
+//each to finish before starting the next.
 type SequentialDispatcher struct{}
 
+//Dispatch ranges over the hosts to execute the tasks on them sequentially without any kind of concurrency.
 func (s *SequentialDispatcher) Dispatch(jobs []Job) {
 	for _, job := range jobs {
 		log.WithFields(log.Fields{
