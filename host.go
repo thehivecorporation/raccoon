@@ -30,6 +30,9 @@ type Host struct {
 	//any host
 	SSHPort int `json:"sshPort,omitempty"`
 
+	//Description is optional information about the host
+	Description string `json:"description,omitempty"`
+
 	//Username to access remote host
 	Username string `json:"username,omitempty"`
 
@@ -110,24 +113,12 @@ func (h *Host) InitializeNode() error {
 //a Host on port 22.
 func (h *Host) GetClient() (*ssh.Client, error) {
 
-	h.HostLogger.WithFields(logrus.Fields{
-		"host":     h.IP,
-		"username": h.Username,
-		"ssh_port": h.SSHPort,
-		"package":  "connection",
-		"color":    h.Color,
-	}).Info("Opening SSH session")
+	h.logFields().Info("Opening SSH session")
 
 	authMethods := make([]ssh.AuthMethod, 0)
 
 	if h.IdentityFile != "" {
-		h.HostLogger.WithFields(logrus.Fields{
-			"host":     h.IP,
-			"username": h.Username,
-			"ssh_port": h.SSHPort,
-			"package":  "connection",
-			"color":    h.Color,
-		}).Infof("Using identity file %s", h.IdentityFile)
+		h.logFields().Infof("Using identity file %s", h.IdentityFile)
 
 		key, err := ioutil.ReadFile(h.IdentityFile)
 		if err != nil {
@@ -143,22 +134,10 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 	}
 
 	if h.InteractiveAuth == true {
-		h.HostLogger.WithFields(logrus.Fields{
-			"host":     h.IP,
-			"username": h.Username,
-			"ssh_port": h.SSHPort,
-			"package":  "connection",
-			"color":    h.Color,
-		}).Infof("Using interactive auth method")
+		h.logFields().Infof("Using interactive auth method")
 
 		authMethods = append(authMethods, ssh.PasswordCallback(func() (secret string, err error) {
-			h.HostLogger.WithFields(logrus.Fields{
-				"host":     h.IP,
-				"username": h.Username,
-				"ssh_port": h.SSHPort,
-				"package":  "connection",
-				"color":    h.Color,
-			}).Warnf("Enter password to access host %s on port %d:", h.IP, h.SSHPort)
+			h.logFields().Warnf("Enter password to access host %s on port %d:", h.IP, h.SSHPort)
 
 			bytePass, err := terminal.ReadPassword(int(syscall.Stdin))
 			if err != nil {
@@ -174,13 +153,7 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 	}
 
 	if len(authMethods) == 0 {
-		h.HostLogger.WithFields(logrus.Fields{
-			"host":     h.IP,
-			"username": h.Username,
-			"ssh_port": h.SSHPort,
-			"package":  "connection",
-			"color":    h.Color,
-		}).Errorf("No auth method found. Try at least one between " +
+		h.logFields().Errorf("No auth method found. Try at least one between " +
 			"interactive, user & password and identity file. Check the README for " +
 			"more info about each method")
 	}
@@ -245,12 +218,7 @@ func (h *Host) GetSession() (*ssh.Session, error) {
 //parameter a scanner instance that is connected to an output
 func (h *Host) sessionListenerRoutine(s *bufio.Scanner) {
 	for s.Scan() {
-		h.HostLogger.WithFields(logrus.Fields{
-			"host":     h.IP,
-			"username": h.Username,
-			"package":  "connection",
-			"color":    h.Color,
-		}).Info(s.Text())
+		h.logFields().Info(s.Text())
 	}
 }
 
@@ -268,4 +236,15 @@ func (h *Host) CloseNode() error {
 	}
 
 	return errors.New("ssh client was nil. Client was already closed")
+}
+
+func (h *Host) logFields() *logrus.Entry {
+	return h.HostLogger.WithFields(logrus.Fields{
+		"host":        h.IP,
+		"description": h.Description,
+		"username":    h.Username,
+		"ssh_port":    h.SSHPort,
+		"package":     "connection",
+		"color":       h.Color,
+	})
 }
