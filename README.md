@@ -71,7 +71,7 @@ You use Raccoon similar of how you use tools like Ansible. You mainly work with 
 
 It's quite easy, you just need to define your infrastructure and the tasks you want to execute in every cluster, then you launch the application.
 
-## What's a Infrastructure: 
+## What's an Infrastructure: 
 An infrastructure definition looks like the following:
 
 ```json
@@ -85,6 +85,7 @@ An infrastructure definition looks like the following:
         {
           "ip":"172.17.42.1",
           "sshPort":32768,
+          "description":"hdfs01",
           "username":"root",
           "password":"root"
         }
@@ -94,15 +95,67 @@ An infrastructure definition looks like the following:
 }
 ```
 
+
 * `name`: Is a name for your infrastructure, it is optional and its purpose is to identify the file between many infrastructure files. It could be your project's name or your company name.
 * `infrastructure`: List of clusters. Take a closer look that is a JSON array. 
   * `name`: Name of the cluster. They should describe the cluster grouping in some way like Cassandra machines or QA machines.
   * `tasks`: List of tasks that will be executed on this cluster
+
+### Host
+A host is a description of some host on your infrastructure. It contains
+authentication methods (defined by the structure of the JSON object, more on
+this later), an IP and a username.
   * `hosts`: List of hosts that compose this cluser.
     * `ip`: IP address to access the host.
     * `sshPort`: If needed, SSH port to make the SSH connection to.
     * `username`: Username to access the machine.
     * `password`: Password for the provided username.
+
+#### Authentication methods
+Raccoon uses 3 possible authentication methods: user and password, identity file and interactive access.
+
+##### User and password
+When using user and password authentication, you have to provide in the
+infrastructure definition a `username` and `password` key in the host
+definition. For example:
+
+```json
+  {
+    "ip":"172.17.42.1",
+    "sshPort":32768,
+    "username":"root",
+    "password":"root"
+  }
+```
+
+##### Identity file
+You can also use private/public key authentication to access some host. To use
+it, add the path to the identity file as a key called `identityFile` in host
+definition. **don't forget to add the `username` key on host too**. For example:
+
+```json
+  {
+    "ip":"172.17.42.1",
+    "sshPort":32768,
+    "username":"root",
+    "identityFile":"/home/mcastro/.ssh/id_rsa"
+  }
+```
+
+##### Interactive authentication
+The interactive authentication will prompt the user for a password. Set
+`interactiveAuth` to `true` on host definition. As before, the user must be set in the
+host. **Use sequential dispatching** to avoid that the stdout gets filled before
+you can actually see the prompt for the password. For example:
+
+```json
+  {
+    "ip":"172.17.42.1",
+    "sshPort":32768,
+    "username":"root",
+    "interactiveAuth": true
+  }
+```
 
 
 ## What's a Task list
@@ -282,49 +335,3 @@ Raccoon through the CLI. `[n]` is the maximum number of workers you want.
 In some special situations, you could want to avoid concurrency when accessing
 hosts. The sequential strategy will go one host each time. This is useful, for
 example, if you use the interactive authentication.
-
-## Authentication methods
-Raccoon uses 3 possible authentication methods: user and password, identity file and interactive access.
-
-### User and password
-When using user and password authentication, you have to provide in the
-infrastructure definition a `username` and `password` key in the host
-definition. For example:
-
-```json
-  {
-    "ip":"172.17.42.1",
-    "sshPort":32768,
-    "username":"root",
-    "password":"root"
-  }
-```
-
-### Identity file
-You can also use private/public key authentication to access some host. To use
-it, add the path to the identity file as a key called `identityFile` in host
-definition. **don't forget to add the `username` key on host too**. For example:
-
-```json
-  {
-    "ip":"172.17.42.1",
-    "sshPort":32768,
-    "username":"root",
-    "identityFile":"/home/mcastro/.ssh/id_rsa"
-  }
-```
-
-### Interactive authentication
-The interactive authentication will prompt the user for a password. Set
-`interactiveAuth` to `true` on host definition. As before, the user must be set in the
-host. **Use sequential dispatching** to avoid that the stdout gets filled before
-you can actually see the prompt for the password. For example:
-
-```json
-  {
-    "ip":"172.17.42.1",
-    "sshPort":32768,
-    "username":"root",
-    "interactiveAuth": true
-  }
-```
