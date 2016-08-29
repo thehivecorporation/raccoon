@@ -9,17 +9,20 @@
           "ip":"172.17.42.1",
           "sshPort":32768,
           "username":"root",
-          "identityFile":"/home/mariocaster/.ssh/id_rsa"
+          "description":"cassandra01",
+          "password":"root"
         },
         {
           "ip":"172.17.42.1",
           "sshPort":32769,
+          "description":"cassandra02",
           "username":"root",
           "interactiveAuth":true
         },
         {
           "ip":"172.17.42.1",
           "sshPort":32768,
+          "description":"cassandra03",
           "username":"root",
           "password":"root"
         }

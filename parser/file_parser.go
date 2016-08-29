@@ -8,8 +8,12 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+//FileParser is the type that parses files from a file path string. It manages
+//file opening and returns errors.
 type FileParser struct{}
 
+//Parse takes a filePath and returns an io.Reader pointing to it so that the
+//Task and Job parser can work on it
 func (t *FileParser) Parse(filePath string) (io.Reader, error) {
 	log.WithFields(log.Fields{
 		"cluster": filePath,

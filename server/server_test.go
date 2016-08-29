@@ -6,24 +6,24 @@ import (
 )
 
 func TestParseRequest(t *testing.T) {
-	content := []byte("{\"zombiebook\":[{\"chapter_title\": \"chapter1\", \"maintainer\": \"Burkraith\", \"instructions\": [] }, {\"chapter_title\": \"chapter2\", \"maintainer\": \"Mario\", \"instructions\": [] } ], \"mansion\":{\"name\":\"A name\", \"rooms\":[{\"name\":\"some room\", \"chapter\":\"chapter1\", \"hosts\":[{\"ip\":\"192.168.1.44\", \"username\":\"vagrant\", \"password\":\"vagrant\"} ] }, {\"name\":\"some room2\", \"chapter\":\"chapter2\", \"hosts\":[{\"ip\":\"192.168.1.45\", \"username\":\"vagrant\", \"password\":\"vagrant\"} ] } ] } }")
+	content := []byte(`{"infrastructure": {"name": "A name","infrastructure": [ {"name": "some cluster","tasks": ["task2"],"hosts": [{ "ip": "172.17.42.1", "sshPort": 32768, "username": "root", "description": "cassandra01", "password": "root"},{ "ip": "172.17.42.1", "sshPort": 32769, "description": "cassandra02", "username": "root", "interactiveAuth": true},{ "ip": "172.17.42.1", "sshPort": 32768, "description": "cassandra03", "username": "root", "password": "root"}] }]},"tasks": [{ "title": "task1", "maintainer": "Burkraith", "commands": [{"name": "ADD","sourcePath": "doc.go","destPath": "/tmp","description": "Raccoon.go to /tmp"},{"name": "RUN","description": "Removing htop","instruction": "sudo yum remove -y htop"},{"name": "ADD","sourcePath": "main.go","destPath": "/tmp","description": "copying raccoon.go to /tmp"} ]},{ "title": "task2", "maintainer": "Mario", "commands": [{"name": "RUN","description": "Removing htop","instruction": "sudo apt-get remove -y htop"} ]}] }`)
 	r := bytes.NewReader(content)
-	err, _ := parseRequest(r)
+	_, err := parseRequest(r)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	content = []byte("{wrong:\"syntax\",}")
 	r = bytes.NewReader(content)
-	err, _ = parseRequest(content)
+	_, err = parseRequest(r)
 	if err == nil {
 		t.Fatal("An error must be thrown when using a wrong JSON syntax")
 	}
 
-	content = []byte("{\"zombiebook\":[{\"chapter_title\": \"chapter1\", \"maintainer\": \"Burkraith\", \"instructions\": [] }, {\"chapter_title\": \"chapter2\", \"maintainer\": \"Mario\", \"instructions\": [{\"name\": \"RUN\", \"description\": \"Install wget\", \"inst2ruction\": \"sudo yum install -y wget\"} ] } ], \"mansion\":{\"name\":\"A name\", \"rooms\":[{\"name\":\"some room\", \"chapter\":\"chapter1\", \"hosts\":[{\"ip\":\"192.168.1.44\", \"username\":\"vagrant\", \"password\":\"vagrant\"} ] }, {\"name\":\"some room2\", \"chapter\":\"chapter2\", \"hosts\":[{\"ip\":\"192.168.1.45\", \"username\":\"vagrant\", \"password\":\"vagrant\"} ] } ] } }")
+	content = []byte(`{"infrastructure": {"name": "A name","infras2tructure": [ {"name": "some cluster","tasks": ["task2"],"hosts": [{ "ip": "172.17.42.1", "sshPort": 32768, "username": "root", "description": "cassandra01", "password": "root"},{ "ip": "172.17.42.1", "sshPort": 32769, "description": "cassandra02", "username": "root", "interactiveAuth": true},{ "ip": "172.17.42.1", "sshPort": 32768, "description": "cassandra03", "username": "root", "password": "root"}] }]},"tasks": [{ "title": "task1", "maintainer": "Burkraith", "commands": [{"name": "ADD","sourcePath": "doc.go","destPath": "/tmp","description": "Raccoon.go to /tmp"},{"name": "RUN","description": "Removing htop","instruction": "sudo yum remove -y htop"},{"name": "ADD","sourcePath": "main.go","destPath": "/tmp","description": "copying raccoon.go to /tmp"} ]},{ "title": "task2", "maintainer": "Mario", "commands": [{"name": "RUN","description": "Removing htop","instruction": "sudo apt-get remove -y htop"} ]}] }`)
 	r = bytes.NewReader(content)
-	err, _ = parseRequest(content)
-	if err == nil {
-		t.Fatal("An error must be thrown when passing a incorrect syntax like 'inst2ruction'")
+	_, err = parseRequest(r)
+	if err != nil {
+		t.Fatal("An error must be thrown when passing a incorrect syntax like 'infras2tructure'")
 	}
 }

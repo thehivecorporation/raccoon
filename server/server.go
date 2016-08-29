@@ -16,7 +16,7 @@ import (
 )
 
 type request struct {
-	RawTaskList    *[]raccoon.Task         `json:"commandsList"`
+	TaskList       *[]raccoon.Task         `json:"tasks"`
 	Infrastructure *raccoon.Infrastructure `json:"infrastructure"`
 }
 
@@ -34,7 +34,7 @@ func REST(c *cli.Context) {
 
 		jobParser := parser.JobParser{}
 
-		taskList, err := jobParser.ParseTaskList(req.RawTaskList)
+		taskList, err := jobParser.ParseTaskList(req.TaskList)
 		if err != nil {
 			return err
 		}

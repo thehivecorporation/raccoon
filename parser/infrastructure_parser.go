@@ -10,10 +10,13 @@ import (
 	"github.com/thehivecorporation/raccoon"
 )
 
+//InfrastructureFileParser is the type that is in charge of parsing the files
+//with the infrastructure information about a Raccoon job.
 type InfrastructureFileParser struct {
 	FileParser
 }
 
+//Build returns an Infrastructure from a io.Reader
 func (t *InfrastructureFileParser) Build(r io.Reader) (*raccoon.Infrastructure, error) {
 	var infrastructure raccoon.Infrastructure
 	err := json.NewDecoder(r).Decode(&infrastructure)
