@@ -60,7 +60,8 @@ func cleanupContainer(ID string) error {
 		return err
 	}
 
-	err = cli.ContainerRemove(context.Background(), ID, types.ContainerRemoveOptions{
+	err = cli.ContainerRemove(context.Background(), ID,
+		types.ContainerRemoveOptions{
 		Force: true,
 	})
 	if err != nil {
@@ -83,7 +84,8 @@ func launchContainer(imageName string) (string, error) {
 		return "", err
 	}
 
-	readCloser, err := cli.ImagePull(context.Background(), imageName, types.ImagePullOptions{})
+	readCloser, err := cli.ImagePull(context.Background(), imageName,
+		types.ImagePullOptions{})
 	if err != nil {
 		return "", err
 	}
@@ -109,15 +111,19 @@ func launchContainer(imageName string) (string, error) {
 		},
 	}
 	networkConfig := &network.NetworkingConfig{}
-	resp, err := cli.ContainerCreate(context.Background(), config, hostConfig, networkConfig, "test_sshd")
+	resp, err := cli.ContainerCreate(context.Background(), config, hostConfig,
+		networkConfig, "test_sshd")
 	if err != nil {
 		return "", err
 	}
 
-	err = cli.ContainerStart(context.Background(), resp.ID, types.ContainerStartOptions{})
+	err = cli.ContainerStart(context.Background(), resp.ID,
+		types.ContainerStartOptions{})
 	if err != nil {
 		return resp.ID, err
 	}
+
+	fmt.Printf("Container launched\n")
 
 	return resp.ID, nil
 }

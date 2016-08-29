@@ -17,6 +17,7 @@ import (
 	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
+	"io"
 )
 
 //Host is a remote machine (virtual or physical) where we will execute our
@@ -113,6 +114,12 @@ func (h *Host) InitializeNode() error {
 //a Host on port 22.
 func (h *Host) GetClient() (*ssh.Client, error) {
 
+	if h.SSHPort == 0 {
+		h.SSHPort = 22
+	}
+
+	sshHostPort := fmt.Sprintf("%s:%d", h.IP, h.SSHPort)
+
 	h.logFields().Info("Opening SSH session")
 
 	authMethods := make([]ssh.AuthMethod, 0)
@@ -162,12 +169,7 @@ func (h *Host) GetClient() (*ssh.Client, error) {
 		User: h.Username,
 		Auth: authMethods,
 	}
-
-	if h.SSHPort == 0 {
-		h.SSHPort = 22
-	}
-
-	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", h.IP, h.SSHPort), sshConfig)
+	client, err := ssh.Dial("tcp", sshHostPort, sshConfig)
 	if err != nil {
 		return nil, errors.New("Failed to dial: " + h.IP)
 	}
@@ -184,10 +186,7 @@ func (h *Host) GetSession() (*ssh.Session, error) {
 		_, err := h.GetClient()
 
 		if err != nil {
-			h.HostLogger.WithFields(logrus.Fields{
-				"host":    h.IP,
-				"package": "dispatcher",
-			}).Error("Error getting session: " + err.Error())
+			h.logFields().Error("Error getting session: " + err.Error())
 
 			return nil, errors.New("Error getting session: " + err.Error())
 		}
@@ -208,8 +207,10 @@ func (h *Host) GetSession() (*ssh.Session, error) {
 		return nil, fmt.Errorf("Error getting stdin pipe from session: %s", err.Error())
 	}
 
-	go h.sessionListenerRoutine(bufio.NewScanner(stdout))
-	go h.sessionListenerRoutine(bufio.NewScanner(stderr))
+	combinedOutput := io.MultiReader(stderr, stdout)
+
+	go h.sessionListenerRoutine(bufio.NewScanner(combinedOutput))
+	//go h.sessionListenerRoutine(bufio.NewScanner(stderr))
 
 	return session, nil
 }

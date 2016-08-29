@@ -21,10 +21,12 @@ func TestExecuteAddInstruction(t *testing.T) {
 	defer f.Close()
 
 	add := ADD{
-		Description: "Add description",
+		Command: raccoon.Command{
+			Name:        "ADD",
+			Description: "Add description",
+		},
 		DestPath:    "/tmp",
 		SourcePath:  f.Name(),
-		Name:        "ADD",
 	}
 
 	imageName := "rastasheep/ubuntu-sshd:14.04"
@@ -33,7 +35,10 @@ func TestExecuteAddInstruction(t *testing.T) {
 
 	defer cleanupContainer(containerID)
 
-	time.Sleep(time.Second)
+	time.Sleep(2 * time.Second)
+
+	err = node.InitializeNode()
+	passOrError(err, t.Fatal)
 
 	add.Execute(node)
 
@@ -63,9 +68,11 @@ func TestCopyFileToHost(t *testing.T) {
 	node.Password = "root"
 
 	add := ADD{
-		Description: "Adding a file to destination target",
-		DestPath:    "/tmp",
-		Name:        "ADD",
+		Command: raccoon.Command{
+			Name:        "ADD",
+			Description: "Adding a file to destination target",
+		},
+		DestPath: "/tmp",
 	}
 
 	//Prepare: Launch a docker container with sshd running, user root and
@@ -77,6 +84,9 @@ func TestCopyFileToHost(t *testing.T) {
 
 	defer cleanupContainer(containerID)
 
+	err = node.InitializeNode()
+	passOrError(err, t.Fatal)
+
 	//Prepare: Create a temp file to pass in with the contents "Hello Raccoon"
 	//(without quotes)
 	fileTestcontent := "Hello raccoon\n"
@@ -87,7 +97,7 @@ func TestCopyFileToHost(t *testing.T) {
 	defer f.Close()
 
 	//Prepare: Create a session with the container
-	time.Sleep(time.Second) //Give the container some time to launch
+	time.Sleep(2 * time.Second) //Give the container some time to launch
 	session, err := node.GetSession()
 	passOrError(err, t.Fatal)
 
