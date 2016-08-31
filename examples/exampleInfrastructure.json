@@ -21,8 +21,7 @@
         },
         {
           "ip":"172.17.42.1",
-          "sshPort":32768,
-          "description":"cassandra03",
+          "sshPort":32770,
           "username":"root",
           "password":"root"
         }
