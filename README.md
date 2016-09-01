@@ -14,12 +14,12 @@ WIP App orchestration, configuration and deployment
     - [x] ENV
 - [x] Identity file auth.
 - [x] Interactive user/password auth.
-- [ ] Cluster level authentication
-- [ ] Pure Dockerfile parsing. Reuse your Dockerfiles in normal hosts.
-- [ ] Automation tests
+- [x] Cluster level authentication
 - [ ] 1 file JSON parsing of jobs (a file with the infrastructure connected with the task list)
 - [x] 2 files JSON parsing of jobs (one file with infrastructure pointing to tasks in a second file of tasks list).
 - [ ] 3 files JSON parsing of jobs (a file for infrastructure, a file for tasks list and a file to connect them both).
+- [ ] Pure Dockerfile parsing. Reuse your Dockerfiles in normal hosts.
+- [ ] Automation tests
 - [x] Array based tasks for cluster
 - [x] API REST.
 - [x] Support for JSON syntax parsing
@@ -80,15 +80,33 @@ An infrastructure definition looks like the following:
   "name":"Your infrastructure name (your project, for example)",
   "infrastructure":[
     {
-      "name":"A nem for a cluster (like Kafka hosts)",
+      "name":"A name for a cluster (like Kafka hosts)",
       "tasks":["Install Kafka", "Open Kafka ports"],
       "hosts":[
         {
           "ip":"172.17.42.1",
           "sshPort":32768,
-          "description":"hdfs01",
+          "description":"A cluster authenticated at host level",
           "username":"root",
           "password":"root"
+        }
+      ]
+    },
+    {
+      "name":"All hosts in this cluster share authentication",
+      "tasks":["Install Kafka", "Open Kafka ports"],
+      "username":"root",
+      "password":"root",
+      "hosts":[
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32768,
+          "description":"hdfs02"
+        },
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32769,
+          "description":"hdfs03"
         }
       ]
     }
@@ -98,19 +116,49 @@ An infrastructure definition looks like the following:
 
 
 * `name`: Is a name for your infrastructure, it is optional and its purpose is to identify the file between many infrastructure files. It could be your project's name or your company name.
-* `infrastructure`: List of clusters. Take a closer look that is a JSON array. 
+* `infrastructure`: List of clusters. Take a closer look. It is a JSON array. 
   * `name`: Name of the cluster. They should describe the cluster grouping in some way like Cassandra machines or QA machines.
   * `tasks`: List of tasks that will be executed on this cluster
+  
+#### Host Level vs Cluster level authenticationnn
+If all your hosts share the same authentication details, you can use the same syntax that you can use with the hosts in the cluster definition. It will apply to all hosts. So, for example, if we have two hosts that share the authentication details we can define our JSON this way:
+
+```json
+
+    {
+      "name":"All hosts in this cluster share authentication",
+      "tasks":["Install Kafka", "Open Kafka ports"],
+      "username":"root",
+      "password":"root",
+      "hosts":[
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32768,
+          "description":"hdfs02"
+        },
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32769,
+          "description":"hdfs03",
+          "password":"1234"
+        }
+      ]
+    }
+```
+
+We have set the `username` and `password` at cluster level but we have set the SSH port at host level. The cluster authentication details will be used on each of its hosts. You can also override some detail at host level if neccesary.
 
 ### Host
 A host is a description of some host on your infrastructure. It contains
 authentication methods (defined by the structure of the JSON object, more on
 this later), an IP and a username.
   * `hosts`: List of hosts that compose this cluser.
-    * `ip`: IP address to access the host.
+    * **`ip`**: IP address to access the host.
+    * **`username`**: Username to access the machine.
     * `sshPort`: If needed, SSH port to make the SSH connection to.
-    * `username`: Username to access the machine.
     * `password`: Password for the provided username.
+    * `identityFile`: A file to authenticate the provided user
+    * `interactiveAuth`: Prompt for the password
 
 #### Authentication methods
 Raccoon uses 3 possible authentication methods: user and password, identity file and interactive access.
@@ -232,7 +280,7 @@ The task with a title "task1" will be executed in cluster "myCluster". This is h
 ## Commands:
 
 Until now we have developed the following commands with their corresponding
-JSON formats:
+JSON formats (NOTE: **bold** fields are mandatory)
 
 ### RUN
 
@@ -246,10 +294,10 @@ JSON formats:
 
 Like in Docker, `RUN` will execute the command on the target machine, the
 parameters are:
-* name: The name of the command for the parser, for a `RUN` instruction is always `"RUN"`
+* **`name`**: The name of the command for the parser, for a `RUN` instruction is always `"RUN"`
+* **`instruction`**: The command to execute in the target machine
 * description: A description of the instruction. This has no effect and it is
 only for logging purposes
-* instruction: The command to execute in the target machine
 
 ### ADD
 
@@ -264,13 +312,13 @@ only for logging purposes
 
 `ADD` uses `scp` to send a file to the destination machine. It just supports
 single files yet until we work in a folder solution (to send an entire folder):
-* name: "ADD" must always be placed here so that the parser recognizes the
+* **`name`**: "ADD" must always be placed here so that the parser recognizes the
   instruction
-* sourcePath: The full source path and file name of the file to send. For
+* **`sourcePath`**: The full source path and file name of the file to send. For
   example: /tmp/fileToSend.log
-* destPath: The full path to leave the file into the target machine. The file
+* **`destPath`**: The full path to leave the file into the target machine. The file
   will have the same name.
-* description: Optional description parameters for logging purposes.
+* `description`: Optional description parameters for logging purposes.
 
 ### ENV
 
@@ -286,9 +334,9 @@ Sets an environment variable on the target machine:
 
 The parser will look for a "=" in the "environment" value to split it into two
 pieces and set the environment variable.
-* name: "ENV" must always go here to use the ENV instruction
-* description: Optional description parameters for logging purposes.
-* environment: A key-value separated by a "=" to set in the target machine. Left
+* **`name`**: "ENV" must always go here to use the ENV instruction
+* **`environment`**: A key-value separated by a "=" to set in the target machine. Left
+* `description`: Optional description parameters for logging purposes.
   side will be the environment name. Right side its value.
 
 ### MAINTAINER
@@ -302,8 +350,8 @@ Prints the name of a maintainer as a specific command:
 }
 ```
 
-* name: Must always contain "MAINTAINER" if you want to use this feature.
-* description: the name of the maintainer.
+* **`name`**: Must always contain "MAINTAINER" if you want to use this feature.
+* **`description`**: the name of the maintainer.
 
 
 ## Dispatching strategies

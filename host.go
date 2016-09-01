@@ -23,32 +23,13 @@ import (
 //Host is a remote machine (virtual or physical) where we will execute our
 //instructions on.
 type Host struct {
+	Authentication
+
 	//IP of the remote host
 	IP string `json:"ip"`
 
-	//SSHPort is a optional non standard port for SSH. We consider 22 as the
-	//standard port so set this field in case you are using a different one in
-	//any host
-	SSHPort int `json:"sshPort,omitempty"`
-
 	//Description is optional information about the host
 	Description string `json:"description,omitempty"`
-
-	//Username to access remote host
-	Username string `json:"username,omitempty"`
-
-	//Password to access remote host
-	Password string `json:"password,omitempty"`
-
-	//Identity file for auth
-	IdentityFile string `json:"identityFile,omitempty"`
-
-	//Choose to enter user and password during Raccoon execution
-	InteractiveAuth bool `json:"interactiveAuth,omitempty"`
-
-	// TODO AuthFilePath corresponds to the path of the private key that could
-	// give access to a remote machine.
-	AuthFilePath string `json:"authFilePath,omitempty"`
 
 	//Color that this host will output when printing in stdout
 	Color color.Attribute

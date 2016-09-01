@@ -7,6 +7,8 @@ package raccoon
 //It should also have a linked task. A task is a group of commands that will be
 //executed on this cluster
 type Cluster struct {
+	Authentication
+
 	//Name that identifies this cluster respect to others
 	Name           string `json:"name"`
 

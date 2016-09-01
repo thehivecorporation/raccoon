@@ -6,23 +6,34 @@
       "tasks":["task2"],
       "hosts":[
         {
-          "ip":"172.17.42.1",
+          "ip":"172.17.0.1",
           "sshPort":32768,
           "username":"root",
           "description":"cassandra01",
           "password":"root"
+        }
+      ]
+    },
+    {
+      "name":"some cluster 2",
+      "tasks":["task2"],
+      "username":"root",
+      "password":"root",
+      "hosts":[
+        {
+          "ip":"172.17.0.1",
+          "sshPort":32768,
+          "description":"cassandra03"
         },
         {
-          "ip":"172.17.42.1",
+          "ip":"172.17.0.1",
           "sshPort":32769,
-          "description":"cassandra02",
-          "username":"root",
-          "interactiveAuth":true
+          "description":"cassandra04"
         },
         {
-          "ip":"172.17.42.1",
+          "ip":"172.17.0.1",
           "sshPort":32770,
-          "username":"root",
+          "description":"cassandra04",
           "password":"root"
         }
       ]
