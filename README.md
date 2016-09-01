@@ -12,20 +12,21 @@ WIP App orchestration, configuration and deployment
     - [x] ADD
     - [x] MAINTAINER
     - [x] ENV
+- [x] Identity file auth.
+- [x] Interactive user/password auth.
+- [ ] Cluster level authentication
 - [ ] Pure Dockerfile parsing. Reuse your Dockerfiles in normal hosts.
+- [ ] Automation tests
 - [ ] 1 file JSON parsing of jobs (a file with the infrastructure connected with the task list)
 - [x] 2 files JSON parsing of jobs (one file with infrastructure pointing to tasks in a second file of tasks list).
 - [ ] 3 files JSON parsing of jobs (a file for infrastructure, a file for tasks list and a file to connect them both).
 - [x] Array based tasks for cluster
 - [x] API REST.
 - [x] Support for JSON syntax parsing
-- [ ] Support for TOML syntax
 - [x] CLI
-- [ ] Automation tests
 - [ ] Templating
 - [ ] Target information retrieval
-- [x] Identity file auth.
-- [x] Interactive user/password auth.
+- [ ] Support for TOML syntax
 
 ## Index
 * [Raccoon CLI syntax](#raccoon-cli-syntax)
