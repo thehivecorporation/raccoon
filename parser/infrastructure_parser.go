@@ -2,7 +2,6 @@ package parser
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 
@@ -21,18 +20,18 @@ func (t *InfrastructureFileParser) Build(r io.Reader) (*raccoon.Infrastructure, 
 	var infrastructure raccoon.Infrastructure
 	err := json.NewDecoder(r).Decode(&infrastructure)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing JSON: " + err.Error())
+		return nil, infrastructureErr(JSON_ERROR, err.Error())
 	}
 
-	t.takeAuthAtClusterLevel(&infrastructure)
+	t.TakeAuthAtClusterLevel(&infrastructure)
 
-	return t.checkErrors(&infrastructure)
+	return t.CheckErrors(&infrastructure)
 }
 
 //takeAuthAtClusterLevel will check if the user has written the authentication of a cluster in the
 //cluster definition instead of on each individual host. In such case it will take the information
 //and inject it on each host
-func (t *InfrastructureFileParser) takeAuthAtClusterLevel(i *raccoon.Infrastructure) error {
+func (t *InfrastructureFileParser) TakeAuthAtClusterLevel(i *raccoon.Infrastructure) error {
 	for k, cluster := range i.Infrastructure {
 		var username, authFile, password string
 		var interactive bool
@@ -76,57 +75,83 @@ func (t *InfrastructureFileParser) takeAuthAtClusterLevel(i *raccoon.Infrastruct
 }
 
 //checkErrors is used to perform error checking on Infrastructure json file
-func (t *InfrastructureFileParser) checkErrors(m *raccoon.Infrastructure) (*raccoon.Infrastructure, error) {
+func (t *InfrastructureFileParser) CheckErrors(m *raccoon.Infrastructure) (*raccoon.Infrastructure, error) {
 	err := false
 	if len(m.Infrastructure) == 0 {
-		log.Error("No cluster were found on infrastructure file")
+		log.Error(infrastructureErr(NO_CLUSTER))
 		err = true
 	}
 
 	if m.Name == "" {
-		log.Errorf("infrastructure name can't be blank")
+		log.Errorf(infrastructureErr(NO_CLUSTER_NAME).Error())
 		err = true
 	}
 
 	for _, cluster := range m.Infrastructure {
 		if len(cluster.Hosts) == 0 {
-			log.Errorf("No hosts were found on cluster '%s' for commands '%s'",
-				cluster.Name, cluster.TasksToExecute)
-			err = true
-		}
-
-		if cluster.Name == "" {
-			log.Errorf("hosts name can't be blank")
+			log.Errorf(infrastructureErr(NO_HOSTS, cluster.Name, fmt.Sprintf("%#v",cluster.TasksToExecute)).Error())
 			err = true
 		}
 
 		if len(cluster.TasksToExecute) == 0 {
-			log.Errorf("You haven't specified any task. Specify at least one as an string array on cluster '%s'", cluster.Name)
+			log.Errorf(infrastructureErr(NO_TASKS, cluster.Name).Error())
 			err = true
 		}
 
 		for _, host := range cluster.Hosts {
 			if host.Username == "" {
-				log.Errorf("Host username is blank on host '%s'", host.IP)
+				log.Errorf(infrastructureErr(BLANK_USERNAME, host.IP).Error())
 				err = true
 			}
 
 			if host.Password == "" {
-				log.Warnf("Host password is blank on host '%s'. If no password"+
-					" is specified you must use an identity file or an interactive"+
-					" authentication method", host.IP)
+				log.Warnf(infrastructureErr(BLANK_PASSWORD, host.IP).Error())
 			}
 
 			if host.IP == "" {
-				log.Errorf("Host IP can't be blank on host '%s'", host.IP)
+				log.Errorf(infrastructureErr(BLANK_IP).Error())
 				err = true
 			}
 		}
 	}
 	if err {
-		return &raccoon.Infrastructure{}, errors.New("Error found when parsing " +
-			"infrastructure file")
+		return &raccoon.Infrastructure{}, infrastructureErr(PARSING_ERROR)
 	}
 
 	return m, nil
+}
+
+//Errors
+const (
+	PARSING_ERROR  string = "Error found when parsing infrastructure file"
+	BLANK_IP       string = "Host IP can't be blank"
+	BLANK_PASSWORD string = "Host password is blank on host '%s'. If no password is specified you " +
+		"must use an identity file or an interactive authentication method"
+	BLANK_USERNAME string = "Host username is blank on host '%s'"
+	NO_TASKS       string = "You haven't specified any task. Specify at least one as an string " +
+		"array on cluster '%s'"
+	NO_HOSTS        string = "No hosts were found on cluster '%s' for commands '%s'"
+	NO_CLUSTER_NAME string = "infrastructure name can't be blank"
+	NO_CLUSTER      string = "No cluster was found on infrastructure file"
+	JSON_ERROR      string = "Error parsing JSON: %s\n"
+)
+
+type InfrastructureError struct {
+	errorCode string
+	msg       string
+	extra     []string
+}
+
+func (i *InfrastructureError) Error() string {
+	return fmt.Sprintf(i.msg, i.extra)
+}
+
+func infrastructureErr(errorCode string, extra ...string) error {
+	err := InfrastructureError{
+		errorCode: errorCode,
+		msg:       errorCode,
+		extra:     extra,
+	}
+
+	return &err
 }

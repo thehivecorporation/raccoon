@@ -15,11 +15,6 @@ import (
 	"github.com/thehivecorporation/raccoon/parser"
 )
 
-type request struct {
-	TaskList       *[]raccoon.Task         `json:"tasks"`
-	Infrastructure *raccoon.Infrastructure `json:"infrastructure"`
-}
-
 //REST is the server that is launched when a user selects the "server" option
 //in the CLI
 func REST(c *cli.Context) {
@@ -32,14 +27,17 @@ func REST(c *cli.Context) {
 	e.POST("/", func(c echo.Context) error {
 		req, err := parseRequest(c.Request().Body())
 
-		jobParser := parser.JobParser{}
+		jobParser := parser.JobParser{Dispatcher: new(raccoon.SimpleDispatcher)}
 
 		taskList, err := jobParser.ParseTaskList(req.TaskList)
 		if err != nil {
 			return err
 		}
 
-		jobParser.BuildJobList(req.Infrastructure, taskList)
+		jobs := jobParser.BuildJobList(req.Infrastructure, taskList)
+
+		//Send jobs to dispatcher
+		jobParser.Dispatcher.Dispatch(*jobs)
 
 		rsp := struct {
 			Status string
@@ -57,8 +55,8 @@ func REST(c *cli.Context) {
 	e.Run(standard.New(":" + c.String("port")))
 }
 
-func parseRequest(r io.Reader) (*request, error) {
-	req := request{}
+func parseRequest(r io.Reader) (*raccoon.JobRequest, error) {
+	req := raccoon.JobRequest{}
 
 	err := json.NewDecoder(r).Decode(&req)
 	if err != nil {

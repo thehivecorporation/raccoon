@@ -21,7 +21,7 @@ func (t *FileParser) Parse(filePath string) (io.Reader, error) {
 	}).Info("Reading " + filePath + " file")
 
 	if filePath == "" {
-		err := fmt.Errorf("You must provide a tasks and a infrastructure file. Check raccoon --help")
+		err := fmt.Errorf("You must provide a tasks and a infrastructure file or a job file. Check raccoon --help")
 		log.Error(err)
 		return nil, err
 	}

@@ -60,7 +60,22 @@ import (
 	"github.com/thehivecorporation/raccoon"
 	"github.com/thehivecorporation/raccoon/parser"
 	"github.com/thehivecorporation/raccoon/server"
+	log "github.com/Sirupsen/logrus"
+	"encoding/json"
 )
+
+func dispatcherFactory(option string, workersNumber int) raccoon.Dispatcher {
+	switch option {
+	default:
+		return new(raccoon.SimpleDispatcher)
+	case "sequential":
+		return new(raccoon.SequentialDispatcher)
+	case "workers_pool":
+		return &raccoon.WorkerPoolDispatcher{
+			Workers: workersNumber,
+		}
+	}
+}
 
 func main() {
 	fmt.Printf("\nRaccon\nCopyright (C) 2016 The Hive Corporation\n\nThis program " +
@@ -79,17 +94,63 @@ func main() {
 			Usage: "Execute a job",
 			Action: func(c *cli.Context) error {
 				jobParser := parser.JobParser{}
+				jobParser.Dispatcher = dispatcherFactory(c.String("dispatcher"), c.Int("workersNumber"))
 
-				switch c.String("dispatcher") {
-				default:
-					jobParser.Dispatcher = new(raccoon.SimpleDispatcher)
-				case "sequential":
-					jobParser.Dispatcher = new(raccoon.SequentialDispatcher)
-				case "workers_pool":
-					workersSize := c.Int("workersNumber")
-					jobParser.Dispatcher = &raccoon.WorkerPoolDispatcher{
-						Workers: workersSize,
+				if c.String("job") != "" {
+					jobFile, err := os.Open(c.String("job"))
+					if err != nil {
+						log.WithFields(log.Fields{
+							"tasks":   c.String("job"),
+						}).Errorf("Could not read job file %s: %s\n", c.String("job"), err.Error())
+
+						return fmt.Errorf("Could not read job file %s: %s\n", c.String("job"), err.Error())
 					}
+
+					req := raccoon.JobRequest{}
+					if err = json.NewDecoder(jobFile).Decode(&req); err != nil {
+						log.WithFields(log.Fields{
+							"tasks":   c.String("job"),
+						}).Errorf("Could not parse JSON job file %s: %s\n", c.String("job"),
+							err.Error())
+
+						return fmt.Errorf("Could not parse JSON job file %s: %s\n", c.String("job"),
+							err.Error())
+					}
+
+					taskList, err := jobParser.ParseTaskList(req.TaskList)
+					if err != nil {
+						log.WithFields(log.Fields{
+							"tasks":   c.String("job"),
+						}).Errorf("Could not parse task information job file %s: %s\n",
+							c.String("job"), err.Error())
+
+						return fmt.Errorf("Could not parse task information job file %s: %s\n",
+							c.String("job"), err.Error())
+					}
+
+					infParser := parser.InfrastructureFileParser{}
+					if err = infParser.TakeAuthAtClusterLevel(req.Infrastructure); err != nil{
+						log.WithFields(log.Fields{
+							"tasks":   c.String("job"),
+						}).Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
+
+						return fmt.Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
+					}
+
+					if _, err := infParser.CheckErrors(req.Infrastructure); err != nil {
+						log.WithFields(log.Fields{
+							"tasks":   c.String("job"),
+						}).Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
+
+						return fmt.Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
+					}
+
+					jobs := jobParser.BuildJobList(req.Infrastructure, taskList)
+
+					//Send jobs to dispatcher
+					jobParser.Dispatcher.Dispatch(*jobs)
+
+					return nil
 				}
 
 				if err := jobParser.CreateJobWithFilePaths(c.String("tasks"),
@@ -107,6 +168,10 @@ func main() {
 				cli.StringFlag{
 					Name:  "infrastructure, i",
 					Usage: "Infrastructure file",
+				},
+				cli.StringFlag{
+					Name:  "job, j",
+					Usage: "Job file containing infrastructure and tasks information",
 				},
 				cli.StringFlag{
 					Name: "dispatcher, d",
