@@ -7,7 +7,7 @@
         "tasks":["task2"],
         "hosts":[
           {
-            "ip":"172.17.0.1",
+            "ip":"172.17.42.1",
             "sshPort":32768,
             "username":"root",
             "description":"cassandra01",
@@ -22,12 +22,12 @@
         "password":"1234",
         "hosts":[
           {
-            "ip":"172.17.0.1",
+            "ip":"172.17.42.1",
             "sshPort":32769,
             "description":"cassandra02"
           },
           {
-            "ip":"172.17.0.1",
+            "ip":"172.17.42.1",
             "sshPort":32770,
             "description":"cassandra03",
             "password":"root"

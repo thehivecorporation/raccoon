@@ -2,37 +2,55 @@
 //of the CLI interface
 package main
 
+import (
+	"github.com/thehivecorporation/raccoon"
+	"fmt"
+	"os"
+)
+
+
+
 // CLI
 //
-//	NAME:
-//	Raccoon - WIP Automation utility made easy with Dockerfile syntax
+// Raccon
+// Copyright (C) 2016 The Hive Corporation
 //
-//	USAGE:
-//	raccoon [global options] command [command options] [arguments...]
+// This program comes with ABSOLUTELY NO WARRANTY; for details type 'warranty'.
+// This is free software, and you are welcome to redistribute it under certain conditions; read License.md file for details.
 //
-//	VERSION:
-//	0.2.2
+// NAME:
+// Raccoon - WIP Automation utility made easy with Dockerfile syntax
 //
-//	COMMANDS:
-//	tasks   Execute a task list
-//	server  Launch a server to receive Commands JSON files
-//	show    Show special information about Raccoon
+// USAGE:
+// cli [global options] command [command options] [arguments...]
 //
-//	GLOBAL OPTIONS:
-//	--help, -h     show help
-//	--version, -v  print the version
+// VERSION:
+// 0.3.0
 //
-// Tasks command
+// COMMANDS:
+// job     Execute a job
+// server  Launch a server to receive Commands JSON files
+// show    Show special information about Raccoon
 //
-//	NAME:
-//	raccoon tasks - Execute a task list
+// GLOBAL OPTIONS:
+// --help, -h     show help
+// --version, -v  print the version
+
 //
-//	USAGE:
-//	raccoon tasks [command options] [arguments...]
+// Job option
 //
-//	OPTIONS:
-//	--tasks value, -t value                     Tasks file
-//	--infrastructure value, --warranty i value  Infrastructure file
+// NAME:
+// cli job - Execute a job
+//
+// USAGE:
+// cli job [command options] [arguments...]
+//
+// OPTIONS:
+// --tasks value, -t value           Tasks file
+// --infrastructure value, -i value  Infrastructure file
+// --job value, -j value             Job file containing infrastructure and tasks information
+// --dispatcher value, -d value      Dispatching method between 3 options: sequential (no concurrent dispatch). simple (a Goroutine for each host) and worker_pool (a fixed number of workers) (default: "simple")
+// --workersNumber value, -w value   In case of worker_pool dispath method, define the maximum number of workers here (default: 5)
 //
 // For example:
 //	raccoon tasks -t tasksFile.json -i infrastructureFile.json
@@ -60,8 +78,6 @@ import (
 	"github.com/thehivecorporation/raccoon"
 	"github.com/thehivecorporation/raccoon/parser"
 	"github.com/thehivecorporation/raccoon/server"
-	log "github.com/Sirupsen/logrus"
-	"encoding/json"
 )
 
 func dispatcherFactory(option string, workersNumber int) raccoon.Dispatcher {
