@@ -1,10 +1,7 @@
 package server
 
 import (
-	"encoding/json"
 	"net/http"
-
-	"io"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
@@ -25,9 +22,12 @@ func REST(c *cli.Context) {
 	e.Use(middleware.Recover())
 
 	e.POST("/", func(c echo.Context) error {
-		req, err := parseRequest(c.Request().Body())
-
 		jobParser := parser.JobParser{Dispatcher: new(raccoon.SimpleDispatcher)}
+
+		req, err := jobParser.ParseRequest(c.Request().Body())
+		if err != nil {
+			return err
+		}
 
 		taskList, err := jobParser.ParseTaskList(req.TaskList)
 		if err != nil {
@@ -53,15 +53,4 @@ func REST(c *cli.Context) {
 	}).Info("Starting Raccoon server...")
 
 	e.Run(standard.New(":" + c.String("port")))
-}
-
-func parseRequest(r io.Reader) (*raccoon.JobRequest, error) {
-	req := raccoon.JobRequest{}
-
-	err := json.NewDecoder(r).Decode(&req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &req, nil
 }

@@ -97,57 +97,30 @@ func main() {
 				jobParser.Dispatcher = dispatcherFactory(c.String("dispatcher"), c.Int("workersNumber"))
 
 				if c.String("job") != "" {
-					jobFile, err := os.Open(c.String("job"))
+					jobFile, err := jobParser.Parse(c.String("job"))
 					if err != nil {
-						log.WithFields(log.Fields{
-							"tasks":   c.String("job"),
-						}).Errorf("Could not read job file %s: %s\n", c.String("job"), err.Error())
-
-						return fmt.Errorf("Could not read job file %s: %s\n", c.String("job"), err.Error())
+						return err
 					}
 
-					req := raccoon.JobRequest{}
-					if err = json.NewDecoder(jobFile).Decode(&req); err != nil {
-						log.WithFields(log.Fields{
-							"tasks":   c.String("job"),
-						}).Errorf("Could not parse JSON job file %s: %s\n", c.String("job"),
-							err.Error())
-
-						return fmt.Errorf("Could not parse JSON job file %s: %s\n", c.String("job"),
-							err.Error())
+					req, err := jobParser.ParseRequest(jobFile)
+					if err != nil {
+						return err
 					}
 
 					taskList, err := jobParser.ParseTaskList(req.TaskList)
 					if err != nil {
-						log.WithFields(log.Fields{
-							"tasks":   c.String("job"),
-						}).Errorf("Could not parse task information job file %s: %s\n",
-							c.String("job"), err.Error())
-
-						return fmt.Errorf("Could not parse task information job file %s: %s\n",
-							c.String("job"), err.Error())
+						return err
 					}
 
 					infParser := parser.InfrastructureFileParser{}
-					if err = infParser.TakeAuthAtClusterLevel(req.Infrastructure); err != nil{
-						log.WithFields(log.Fields{
-							"tasks":   c.String("job"),
-						}).Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
-
-						return fmt.Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
-					}
+					infParser.TakeAuthAtClusterLevel(req.Infrastructure)
 
 					if _, err := infParser.CheckErrors(req.Infrastructure); err != nil {
-						log.WithFields(log.Fields{
-							"tasks":   c.String("job"),
-						}).Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
-
-						return fmt.Errorf("Could not take auth information from job file %s: %s\n", c.String("job"), err.Error())
+						return err
 					}
 
 					jobs := jobParser.BuildJobList(req.Infrastructure, taskList)
 
-					//Send jobs to dispatcher
 					jobParser.Dispatcher.Dispatch(*jobs)
 
 					return nil

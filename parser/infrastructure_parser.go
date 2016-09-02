@@ -31,7 +31,7 @@ func (t *InfrastructureFileParser) Build(r io.Reader) (*raccoon.Infrastructure, 
 //takeAuthAtClusterLevel will check if the user has written the authentication of a cluster in the
 //cluster definition instead of on each individual host. In such case it will take the information
 //and inject it on each host
-func (t *InfrastructureFileParser) TakeAuthAtClusterLevel(i *raccoon.Infrastructure) error {
+func (t *InfrastructureFileParser) TakeAuthAtClusterLevel(i *raccoon.Infrastructure) {
 	for k, cluster := range i.Infrastructure {
 		var username, authFile, password string
 		var interactive bool
@@ -70,8 +70,6 @@ func (t *InfrastructureFileParser) TakeAuthAtClusterLevel(i *raccoon.Infrastruct
 			}
 		}
 	}
-
-	return nil
 }
 
 //checkErrors is used to perform error checking on Infrastructure json file

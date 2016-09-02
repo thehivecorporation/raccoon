@@ -8,10 +8,13 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/thehivecorporation/raccoon"
 	"github.com/thehivecorporation/raccoon/instructions"
+	"io"
+	"encoding/json"
 )
 
 //JobParser is used to parse JSON objects (tasks and infrastructure files) into their corresponding types
 type JobParser struct {
+	FileParser
 	Dispatcher raccoon.Dispatcher
 }
 
@@ -79,6 +82,17 @@ func (j *JobParser) BuildJobList(infrastructure *raccoon.Infrastructure, tasks *
 	return &jobs
 }
 
+func (j *JobParser) ParseRequest(r io.Reader) (*raccoon.JobRequest, error) {
+	req := raccoon.JobRequest{}
+
+	err := json.NewDecoder(r).Decode(&req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &req, nil
+}
+
 //ParseTaskList takes a taskList (group of commands) and check the
 //commands of each instruction to assign the proper strategy
 func (j *JobParser) ParseTaskList(rawTasks *[]raccoon.Task) (*[]raccoon.Task, error) {
@@ -90,7 +104,7 @@ func (j *JobParser) ParseTaskList(rawTasks *[]raccoon.Task) (*[]raccoon.Task, er
 
 		for _, i := range rawTask.Command {
 			if i["name"] == "" {
-				return nil, errors.New("No \"name\" found on instructions")
+				return nil, errors.New("No 'name' found on instructions")
 			}
 
 			switch i["name"] {
