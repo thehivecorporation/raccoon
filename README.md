@@ -17,7 +17,7 @@ WIP App orchestration, configuration and deployment
 - [x] Cluster level authentication
 - [x] 1 file JSON parsing of jobs (a file with the infrastructure connected with the task list)
 - [x] 2 files JSON parsing of jobs (one file with infrastructure pointing to tasks in a second file of tasks list).
-- [ ] 3 files JSON parsing of jobs (a file for infrastructure, a file for tasks list and a file to connect them both).
+- [x] 3 files JSON parsing of jobs (a file for infrastructure, a file for tasks list and a file to connect them both).
 - [ ] Pure Dockerfile parsing. Reuse your Dockerfiles in normal hosts.
 - [ ] Automation tests
 - [x] Array based tasks for cluster

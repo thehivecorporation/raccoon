@@ -22,19 +22,19 @@ func REST(c *cli.Context) {
 	e.Use(middleware.Recover())
 
 	e.POST("/", func(c echo.Context) error {
-		jobParser := parser.JobParser{Dispatcher: new(raccoon.SimpleDispatcher)}
+		jobParser := parser.Job{Dispatcher: new(raccoon.SimpleDispatcher)}
 
-		req, err := jobParser.ParseRequest(c.Request().Body())
+		var jobRequest raccoon.JobRequest
+		if err := jobParser.Build(c.Request().Body(), &jobRequest); err != nil {
+			return err
+		}
+
+		taskList, err := jobParser.ParseTaskList(jobRequest.TaskList)
 		if err != nil {
 			return err
 		}
 
-		taskList, err := jobParser.ParseTaskList(req.TaskList)
-		if err != nil {
-			return err
-		}
-
-		jobs := jobParser.BuildJobList(req.Infrastructure, taskList)
+		jobs := jobParser.BuildJobList(jobRequest.Infrastructure, taskList)
 
 		//Send jobs to dispatcher
 		jobParser.Dispatcher.Dispatch(*jobs)

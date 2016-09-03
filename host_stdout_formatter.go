@@ -10,6 +10,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/fatih/color"
+	"strconv"
 )
 
 const (
@@ -146,17 +147,18 @@ func (f *hostStdoutFormatter) printColored(b *bytes.Buffer, entry *logrus.Entry,
 	myColor := color.New(passedColor).SprintfFunc()
 
 	host, _ := entry.Data["host"].(string)
+	sshPort, _ := entry.Data["ssh_port"].(int)
 
 	if !f.FullTimestamp {
 		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%04d] %-15s %-44s", levelColor,
-			levelText, miniTS(), myColor(host), myColor(entry.Message))
+			levelText, miniTS(), myColor(host+":"+strconv.Itoa(sshPort)), myColor(entry.Message))
 	} else {
 		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%s] %-15s %-44s", levelColor,
 			levelText, entry.Time.Format(timestampFormat), myColor(host),
 			myColor(entry.Message))
 	}
 	for _, k := range keys {
-		if k != "host" && k != "color" { //Do not print "color" and "host" fields
+		if k != "host" && k != "color" && k != "ssh_port" { //Do not print "color", "host" and "sshPort" fields
 			if entry.Level != logrus.DebugLevel { //Do not print package if error level isn't debug
 				if k != "package" {
 					v := entry.Data[k]

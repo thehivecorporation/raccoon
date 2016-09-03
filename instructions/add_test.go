@@ -10,8 +10,10 @@ import (
 func TestExecuteAddInstruction(t *testing.T) {
 	node := raccoon.Host{
 		IP:       "127.0.0.1",
-		Username: "root",
-		Password: "root",
+		Authentication: raccoon.Authentication{
+			Username: "root",
+			Password: "root",
+		},
 	}
 
 	testContents := "Hello raccoon2\n"

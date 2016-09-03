@@ -1,0 +1,35 @@
+{
+  "name":"A name",
+  "infrastructure":[
+    {
+      "name":"some cluster",
+      "hosts":[
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32768,
+          "username":"root",
+          "description":"cassandra01",
+          "password":"root"
+        }
+      ]
+    },
+    {
+      "name":"some cluster 2",
+      "username":"root",
+      "password":"root",
+      "hosts":[
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32769,
+          "description":"cassandra03"
+        },
+        {
+          "ip":"172.17.42.1",
+          "sshPort":32770,
+          "description":"cassandra02",
+          "password":"root"
+        }
+      ]
+    }
+  ]
+}

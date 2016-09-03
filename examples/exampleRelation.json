@@ -1,0 +1,10 @@
+[
+  {
+    "clusterName":"some cluster",
+    "tasks":["task1"]
+  },
+  {
+    "clusterName":"some cluster 2",
+    "tasks":["task2"]
+  }
+]

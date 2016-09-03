@@ -62,25 +62,21 @@ func copyToSession(session *ssh.Session, destinationFolder string, f *os.File) e
 	go func(errorCh chan error) {
 		w, err := session.StdinPipe()
 		if err != nil {
-			println("error")
 			errorCh <- err
 		}
 		defer w.Close()
 
 		if _, err := fmt.Fprintf(w, "C0644 %d %s\n", fi.Size(), fi.Name()); err != nil {
-			println("error")
 			errorCh <- err
 			return
 		}
 
 		if _, err := io.Copy(w, f); err != nil {
-			println("error")
 			errorCh <- err
 			return
 		}
 
 		if _, err := fmt.Fprint(w, "\x00"); err != nil { // transfer end with \x00
-			println("error")
 			errorCh <- err
 			return
 		}

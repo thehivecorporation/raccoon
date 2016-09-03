@@ -3,12 +3,11 @@
 package main
 
 import (
-	"github.com/thehivecorporation/raccoon"
 	"fmt"
 	"os"
+
+	"github.com/thehivecorporation/raccoon"
 )
-
-
 
 // CLI
 //
@@ -70,12 +69,7 @@ import (
 //	raccoon server -p 8080
 
 import (
-	"os"
-
-	"fmt"
-
 	"github.com/codegangsta/cli"
-	"github.com/thehivecorporation/raccoon"
 	"github.com/thehivecorporation/raccoon/parser"
 	"github.com/thehivecorporation/raccoon/server"
 )
@@ -109,17 +103,19 @@ func main() {
 			Name:  "job",
 			Usage: "Execute a job",
 			Action: func(c *cli.Context) error {
-				jobParser := parser.JobParser{}
+				jobParser := parser.Job{}
 				jobParser.Dispatcher = dispatcherFactory(c.String("dispatcher"), c.Int("workersNumber"))
 
+				//Parse a full job file if applicable
 				if c.String("job") != "" {
-					jobFile, err := jobParser.Parse(c.String("job"))
+					genericParser := parser.Generic{}
+					jobFile, err := genericParser.Parse(c.String("job"))
 					if err != nil {
 						return err
 					}
 
-					req, err := jobParser.ParseRequest(jobFile)
-					if err != nil {
+					var req raccoon.JobRequest
+					if err := genericParser.Build(jobFile, &req); err != nil {
 						return err
 					}
 
@@ -128,10 +124,10 @@ func main() {
 						return err
 					}
 
-					infParser := parser.InfrastructureFileParser{}
+					infParser := parser.InfrastructureFile{}
 					infParser.TakeAuthAtClusterLevel(req.Infrastructure)
 
-					if _, err := infParser.CheckErrors(req.Infrastructure); err != nil {
+					if err := infParser.CheckErrors(req.Infrastructure); err != nil {
 						return err
 					}
 
@@ -140,6 +136,53 @@ func main() {
 					jobParser.Dispatcher.Dispatch(*jobs)
 
 					return nil
+				}
+
+				//Parse the 3 relation files
+				if c.String("relation") != "" {
+					infFilePath := c.String("infrastructure")
+					taskFilePath := c.String("tasks")
+					relationFilePath := c.String("relation")
+
+					jobParser := parser.Job{}
+					jobParser.Dispatcher = dispatcherFactory(c.String("dispatcher"), c.Int("workersNumber"))
+
+					genericParser := parser.Generic{}
+
+					var infrastructure raccoon.Infrastructure
+					if err := genericParser.FactoryParser(infFilePath, &infrastructure); err != nil {
+						return err
+					}
+
+					taskList := new([]raccoon.Task)
+					if err := genericParser.FactoryParser(taskFilePath, taskList); err != nil {
+						return err
+					}
+					taskList, err := jobParser.ParseTaskList(taskList)
+					if err != nil {
+						return err
+					}
+
+					relationParser := parser.Relation{}
+					var relationList raccoon.RelationList
+					if err := relationParser.FactoryParser(relationFilePath, &relationList); err != nil {
+						return err
+					}
+					if err := relationParser.Prepare(&infrastructure, &relationList); err != nil {
+						return err
+					}
+
+					infParser := parser.InfrastructureFile{}
+					if err := infParser.Prepare(&infrastructure); err != nil{
+						return err
+					}
+
+					jobs := jobParser.BuildJobList(&infrastructure, taskList)
+
+					jobParser.Dispatcher.Dispatch(*jobs)
+
+					return nil
+
 				}
 
 				if err := jobParser.CreateJobWithFilePaths(c.String("tasks"),
@@ -161,6 +204,10 @@ func main() {
 				cli.StringFlag{
 					Name:  "job, j",
 					Usage: "Job file containing infrastructure and tasks information",
+				},
+				cli.StringFlag{
+					Name:  "relation, r",
+					Usage: "A relation file that points to an infrastructure and tasks files",
 				},
 				cli.StringFlag{
 					Name: "dispatcher, d",

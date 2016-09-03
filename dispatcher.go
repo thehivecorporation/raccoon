@@ -137,13 +137,6 @@ type SequentialDispatcher struct{}
 //Dispatch ranges over the hosts to execute the tasks on them sequentially without any kind of concurrency.
 func (s *SequentialDispatcher) Dispatch(jobs []Job) {
 	for _, job := range jobs {
-		log.WithFields(log.Fields{
-			"cluster":        job.Cluster.Name,
-			"infrastructure": job.Task.Title,
-			"maintainer":     job.Task.Maintainer,
-			"package":        "dispatcher",
-		}).Info("Launching Raccoon...")
-
 		for _, node := range job.Cluster.Hosts {
 			s.executeJobOnHost(job, node)
 		}
