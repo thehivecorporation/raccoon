@@ -32,7 +32,15 @@ WIP App orchestration, configuration and deployment
 * [Raccoon CLI syntax](#raccoon-cli-syntax)
 * [How to use Raccoon as a standalone app](#how-to-use-raccoon-as-a-standalone-app)
 * [What's an infrastructure](#what's-an-infrastructure)
-* [What's a task list](#what's-a-task-list)
+  * [Host Level vs Cluster level authentication](#host-level-vs-cluster-level-authentication)
+  * [Host](#host)
+  * [Authentication methods](#authentication-methods)
+    * [User and password](#user-and-password)
+    * [Identity file](#identity-file)
+    * [Interactive authentication](#interactive-authentication)
+* [What's a task list](#whats-a-task-list)
+* [What's a Relations file](#whats-a-relations-file)
+* [Single file automation](#single-file-automation)
 * [Commands](#commands)
   * [RUN](#run)
   * [ENV](#env)
@@ -42,10 +50,6 @@ WIP App orchestration, configuration and deployment
   * [Simple Dispatching](#simple-dispatching)
   * [Workers pool](#workers-pool)
   * [Sequential Dispatching](#sequential-dispatching)
-* [Authentication methods](#authentication-methods)
-  * [User and password](#user-and-password)
-  * [Identity file](#identity-file)
-  * [Interactive authentication](#interactive-authentication)
 
 ## Raccoon CLI syntax
 When you execute Raccoon from the command line without options, the following help will appear:
@@ -69,8 +73,9 @@ You use Raccoon similar of how you use tools like Ansible. You mainly work with 
 
 * **An Infrastructure**: An infrastructure is a list of clusters and a cluster is a list of hosts.
 * **A Task list**: A task is a group of commands to achieve some task. You can have tasks of only one command (for example, 'apt-get install htop' if you just want to install `htop`) or a tasks composed of many commands (like a list of installation commands to take some host to a desired state).
+* **A Relations list**: Relation lists are optional but you can use them if you want to have "clean" infrastructure and task list files without relations between them. In a relation file, you connect an infrastructure with the tasks you want to execute on it. 
 
-It's quite easy, you just need to define your infrastructure and the tasks you want to execute in every cluster, then you launch the application.
+You just need to define your infrastructure and the tasks you want to execute in every cluster inside the infrastructure, then you launch the application.
 
 ## What's an Infrastructure: 
 An infrastructure definition looks like the following:
@@ -120,7 +125,7 @@ An infrastructure definition looks like the following:
   * `name`: Name of the cluster. They should describe the cluster grouping in some way like Cassandra machines or QA machines.
   * `tasks`: List of tasks that will be executed on this cluster
   
-#### Host Level vs Cluster level authenticationnn
+#### Host Level vs Cluster level authentication
 If all your hosts share the same authentication details, you can use the same syntax that you can use with the hosts in the cluster definition. It will apply to all hosts. So, for example, if we have two hosts that share the authentication details we can define our JSON this way:
 
 ```json
@@ -160,10 +165,10 @@ this later), an IP and a username.
     * `identityFile`: A file to authenticate the provided user
     * `interactiveAuth`: Prompt for the password
 
-#### Authentication methods
+### Authentication methods
 Raccoon uses 3 possible authentication methods: user and password, identity file and interactive access.
 
-##### User and password
+#### User and password* [R]
 When using user and password authentication, you have to provide in the
 infrastructure definition a `username` and `password` key in the host
 definition. For example:
@@ -177,7 +182,7 @@ definition. For example:
   }
 ```
 
-##### Identity file
+#### Identity file
 You can also use private/public key authentication to access some host. To use
 it, add the path to the identity file as a key called `identityFile` in host
 definition. **don't forget to add the `username` key on host too**. For example:
@@ -191,7 +196,7 @@ definition. **don't forget to add the `username` key on host too**. For example:
   }
 ```
 
-##### Interactive authentication
+#### Interactive authentication
 The interactive authentication will prompt the user for a password. Set
 `interactiveAuth` to `true` on host definition. As before, the user must be set in the
 host. **Use sequential dispatching** to avoid that the stdout gets filled before
@@ -276,6 +281,48 @@ The task with a title "task1" will be executed in cluster "myCluster". This is h
   * `name`: Command name. This must be one of the commands described below. ADD, RUN, MAINTAINER are all valid commands.
   * `description`: An optional description to print to stdout when executing this command.
   * *specific key-values for each command*: All commands have a name and description in common. Then they have specific key-value pairs that contains the information to run the command. For example `RUN` command has the key `instruction` with the shell command you want to execute. Refer to the commands section for more information.
+
+## What's a Relations file
+
+As we have seen previously, we have to write on the cluster the task we want to execute on it. But, what if we want to reuse our infrastructure file between many tasks? We will have to be editing the infrastructure file constantly. To avoid this scenario, you have the relations file.
+
+The relations file allows you to have unrelated infrastructure and tasks files. You don't need to write the `tasks` key on the cluster definition as we will delegate this to the relations file:
+
+```json
+[
+  {
+    "clusterName":"some cluster",
+    "tasks":["task1"]
+  },
+  {
+    "clusterName":"some cluster 2",
+    "tasks":["task2"]
+  }
+]
+``` 
+
+With this simple syntax, we are telling Raccoon to run the `task1` in cluster `some cluster` and the `task2` in cluster `some cluster 2`. You don't need new clean files for the infrastructure as their tasks will be overriden. Relations file can be used with the following CLI syntax:
+
+```bash
+  $ raccoon job --relation [relations-file] --infrastructure [infrastructure-file] --tasks [tasks-file]
+```
+
+## Single file automation
+
+You can automate your tasks by using a separate infrastructure and task file or join them in a single file. It couldn't be easier:
+
+```json
+{
+  "infrastructure": {
+    ...
+  },
+  "tasks": [
+    ...
+  ]
+}
+```
+
+You simply need to nest a common infrastructure JSON object and a common task JSON object inside their own specific tags within the JSON: `infrastructure` and `tasks`.
 
 ## Commands:
 
@@ -384,3 +431,14 @@ Raccoon through the CLI. `[n]` is the maximum number of workers you want.
 In some special situations, you could want to avoid concurrency when accessing
 hosts. The sequential strategy will go one host each time. This is useful, for
 example, if you use the interactive authentication.
+
+## REST Server
+A REST server can be deployed by using the following command:
+
+```bash
+  raccoon server
+```
+
+This will deploy the server on port `8123`, if you want to specify a different port you can use the flag `--port`
+
+To use the server as a client, you must send a JSON with the same syntax that the [Single file automation](#single-file-automation).
