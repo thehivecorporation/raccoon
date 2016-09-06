@@ -50,6 +50,7 @@ func (j *Job) CreateJobWithFilePaths(tasksFilePath, infrastructureFilePath strin
 	if err := infrastructureParser.Build(infrastructureReader, &infrastructure); err != nil {
 		return j.printError(err)
 	}
+	infrastructureParser.Prepare(&infrastructure)
 
 	jobs := j.BuildJobList(&infrastructure, taskList)
 

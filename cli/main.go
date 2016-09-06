@@ -125,11 +125,7 @@ func main() {
 					}
 
 					infParser := parser.InfrastructureFile{}
-					infParser.TakeAuthAtClusterLevel(req.Infrastructure)
-
-					if err := infParser.CheckErrors(req.Infrastructure); err != nil {
-						return err
-					}
+					infParser.Prepare(req.Infrastructure)
 
 					jobs := jobParser.BuildJobList(req.Infrastructure, taskList)
 
@@ -173,9 +169,7 @@ func main() {
 					}
 
 					infParser := parser.InfrastructureFile{}
-					if err := infParser.Prepare(&infrastructure); err != nil{
-						return err
-					}
+					infParser.Prepare(&infrastructure)
 
 					jobs := jobParser.BuildJobList(&infrastructure, taskList)
 

@@ -13,10 +13,9 @@ type InfrastructureFile struct {
 	Generic
 }
 
-func (t *InfrastructureFile) Prepare(i *raccoon.Infrastructure) error {
+func (t *InfrastructureFile) Prepare(i *raccoon.Infrastructure) {
 	t.TakeAuthAtClusterLevel(i)
-
-	return t.CheckErrors(i)
+	t.CheckErrors(i)
 }
 
 //TakeAuthAtClusterLevel will check if the user has written the authentication of a cluster in the
@@ -64,33 +63,27 @@ func (t *InfrastructureFile) TakeAuthAtClusterLevel(i *raccoon.Infrastructure) {
 }
 
 //CheckErrors is used to perform error checking on Infrastructure json file
-func (t *InfrastructureFile) CheckErrors(m *raccoon.Infrastructure) error {
-	err := false
+func (t *InfrastructureFile) CheckErrors(m *raccoon.Infrastructure) {
 	if len(m.Infrastructure) == 0 {
 		log.Error(parseErrorFactory(NO_CLUSTER))
-		err = true
 	}
 
 	if m.Name == "" {
 		log.Errorf(parseErrorFactory(NO_CLUSTER_NAME).Error())
-		err = true
 	}
 
 	for _, cluster := range m.Infrastructure {
 		if len(cluster.Hosts) == 0 {
 			log.Errorf(parseErrorFactory(NO_HOSTS, cluster.Name, fmt.Sprintf("%#v", cluster.TasksToExecute)).Error())
-			err = true
 		}
 
 		if len(cluster.TasksToExecute) == 0 {
-			log.Errorf(parseErrorFactory(NO_TASKS, cluster.Name).Error())
-			err = true
+			log.Warnf(parseErrorFactory(NO_TASKS, cluster.Name).Error())
 		}
 
 		for _, host := range cluster.Hosts {
 			if host.Username == "" {
 				log.Errorf(parseErrorFactory(BLANK_USERNAME, host.IP).Error())
-				err = true
 			}
 
 			if host.Password == "" {
@@ -99,13 +92,7 @@ func (t *InfrastructureFile) CheckErrors(m *raccoon.Infrastructure) error {
 
 			if host.IP == "" {
 				log.Errorf(parseErrorFactory(BLANK_IP).Error())
-				err = true
 			}
 		}
 	}
-	if err {
-		return parseErrorFactory(PARSING_ERROR)
-	}
-
-	return nil
 }
