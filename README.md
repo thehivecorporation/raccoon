@@ -18,6 +18,7 @@ WIP App orchestration, configuration and deployment
 - [x] 1 file JSON parsing of jobs (a file with the infrastructure connected with the task list)
 - [x] 2 files JSON parsing of jobs (one file with infrastructure pointing to tasks in a second file of tasks list).
 - [x] 3 files JSON parsing of jobs (a file for infrastructure, a file for tasks list and a file to connect them both).
+- [x] Single task - single cluster 2 files automation in CLI. Like 3 files parsing but using a --task --cluster flags so it will only execute that task in the specified cluster. Of course, it also needs the infrastructure and task list.
 - [ ] Pure Dockerfile parsing. Reuse your Dockerfiles in normal hosts.
 - [ ] Automation tests
 - [x] Array based tasks for cluster
