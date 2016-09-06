@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
+	"time"
 )
 
 //Dispatcher is the interface to implement new dispatching strategies in the app
@@ -102,6 +103,9 @@ func (s *SimpleDispatcher) Dispatch(jobs []Job) {
 	}
 
 	s.Wait()
+
+	//FIXME for some reason, the dispatching exists before some tasks have finished
+	time.Sleep(3 * time.Second)
 }
 
 func (s *SimpleDispatcher) executeJobOnHost(j Job, h Host) {
@@ -141,6 +145,9 @@ func (s *SequentialDispatcher) Dispatch(jobs []Job) {
 			s.executeJobOnHost(job, node)
 		}
 	}
+
+	//FIXME for some reason, the dispatching exists before some tasks have finished
+	time.Sleep(3 * time.Second)
 }
 
 func (s *SequentialDispatcher) executeJobOnHost(j Job, h Host) {
