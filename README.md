@@ -10,6 +10,7 @@ WIP App orchestration, configuration and deployment
 - [ ] Dockerfile Syntax to ease learning path. WIP
     - [x] RUN
     - [x] ADD
+    - [ ] ADD (folder contents)
     - [x] MAINTAINER
     - [x] ENV
 - [x] Identity file auth.
