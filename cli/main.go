@@ -69,6 +69,8 @@ import (
 //	raccoon server -p 8080
 
 import (
+	"strings"
+
 	"github.com/codegangsta/cli"
 	"github.com/thehivecorporation/raccoon/parser"
 	"github.com/thehivecorporation/raccoon/server"
@@ -134,6 +136,61 @@ func main() {
 					return nil
 				}
 
+				if c.String("single-task") != "" {
+					infFilePath := c.String("infrastructure")
+					taskFilePath := c.String("tasks")
+
+					jobParser := parser.Job{}
+					jobParser.Dispatcher = dispatcherFactory(c.String("dispatcher"), c.Int("workersNumber"))
+
+					genericParser := parser.Generic{}
+
+					var infrastructure raccoon.Infrastructure
+					if err := genericParser.ParserFactory(infFilePath, &infrastructure); err != nil {
+						return err
+					}
+
+					taskList := new([]raccoon.Task)
+					if err := genericParser.ParserFactory(taskFilePath, taskList); err != nil {
+						return err
+					}
+					taskList, err := jobParser.ParseTaskList(taskList)
+					if err != nil {
+						return err
+					}
+
+					params := strings.Split(c.String("single-task"), "=")
+					if len(params) != 2 {
+						return fmt.Errorf("When specifying a single task you " +
+							"must provide a cluster name and a task name " +
+							"separated by a '='\nFor example: --single-task " +
+							"cluster1=task1")
+					}
+
+					relationList := raccoon.RelationList{
+						{
+							ClusterName: params[0],
+							TaskList: []string{
+								params[1],
+							},
+						},
+					}
+
+					relationParser := parser.Relation{}
+					if err := relationParser.Prepare(&infrastructure, &relationList); err != nil {
+						return err
+					}
+
+					infParser := parser.InfrastructureFile{}
+					infParser.Prepare(&infrastructure)
+
+					jobs := jobParser.BuildJobList(&infrastructure, taskList)
+
+					jobParser.Dispatcher.Dispatch(*jobs)
+
+					return nil
+				}
+
 				//Parse the 3 relation files
 				if c.String("relation") != "" {
 					infFilePath := c.String("infrastructure")
@@ -146,12 +203,12 @@ func main() {
 					genericParser := parser.Generic{}
 
 					var infrastructure raccoon.Infrastructure
-					if err := genericParser.FactoryParser(infFilePath, &infrastructure); err != nil {
+					if err := genericParser.ParserFactory(infFilePath, &infrastructure); err != nil {
 						return err
 					}
 
 					taskList := new([]raccoon.Task)
-					if err := genericParser.FactoryParser(taskFilePath, taskList); err != nil {
+					if err := genericParser.ParserFactory(taskFilePath, taskList); err != nil {
 						return err
 					}
 					taskList, err := jobParser.ParseTaskList(taskList)
@@ -161,7 +218,7 @@ func main() {
 
 					relationParser := parser.Relation{}
 					var relationList raccoon.RelationList
-					if err := relationParser.FactoryParser(relationFilePath, &relationList); err != nil {
+					if err := relationParser.ParserFactory(relationFilePath, &relationList); err != nil {
 						return err
 					}
 					if err := relationParser.Prepare(&infrastructure, &relationList); err != nil {
@@ -204,10 +261,18 @@ func main() {
 					Usage: "A relation file that points to an infrastructure and tasks files",
 				},
 				cli.StringFlag{
+					Name:  "single-task, s",
+					Usage: "[clusterName]=[taskName] Use single-task when you " +
+						"just want to execute a unique task in a unique cluster. " +
+						"Write the name of the cluster referenced on the " +
+						"infrastructure file on the left side of the equal and " +
+						"the task referenced on the task list name on the right side",
+				},
+				cli.StringFlag{
 					Name: "dispatcher, d",
-					Usage: "Dispatching method between 3 options: sequential (no concurrent " +
-						"dispatch). simple (a Goroutine for each host) and worker_pool (a fixed " +
-						"number of workers)",
+					Usage: "Dispatching method between 3 options: sequential " +
+						"(no concurrent dispatch). simple (a Goroutine for " +
+						"each host) and worker_pool (a fixed number of workers)",
 					Value: "simple",
 				},
 				cli.IntFlag{

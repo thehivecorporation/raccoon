@@ -18,7 +18,7 @@ func (g *Generic) Build(r io.Reader, t interface{}) error {
 	return nil
 }
 
-func (g *Generic) FactoryParser(filePath string, t interface{}) error {
+func (g *Generic) ParserFactory(filePath string, t interface{}) error {
 	relationFile, err := g.Parse(filePath)
 	if err != nil {
 		return err
