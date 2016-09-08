@@ -7,9 +7,9 @@ import (
 
 func logError(err error, c raccoon.CommandsExecutor, h *raccoon.Host) {
 	log.WithFields(log.Fields{
-		"command": c.GetCommand().Name,
-		"host":    h.IP,
-		"package": packageName,
+		"command":  c.GetCommand().Name,
+		"host":     h.IP,
+		"package":  packageName,
 		"color":    h.Color,
 		"username": h.Username,
 		"ssh_port": h.SSHPort,
@@ -32,5 +32,5 @@ func logCommand(fields map[string]interface{}, h raccoon.Host, c raccoon.Command
 		}
 	}
 
-	h.HostLogger.WithFields(commonFields).Info("--------------------> " + c.GetCommand().Description + " <--------------------")
+	h.HostLogger.WithFields(commonFields).Info(c.GetCommand().Description)
 }
