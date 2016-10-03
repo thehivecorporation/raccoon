@@ -37,7 +37,7 @@ func REST(c *cli.Context) {
 		jobs := jobParser.BuildJobList(jobRequest.Infrastructure, taskList)
 
 		//Send jobs to dispatcher
-		jobParser.Dispatcher.Dispatch(*jobs)
+		go jobParser.Dispatcher.Dispatch(*jobs)
 
 		rsp := struct {
 			Status string
