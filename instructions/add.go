@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/thehivecorporation/raccoon"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
+	"path"
 )
 
 //ADD copies a single file to the destination host folder
@@ -31,27 +31,48 @@ func (a *ADD) GetCommand() *raccoon.Command {
 func (a *ADD) Execute(h raccoon.Host) {
 
 	if isFolder(a.SourcePath){
-		files := pathsFromFilesInDir(path.Dir(a.SourcePath))
+		a.createFolder(h)
+
+		files := pathsFromFilesInDir(a.SourcePath)
 		for _, file := range files {
 			add := ADD{
-				SourcePath:file,
-				DestPath:a.DestPath,
+				SourcePath: path.Clean(a.SourcePath) + "/" + file,
+				DestPath:path.Clean(a.DestPath) + "/" + path.Base(a.SourcePath),
 				Command:a.Command,
 			}
 
-			add.copyFile(h)
+			err := add.copyFile(h)
+			if err != nil {
+				logError(err, a, &h)
+			}
 		}
 	} else {
 		a.copyFile(h)
 	}
 }
 
+func (a *ADD) createFolder(h raccoon.Host) error {
+	session, err := h.GetSession()
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+
+	logCommand(nil, h, a)
+
+	basePath := a.SourcePath
+	if err = session.Run("mkdir -p " + basePath); err != nil {
+		return nil
+	}
+
+	return nil
+}
+
 func (a *ADD) copyFile(h raccoon.Host) error {
 
 	session, err := h.GetSession()
 	if err != nil {
-		logError(err, a, &h)
-		return
+		return err
 	}
 	defer session.Close()
 
@@ -62,14 +83,15 @@ func (a *ADD) copyFile(h raccoon.Host) error {
 
 	f, err := os.Open(a.SourcePath)
 	if err != nil {
-		logError(err, a, &h)
-		return
+		return err
 	}
 	defer f.Close()
 
 	if err = copyToSession(session, a.DestPath, f); err != nil {
-		logError(err, a, &h)
+		return err
 	}
+
+	return nil
 }
 
 func copyToSession(session *ssh.Session, destinationFolder string, f *os.File) error {
