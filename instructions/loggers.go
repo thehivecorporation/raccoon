@@ -32,5 +32,5 @@ func logCommand(fields map[string]interface{}, h raccoon.Host, c raccoon.Command
 		}
 	}
 
-	h.HostLogger.WithFields(commonFields).Info("--------------------> " + c.GetCommand().Description + " <--------------------")
+	h.HostLogger.WithFields(commonFields).Info("> " + c.GetCommand().Description)
 }
