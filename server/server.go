@@ -34,10 +34,13 @@ func REST(c *cli.Context) {
 			return err
 		}
 
+		infParser := parser.InfrastructureFile{}
+		infParser.Prepare(jobRequest.Infrastructure)
+
 		jobs := jobParser.BuildJobList(jobRequest.Infrastructure, taskList)
 
 		//Send jobs to dispatcher
-		jobParser.Dispatcher.Dispatch(*jobs)
+		go jobParser.Dispatcher.Dispatch(*jobs)
 
 		rsp := struct {
 			Status string

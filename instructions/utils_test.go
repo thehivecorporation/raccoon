@@ -154,7 +154,9 @@ func createSessionPrototype() (*ssh.Session, error) {
 }
 
 func createTestFileWithContent(c string) (*os.File, error) {
-	f, err := ioutil.TempFile("/tmp", "raccoon")
+	os.MkdirAll("/tmp/raccoon", os.ModeDir)
+
+	f, err := ioutil.TempFile("/tmp/raccoon/", "raccoon")
 	if err != nil {
 		return nil, err
 	}

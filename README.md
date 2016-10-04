@@ -10,7 +10,7 @@ WIP App orchestration, configuration and deployment
 - [ ] Dockerfile Syntax to ease learning path. WIP
     - [x] RUN
     - [x] ADD
-    - [ ] ADD (folder contents)
+    - [x] ADD (folder contents)
     - [x] MAINTAINER
     - [x] ENV
 - [x] Identity file auth.
@@ -325,7 +325,8 @@ single files yet until we work in a folder solution (to send an entire folder):
 * **`name`**: "ADD" must always be placed here so that the parser recognizes the
   instruction
 * **`sourcePath`**: The full source path and file name of the file to send. For
-  example: /tmp/fileToSend.log
+  example: /tmp/fileToSend.log. It can also be a folder. In this case, it will copy
+  just the first level of files from the folder and ignore any nested folders.
 * **`destPath`**: The full path to leave the file into the target machine. The file
   will have the same name.
 * `description`: Optional description parameters for logging purposes.

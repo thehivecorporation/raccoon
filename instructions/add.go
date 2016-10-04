@@ -8,6 +8,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/thehivecorporation/raccoon"
 	"golang.org/x/crypto/ssh"
+	"io/ioutil"
+	"path"
 )
 
 //ADD copies a single file to the destination host folder
@@ -27,10 +29,50 @@ func (a *ADD) GetCommand() *raccoon.Command {
 
 //Execute is the implementation of the Instruction interface for a ADD instruction
 func (a *ADD) Execute(h raccoon.Host) {
+
+	if isFolder(a.SourcePath){
+		a.createFolder(h)
+
+		files := pathsFromFilesInDir(a.SourcePath)
+		for _, file := range files {
+			add := ADD{
+				SourcePath: path.Clean(a.SourcePath) + "/" + file,
+				DestPath:path.Clean(a.DestPath) + "/" + path.Base(a.SourcePath),
+				Command:a.Command,
+			}
+
+			err := add.copyFile(h)
+			if err != nil {
+				logError(err, a, &h)
+			}
+		}
+	} else {
+		a.copyFile(h)
+	}
+}
+
+func (a *ADD) createFolder(h raccoon.Host) error {
 	session, err := h.GetSession()
 	if err != nil {
-		logError(err, a, &h)
-		return
+		return err
+	}
+	defer session.Close()
+
+	logCommand(nil, h, a)
+
+	basePath := a.SourcePath
+	if err = session.Run("mkdir -p " + basePath); err != nil {
+		return nil
+	}
+
+	return nil
+}
+
+func (a *ADD) copyFile(h raccoon.Host) error {
+
+	session, err := h.GetSession()
+	if err != nil {
+		return err
 	}
 	defer session.Close()
 
@@ -41,14 +83,15 @@ func (a *ADD) Execute(h raccoon.Host) {
 
 	f, err := os.Open(a.SourcePath)
 	if err != nil {
-		logError(err, a, &h)
-		return
+		return err
 	}
 	defer f.Close()
 
 	if err = copyToSession(session, a.DestPath, f); err != nil {
-		logError(err, a, &h)
+		return err
 	}
+
+	return nil
 }
 
 func copyToSession(session *ssh.Session, destinationFolder string, f *os.File) error {
@@ -98,4 +141,26 @@ func copyToSession(session *ssh.Session, destinationFolder string, f *os.File) e
 	}
 
 	return nil
+}
+
+func pathsFromFilesInDir(d string)[]string{
+	files, err := ioutil.ReadDir(d)
+	if err != nil {
+		log.Errorf("Error retrieving files from folder")
+	}
+	filePaths := make([]string, 0)
+	for _, f := range files {
+		filePaths = append(filePaths, f.Name())
+	}
+	return filePaths
+}
+
+func isFolder(path string) bool {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		log.Errorf("Error retrieving info from file in ADD")
+		return false
+	}
+
+	return fileInfo.IsDir()
 }
