@@ -18,7 +18,6 @@ import (
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
 	"io"
-	"github.com/sayden/etcd/Godeps/_workspace/src/golang.org/x/oauth2/github"
 )
 
 //Host is a remote machine (virtual or physical) where we will execute our
