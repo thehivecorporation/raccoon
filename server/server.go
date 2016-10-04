@@ -34,6 +34,9 @@ func REST(c *cli.Context) {
 			return err
 		}
 
+		infParser := parser.InfrastructureFile{}
+		infParser.Prepare(jobRequest.Infrastructure)
+
 		jobs := jobParser.BuildJobList(jobRequest.Infrastructure, taskList)
 
 		//Send jobs to dispatcher
