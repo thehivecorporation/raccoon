@@ -31,7 +31,9 @@ func (a *ADD) GetCommand() *raccoon.Command {
 func (a *ADD) Execute(h raccoon.Host) {
 
 	if isFolder(a.SourcePath){
-		a.createFolder(h)
+		if err := a.createFolder(h); err != nil {
+			logError(err, a, &h)
+		}
 
 		files := pathsFromFilesInDir(a.SourcePath)
 		for _, file := range files {
@@ -60,8 +62,7 @@ func (a *ADD) createFolder(h raccoon.Host) error {
 
 	logCommand(nil, h, a)
 
-	basePath := a.SourcePath
-	if err = session.Run("mkdir -p " + basePath); err != nil {
+	if err = session.Run("mkdir -p " + path.Clean(a.DestPath) + "/" + path.Base(a.SourcePath)); err != nil {
 		return nil
 	}
 
@@ -158,7 +159,7 @@ func pathsFromFilesInDir(d string)[]string{
 func isFolder(path string) bool {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		log.Errorf("Error retrieving info from file in ADD")
+		log.Errorf("Error retrieving info from file %s\n", path)
 		return false
 	}
 

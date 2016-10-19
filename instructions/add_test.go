@@ -7,9 +7,9 @@ import (
 	"github.com/thehivecorporation/raccoon"
 )
 
-func TestExecuteAddInstruction(t *testing.T) {
+func Test_Integration_ExecuteAddInstruction(t *testing.T) {
 	node := raccoon.Host{
-		IP:       "127.0.0.1",
+		IP: "127.0.0.1",
 		Authentication: raccoon.Authentication{
 			Username: "root",
 			Password: "root",
@@ -27,8 +27,8 @@ func TestExecuteAddInstruction(t *testing.T) {
 			Name:        "ADD",
 			Description: "Add description",
 		},
-		DestPath:    "/tmp",
-		SourcePath:  f.Name(),
+		DestPath:   "/tmp",
+		SourcePath: f.Name(),
 	}
 
 	imageName := "rastasheep/ubuntu-sshd:14.04"
@@ -63,7 +63,7 @@ func TestExecuteAddInstruction(t *testing.T) {
 	add.Execute(node)
 }
 
-func TestCopyFileToHost(t *testing.T) {
+func Test_Integration_CopyFileToHost(t *testing.T) {
 	node := raccoon.Host{}
 	node.IP = "127.0.0.1"
 	node.Username = "root"
