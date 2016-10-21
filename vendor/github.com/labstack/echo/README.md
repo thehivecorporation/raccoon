@@ -1,6 +1,6 @@
 # [Echo](http://labstack.com/echo) [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/labstack/echo) [![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/labstack/echo/master/LICENSE) [![Build Status](http://img.shields.io/travis/labstack/echo.svg?style=flat-square)](https://travis-ci.org/labstack/echo) [![Coverage Status](http://img.shields.io/coveralls/labstack/echo.svg?style=flat-square)](https://coveralls.io/r/labstack/echo) [![Join the chat at https://gitter.im/labstack/echo](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg?style=flat-square)](https://gitter.im/labstack/echo) [![Twitter](https://img.shields.io/badge/twitter-@labstack-55acee.svg?style=flat-square)](https://twitter.com/labstack)
 
-## Don't forget to try the upcoming [v3](https://github.com/labstack/echo/tree/v3) tracked [here]( https://github.com/labstack/echo/issues/665)
+## Don't forget to try the upcomping [v3](https://github.com/labstack/echo/tree/v3) tracked [here]( https://github.com/labstack/echo/issues/665)
 
 #### Fast and unfancy HTTP server framework for Go (Golang). Up to 10x faster than the rest.
 
@@ -34,13 +34,9 @@
 
 ### Installation
 
-Echo is developed and tested using Go `1.6.x` and `1.7.x`
-
 ```sh
 $ go get -u github.com/labstack/echo
 ```
-
-> Ideally, you should rely on a [package manager](https://github.com/avelino/awesome-go#package-management) like glide or govendor to use a specific [version](https://github.com/labstack/echo/releases) of Echo.
 
 ### Hello, World!
 

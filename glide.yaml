@@ -1,0 +1,17 @@
+package: github.com/thehivecorporation/raccoon
+import:
+- package: github.com/Sirupsen/logrus
+  version: ~0.10.0
+- package: github.com/codegangsta/cli
+  version: ~1.18.1
+- package: github.com/fatih/color
+  version: ~1.1.0
+- package: github.com/labstack/echo
+  version: ~2.1.0
+  subpackages:
+  - engine/standard
+  - middleware
+- package: golang.org/x/crypto
+  subpackages:
+  - ssh
+  - ssh/terminal
