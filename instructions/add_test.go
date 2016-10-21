@@ -29,14 +29,6 @@ func Test_Integration_ExecuteAddInstruction(t *testing.T) {
 		SourcePath: f.Name(),
 	}
 
-	//imageName := "rastasheep/ubuntu-sshd:14.04"
-	//containerID, err := launchContainer(imageName)
-	//passOrError(err, t.Fatal)
-	//
-	//defer cleanupContainer(containerID)
-	//
-	//time.Sleep(2 * time.Second)
-	//
 	err = host.InitializeNode()
 	passOrError(err, t.Fatal)
 
@@ -84,15 +76,6 @@ func Test_Integration_CopyFileToHost(t *testing.T) {
 		},
 		DestPath: "/tmp/raccoon",
 	}
-
-	//Prepare: Launch a docker container with sshd running, user root and
-	//password root. The file will be sent to this container
-	//imageName := "rastasheep/ubuntu-sshd:14.04"
-	//
-	//containerID, err := launchContainer(imageName)
-	//passOrError(err, t.Fatal)
-	//
-	//defer cleanupContainer(containerID)
 
 	err := host.InitializeNode()
 	passOrError(err, t.Fatal)

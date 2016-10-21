@@ -1,20 +1,13 @@
 package instructions
 
 import (
-	"context"
 	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"golang.org/x/crypto/ssh"
 
-	"github.com/docker/engine-api/client"
-	"github.com/docker/engine-api/types"
-	"github.com/docker/engine-api/types/container"
-	"github.com/docker/engine-api/types/network"
-	"github.com/docker/go-connections/nat"
 	"fmt"
 )
 
@@ -46,86 +39,6 @@ func (t *IOWriterTester) Write(p []byte) (n int, err error) {
 		t.T.Errorf("String %s not found on io.Writer (Found '%s')\n", t.ExpectedString, content)
 	}
 	return len(p), nil
-}
-
-func cleanupContainer(ID string) error {
-	cli, err := getDockerCLIPrototype()
-	if err != nil {
-		return err
-	}
-
-	timeout := time.Duration(15 * time.Second)
-	err = cli.ContainerStop(context.Background(), ID, &timeout)
-	if err != nil {
-		return err
-	}
-
-	err = cli.ContainerRemove(context.Background(), ID,
-		types.ContainerRemoveOptions{
-		Force: true,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getDockerCLIPrototype() (*client.Client, error) {
-	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	cli, err := client.NewClient("unix:///var/run/docker.sock", "v1.20", nil,
-		defaultHeaders)
-	return cli, err
-}
-
-func launchContainer(imageName string) (string, error) {
-	cli, err := getDockerCLIPrototype()
-	if err != nil {
-		return "", err
-	}
-
-	readCloser, err := cli.ImagePull(context.Background(), imageName,
-		types.ImagePullOptions{})
-	if err != nil {
-		return "", err
-	}
-
-	readCloser.Close()
-
-	config := &container.Config{
-		ExposedPorts: map[nat.Port]struct{}{
-			"22/tcp": {},
-		},
-		Image: imageName,
-	}
-
-	hostConfig := &container.HostConfig{
-		AutoRemove: true,
-		PortBindings: nat.PortMap{
-			"22/tcp": {
-				nat.PortBinding{
-					HostIP:   "127.0.0.1",
-					HostPort: "22/tcp",
-				},
-			},
-		},
-	}
-	networkConfig := &network.NetworkingConfig{}
-	resp, err := cli.ContainerCreate(context.Background(), config, hostConfig,
-		networkConfig, "test_sshd")
-	if err != nil {
-		return "", err
-	}
-
-	err = cli.ContainerStart(context.Background(), resp.ID,
-		types.ContainerStartOptions{})
-	if err != nil {
-		return resp.ID, err
-	}
-
-	fmt.Printf("Container launched\n")
-
-	return resp.ID, nil
 }
 
 func passOrError(err error, f func(args ...interface{})) {
