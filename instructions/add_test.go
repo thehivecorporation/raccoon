@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/thehivecorporation/raccoon"
+	"fmt"
 )
 
 var targetHostIP = "127.0.0.1"
@@ -49,7 +50,8 @@ func Test_Integration_ExecuteAddInstruction(t *testing.T) {
 	testSession.Stdout = testWriter
 	testSession.Stderr = testWriter
 
-	if err := testSession.Run("cat /tmp/raccoon && rm /tmp/raccoon"); err != nil {
+	if err := testSession.Run(fmt.Sprintf("cat %s", f.Name())); err != nil {
+	//if err := testSession.Run("cat /tmp/raccoon && rm /tmp/raccoon"); err != nil {
 		t.Error(err)
 	}
 }
@@ -115,7 +117,7 @@ func Test_Integration_CopyFileToHost(t *testing.T) {
 	testSession.Stdout = testWriter
 	testSession.Stderr = testWriter
 
-	if err := testSession.Run("cat /tmp/raccoon && rm /tmp/raccoon"); err != nil {
+	if err := testSession.Run(fmt.Sprintf("cat %s", f.Name())); err != nil {
 		t.Error(err)
 	}
 }
