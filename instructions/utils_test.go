@@ -43,7 +43,7 @@ func (t *IOWriterTester) Write(p []byte) (n int, err error) {
 		t.T.Log(content)
 	}
 	if !strings.Contains(content, t.ExpectedString) {
-		t.T.Errorf("String %s not found on io.Writer", t.ExpectedString)
+		t.T.Errorf("String %s not found on io.Writer (Found '%s')\n", t.ExpectedString, content)
 	}
 	return len(p), nil
 }
@@ -135,14 +135,14 @@ func passOrError(err error, f func(args ...interface{})) {
 }
 
 //Session must be closed manually
-func createSessionPrototype() (*ssh.Session, error) {
+func createSessionPrototype(hostIp string, port int) (*ssh.Session, error) {
 	clientConfig := &ssh.ClientConfig{
 		User: "root",
 		Auth: []ssh.AuthMethod{
 			ssh.Password("root"),
 		},
 	}
-	client, err := ssh.Dial("tcp", "127.0.0.1:22", clientConfig)
+	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", hostIp, port), clientConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to dial: " + err.Error())
 	}
@@ -154,7 +154,7 @@ func createSessionPrototype() (*ssh.Session, error) {
 }
 
 func createTestFileWithContent(c string) (*os.File, error) {
-	os.MkdirAll("/tmp/raccoon", os.ModeDir)
+	os.MkdirAll("/tmp/raccoon", 0777)
 
 	f, err := ioutil.TempFile("/tmp/raccoon/", "raccoon")
 	if err != nil {

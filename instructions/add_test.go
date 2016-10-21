@@ -7,14 +7,12 @@ import (
 	"github.com/thehivecorporation/raccoon"
 )
 
+var targetHostIP = "127.0.0.1"
+var targetUsername = "root"
+var targetPassword = "root"
+
 func Test_Integration_ExecuteAddInstruction(t *testing.T) {
-	node := raccoon.Host{
-		IP: "127.0.0.1",
-		Authentication: raccoon.Authentication{
-			Username: "root",
-			Password: "root",
-		},
-	}
+	host := getPrototypeHost()
 
 	testContents := "Hello raccoon2\n"
 	f, err := createTestFileWithContent(testContents)
@@ -27,25 +25,28 @@ func Test_Integration_ExecuteAddInstruction(t *testing.T) {
 			Name:        "ADD",
 			Description: "Add description",
 		},
-		DestPath:   "/tmp",
+		DestPath:   "/tmp/raccoon",
 		SourcePath: f.Name(),
 	}
 
-	imageName := "rastasheep/ubuntu-sshd:14.04"
-	containerID, err := launchContainer(imageName)
+	//imageName := "rastasheep/ubuntu-sshd:14.04"
+	//containerID, err := launchContainer(imageName)
+	//passOrError(err, t.Fatal)
+	//
+	//defer cleanupContainer(containerID)
+	//
+	//time.Sleep(2 * time.Second)
+	//
+	err = host.InitializeNode()
 	passOrError(err, t.Fatal)
 
-	defer cleanupContainer(containerID)
+	add.Execute(host)
+	host.CloseNode()
 
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 
-	err = node.InitializeNode()
+	testSession, err := createSessionPrototype(targetHostIP, 22)
 	passOrError(err, t.Fatal)
-
-	add.Execute(node)
-
-	testSession, err := createSessionPrototype()
-	passOrError(err, t.Error)
 	defer testSession.Close()
 
 	testWriter := &IOWriterTester{
@@ -56,37 +57,44 @@ func Test_Integration_ExecuteAddInstruction(t *testing.T) {
 	testSession.Stdout = testWriter
 	testSession.Stderr = testWriter
 
-	testSession.Run("cat " + f.Name())
+	if err := testSession.Run("cat /tmp/raccoon && rm /tmp/raccoon"); err != nil {
+		t.Error(err)
+	}
+}
 
-	//Pass a non existing file
-	add.SourcePath = "/tmp/iDoNotExist"
-	add.Execute(node)
+func getPrototypeHost() raccoon.Host {
+	host := raccoon.Host{
+		IP: targetHostIP,
+		Authentication: raccoon.Authentication{
+			Username: targetUsername,
+			Password: targetPassword,
+		},
+	}
+
+	return host
 }
 
 func Test_Integration_CopyFileToHost(t *testing.T) {
-	node := raccoon.Host{}
-	node.IP = "127.0.0.1"
-	node.Username = "root"
-	node.Password = "root"
+	host := getPrototypeHost()
 
 	add := ADD{
 		Command: raccoon.Command{
 			Name:        "ADD",
 			Description: "Adding a file to destination target",
 		},
-		DestPath: "/tmp",
+		DestPath: "/tmp/raccoon",
 	}
 
 	//Prepare: Launch a docker container with sshd running, user root and
 	//password root. The file will be sent to this container
-	imageName := "rastasheep/ubuntu-sshd:14.04"
+	//imageName := "rastasheep/ubuntu-sshd:14.04"
+	//
+	//containerID, err := launchContainer(imageName)
+	//passOrError(err, t.Fatal)
+	//
+	//defer cleanupContainer(containerID)
 
-	containerID, err := launchContainer(imageName)
-	passOrError(err, t.Fatal)
-
-	defer cleanupContainer(containerID)
-
-	err = node.InitializeNode()
+	err := host.InitializeNode()
 	passOrError(err, t.Fatal)
 
 	//Prepare: Create a temp file to pass in with the contents "Hello Raccoon"
@@ -99,8 +107,8 @@ func Test_Integration_CopyFileToHost(t *testing.T) {
 	defer f.Close()
 
 	//Prepare: Create a session with the container
-	time.Sleep(2 * time.Second) //Give the container some time to launch
-	session, err := node.GetSession()
+	time.Sleep(1 * time.Second) //Give the container some time to launch
+	session, err := host.GetSession()
 	passOrError(err, t.Fatal)
 
 	defer session.Close()
@@ -111,7 +119,7 @@ func Test_Integration_CopyFileToHost(t *testing.T) {
 
 	//Test: Check that the file exists in the target machine on path /tmp. The
 	//file must have the same name and content in the target machine
-	testSession, err := createSessionPrototype()
+	testSession, err := createSessionPrototype(host.IP, host.SSHPort)
 	passOrError(err, t.Fatal)
 
 	defer testSession.Close()
@@ -124,5 +132,7 @@ func Test_Integration_CopyFileToHost(t *testing.T) {
 	testSession.Stdout = testWriter
 	testSession.Stderr = testWriter
 
-	testSession.Run("cat " + f.Name())
+	if err := testSession.Run("cat /tmp/raccoon && rm /tmp/raccoon"); err != nil {
+		t.Error(err)
+	}
 }
