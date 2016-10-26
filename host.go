@@ -41,9 +41,6 @@ type Host struct {
 	HostLogger *logrus.Logger
 }
 
-//Specific logger for Node package
-//var hostLogger = logrus.New()
-
 //Iterator used as "global variable" to get a new color from following array
 var colorIter int = 0
 
@@ -191,7 +188,6 @@ func (h *Host) GetSession() (*ssh.Session, error) {
 	combinedOutput := io.MultiReader(stderr, stdout)
 
 	go h.sessionListenerRoutine(bufio.NewScanner(combinedOutput))
-	//go h.sessionListenerRoutine(bufio.NewScanner(stderr))
 
 	return session, nil
 }
